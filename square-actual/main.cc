@@ -1,39 +1,41 @@
 #include <iostream>
 #include <stdio.h>
 #include <libplayerc++/playerc++.h>
-#include "args.h"
 using namespace PlayerCc;
 
 int
 main(int argc, char *argv[])
 {
-	// Parse input arguments
-	parse_args(argc,argv);
-
 	try
 	{
-		PlayerClient robot(gHostname, gPort);
-		Position2dProxy pp(&robot, gIndex);
+		PlayerClient robot("localhost", 6665);
+		Position2dProxy pp(&robot, 0);
 
-		// Speed and turn settings
-		double turn_rate = 15;
-		double move_speed = 0.20;
-		
-		timespec move_sleep = { 24, 4 };
-		timespec turn_sleep = { 3, 0 };
-		timespec stop_sleep = { 10, 0 };
+        for (int i = 0; i < 4; i++) {
+
+          // KØR FREMAD!
+          double move_speed = 0.2;
+          timespec move_sleep = {5, 0};
+          double move_turn_rate = 0.0;
 	
-		// move 1, turn 1
-		pp.SetSpeed(move_speed, DTOR(turn_rate));
-		nanosleep(&move_sleep, NULL);
-		pp.SetSpeed(move_speed, DTOR(-turn_rate));
-		nanosleep(&move_sleep, NULL);
+          pp.SetSpeed(move_speed, DTOR(move_turn_rate));
+          nanosleep(&move_sleep, NULL);
 
+          // DREJ!
+          double turn_speed = 0.0;
+          timespec turn_sleep = {6, 0};
+          double turn_turn_rate = 15.0;
 
-	
-		// Set motor stop command and wait so they can propagate
+          pp.SetSpeed(turn_speed, DTOR(turn_turn_rate));
+          nanosleep(&turn_sleep, NULL);
+
+        }
+
+		// STOP!
+        timespec stop_sleep = {1, 0};
 		pp.SetSpeed(0, 0);
 		nanosleep(&stop_sleep, NULL);
+        
 	} //end try
 	catch (PlayerCc::PlayerError e)
 	{

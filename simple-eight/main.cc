@@ -7,21 +7,28 @@ void run_square(char* host, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
 
   double move_speed = 0.2;
-  double turn_rate = 30.0;
-  timespec move_sleep = {12, 000000000};
+  double turn_rate = 20.0;
+  timespec move_sleep = {18, 200000000};
+  timespec move_straight = {0, 100000000};
 
+  pp.SetSpeed(move_speed, 0);
+  nanosleep(&move_straight, NULL);
 
   while (true) {
-    move_speed = 0.2;
-    turn_rate = 30.0;
-    move_sleep = {12, 000000000};
+    //move_speed = 0.2;
+    turn_rate = 20.0;
+    //move_sleep = {12, 000000000};
 
     pp.SetSpeed(move_speed, DTOR(turn_rate));
     nanosleep(&move_sleep, NULL);
 
-    move_speed = 0.2;
-    turn_rate = -30.0;
-    move_sleep = {12, 000000000};
+    //pp.SetSpeed(move_speed, 0);
+    //nanosleep(&move_straight, NULL);
+    //nanosleep(&move_straight, NULL);
+
+    //move_speed = 0.2;
+    turn_rate = -20.0;
+    //move_sleep = {12, 000000000};
 
     pp.SetSpeed(move_speed, DTOR(turn_rate));
     nanosleep(&move_sleep, NULL);

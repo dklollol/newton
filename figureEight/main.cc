@@ -1,43 +1,59 @@
 #include <iostream>
-#include <stdio.h>
 #include <libplayerc++/playerc++.h>
-#include <args.h>
 using namespace PlayerCc;
 
-int
-main(int argc, char *argv[])
-{
-	// Parse input arguments
-	parse_args(argc,argv);
+void run_square(char* host, int port, int device_index) {
+  PlayerClient robot(host, port);
+  Position2dProxy pp(&robot, device_index);
 
-	try
-	{
-		PlayerClient robot(gHostname, gPort);
-		Position2dProxy pp(&robot, gIndex);
+  double move_speed = 0.2;
+  timespec move_sleep = {0, 500000000};
+  double turn_rate = 0.0;
 
-		// Speed and turn settings
-		double turn_rate = 15;
-		double move_speed = 0.20;
-		
-		timespec move_sleep = { 24, 4 };
-		timespec turn_sleep = { 3, 0 };
-		timespec stop_sleep = { 10, 0 };
-	
-		// move 1, turn 1
-		pp.SetSpeed(move_speed, DTOR(turn_rate));
-		nanosleep(&move_sleep, NULL);
-		pp.SetSpeed(move_speed, DTOR(-turn_rate));
-		nanosleep(&move_sleep, NULL);
+  double magic = 45;
+  int x = 0;
+  while (true) {
 
+    if (x >= 360) {
+      turn_rate = sin(DTOR(x)) * magic;
+    }
+    else {
+      turn_rate = -sin(DTOR(x)) * magic;
+    }
+    printf("x: %d\n", x);
+    printf("turn rate: %f\n", turn_rate);
+    
+    pp.SetSpeed(move_speed, DTOR(turn_rate));
+    nanosleep(&move_sleep, NULL);
 
-	
-		// Set motor stop command and wait so they can propagate
-		pp.SetSpeed(0, 0);
-		nanosleep(&stop_sleep, NULL);
-	} //end try
-	catch (PlayerCc::PlayerError e)
-	{
-		std::cerr << e << std::endl;
-		return -1;
-	}
+    x = x + 10;
+    if (x > 720) {
+      x = 0;
+    }
+  }
+
+  // STOP!
+  timespec stop_sleep = {1, 0};
+  pp.SetSpeed(0, 0);
+  nanosleep(&stop_sleep, NULL);
+}
+
+int main(int argc, char* argv[]) {
+  char* host;
+  if (argc > 1) {
+    host = argv[1];
+  }
+  else {
+    host = (char*) "localhost";
+  }
+
+  const int port = 6665;
+  const int device_index = 0;
+  try {
+    run_square(host, port, device_index);
+    return EXIT_SUCCESS;
+  } catch (PlayerCc::PlayerError e) {
+    std::cerr << e << std::endl;
+    return EXIT_FAILURE;
+  }
 }

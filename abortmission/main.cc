@@ -1,23 +1,31 @@
-#include <iostream>
 #include <libplayerc++/playerc++.h>
+#include <iostream>
+#include <args-debugexperiments.h>
+#include <scorpion.h>
+#include <time.h>
+#include <curses.h>
 using namespace PlayerCc;
 
 void run_abortmission(char* host, int port, int device_index) {
   PlayerClient robot(host, port);
   Position2dProxy pp(&robot, device_index);
-  IrProxy ir(&robot, 0);
-
-  // We have to read and wait a little to get subscriptions..
-  robot.Read();
-  sleep(5);
-  robot.Read();
+  IrProxy ir(&robot, gIndex);
 
   double move_speed = 0.2;
-  timespec move_sleep_init = {1, 0};
+  double turn_speed = 0;
 
   while (true) {
-    printf("%f,", ir.GetRange(2));
-    nanosleep(&move_sleep_init, NULL);
+    robot.Read();
+    if (ir.GetRange(2) < 0.5) {
+      if (ir.GetRange(4) - ir.GetRange(3) > 0) {
+        pp.SetSpeed(0, DTOR(30)); //NW
+      } else {
+        pp.SetSpeed(0, DTOR(-30)); //NE
+      }
+    } else {
+      pp.SetSpeed(move_speed, 0); //N
+    }
+    //nanosleep(&move_sleep_init, NULL);
   }
 }
 

@@ -14,6 +14,9 @@ void run_abortmission(char* host, int port, int device_index) {
   double move_speed = 0.2;
   double turn_speed = 0;
 
+  int count = ir.GetCount();
+  printf("%d\n", count);
+
   while (true) {
     robot.Read();
     if (ir.GetRange(2) < 0.5) {

@@ -7,10 +7,10 @@ CXXFLAGS = `pkg-config --cflags playerc++` -Wall -Wextra $(IGNORE_LIBPLAYER_SLAM
 LIBS = `pkg-config --libs playerc++`
 
 # Main executable
-EXECUTABLE = abortmission
+EXECUTABLE = main
 
 # Files
-SOURCES = abortmission.cc
+SOURCES = main.cc
 OBJECTS = $(patsubst %.cc, %.o, $(SOURCES))
 
 ## Compilation

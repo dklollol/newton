@@ -1,0 +1,13 @@
+name "The Cave World"
+
+include "base/world.cfg"
+
+# Size of the world in meters.
+size [16 16]
+
+basicmap
+(
+  name "Cave map"
+  bitmap "cave.png"
+  size [16 16]
+)

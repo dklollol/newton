@@ -1,24 +1,31 @@
-.PHONY: clean
+.PHONY: all clean
+
+# Misc. flags
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+STAGE_FLAGS = -DUSING_STAGE
 
 # Compiler and link flags
-CXX =  g++
-IGNORE_LIBPLAYER_SLAM_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
-CXXFLAGS = `pkg-config --cflags playerc++` -Wall -Wextra $(IGNORE_LIBPLAYER_SLAM_FLAGS)
+CXX = g++
+CXXFLAGS = `pkg-config --cflags playerc++`
+CXXFLAGS += -Wall -Wextra
+CXXFLAGS += $(IGNORE_LIBPLAYER_JUNK_FLAGS)
 LIBS = `pkg-config --libs playerc++`
 
-# Main executable
+# Executables
 EXECUTABLE = main
+EXECUTABLE_STAGE = main-stage
 
 # Files
-SOURCES = main.cc
-OBJECTS = $(patsubst %.cc, %.o, $(SOURCES))
+SOURCES = main.cc sleep.hpp
 
-## Compilation
-all: $(OBJECTS)
-	$(CXX) $(OBJECTS) $(LIBS) -o $(EXECUTABLE)
+# Compilation
+all: $(EXECUTABLE) $(EXECUTABLE_STAGE)
 
-%.o: %.cc
-	$(CXX) $(CXXFLAGS) -c $^
+$(EXECUTABLE): $(SOURCES)
+	$(CXX) $(CXXFLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE)
+
+$(EXECUTABLE_STAGE): $(SOURCES)
+	$(CXX) $(CXXFLAGS) $(STAGE_FLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE_STAGE)
 
 clean:
-	rm -f *.o $(EXECUTABLE)
+	rm -f *.o $(EXECUTABLE) $(EXECUTABLE_STAGE)

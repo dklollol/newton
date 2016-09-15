@@ -1,18 +1,13 @@
 #include <libplayerc++/playerc++.h>
-#include <iostream>
-#include <args-debugexperiments.h>
-#include <scorpion.h>
-#include <time.h>
-#include <curses.h>
+#include "sleep.hpp"
 using namespace PlayerCc;
 
-void run_abortmission(char* host, int port, int device_index) {
-  PlayerClient robot(host, port);
+void run(char* hostname, int port, int device_index) {
+  PlayerClient robot(hostname, port);
   Position2dProxy pp(&robot, device_index);
-  IrProxy ir(&robot, gIndex);
+  IrProxy ir(&robot, device_index);
 
   double move_speed = 0.2;
-  double turn_speed = 0;
 
   while (true) {
     robot.Read();
@@ -25,7 +20,7 @@ void run_abortmission(char* host, int port, int device_index) {
     } else {
       pp.SetSpeed(move_speed, 0); //N
     }
-    //nanosleep(&move_sleep_init, NULL);
+    sleep(0.01); // 0.02 seconds == 20 milliseconds
   }
 }
 
@@ -41,7 +36,7 @@ int main(int argc, char* argv[]) {
   const int port = 6665;
   const int device_index = 0;
   try {
-    run_abortmission(host, port, device_index);
+    run(host, port, device_index);
     return EXIT_SUCCESS;
   } catch (PlayerCc::PlayerError e) {
     std::cerr << e << std::endl;

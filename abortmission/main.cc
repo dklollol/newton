@@ -13,14 +13,16 @@ void run(char* hostname, int port, int device_index) {
     robot.Read();
     if (ir.GetRange(2) < 0.5) {
       if (ir.GetRange(4) - ir.GetRange(3) > 0) {
-        pp.SetSpeed(0, DTOR(30)); //NW
+        pp.SetSpeed(0, DTOR(180)); //NW
       } else {
-        pp.SetSpeed(0, DTOR(-30)); //NE
+        pp.SetSpeed(0, DTOR(-180)); //NE
       }
+      sleep(1.0);
+      pp.SetSpeed(move_speed, 0); //N
     } else {
       pp.SetSpeed(move_speed, 0); //N
     }
-    sleep(0.01); // 0.02 seconds == 20 milliseconds
+    sleep(0.02); // 0.02 seconds == 20 milliseconds
   }
 }
 

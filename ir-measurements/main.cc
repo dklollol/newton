@@ -16,9 +16,9 @@ void run(char* hostname, int port, int device_index) {
   for (int i = 10; i <= 60; i += 10) {
     printf("Ready to measure distance at %d centimeters?\n", i);
     wait();
-    robot.Read();
     fprintf(f, "%d cm\n", i);
     for (int j = 0; j < 20; j++) {
+      robot.Read();
       dist = ir.GetRange(2);
       fprintf(f, "%lf ", dist);
       sleep(0.01);

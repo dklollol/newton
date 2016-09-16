@@ -1,6 +1,9 @@
 #include <libplayerc++/playerc++.h>
-#include <ctime>
 using namespace PlayerCc;
+
+void wait() {
+  getc(stdin);
+}
 
 void sleep(double seconds) {
   struct timespec spec;
@@ -18,22 +21,25 @@ void run(char* hostname, int port, int device_index) {
   PlayerClient robot(hostname, port);
   set_pull_mode(&robot);
 
-  Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
-  double speed = 0.2;
-  double turn = 0.0;
+  FILE* f = fopen("measurements.txt", "w");
 
-  pp.SetSpeed(speed, DTOR(turn));
-
-  while (true) {
-    sleep(0.8);
-    robot.Read();
-    printf("Number of IR range sensors: %i\n", ir.GetCount());
-    for (uint i = 0; i < ir.GetCount(); i++) {
-      printf("IR sensor %i: %f\n", i, ir.GetRange(i));
+  double dist;
+  for (int i = 10; i <= 60; i += 10) {
+    printf("Ready to measure distance at %d centimeters?\n", i);
+    wait();
+    fprintf(f, "%d cm\n", i);
+    for (int j = 0; j < 20; j++) {
+      robot.Read();
+      dist = ir.GetRange(2);
+      fprintf(f, "%lf ", dist);
+      sleep(0.01);
     }
+    fprintf(f, "\n");
   }
+
+  fclose(f);
 }
 
 int main(int argc, char* argv[]) {

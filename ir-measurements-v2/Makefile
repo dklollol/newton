@@ -23,4 +23,4 @@ $(EXECUTABLE): $(SOURCES)
 	$(CXX) $(CXXFLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE)
 
 clean:
-	rm -f $(EXECUTABLE)
+	rm -f *.o $(EXECUTABLE)

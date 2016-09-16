@@ -21,9 +21,9 @@ void run(char* hostname, int port, int device_index) {
     for (int j = 0; j < 20; j++) {
       dist = ir.GetRange(2);
       fprintf(f, "%lf ", dist);
-      fprintf(f, "\n");
       sleep(0.01);
     }
+    fprintf(f, "\n");
   }
 
   fclose(f);

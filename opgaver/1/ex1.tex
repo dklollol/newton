@@ -25,20 +25,29 @@
 
 \section{ Sub-exercise 1: Simple movement}
 
-For the first assigment we chose to use a constant speed for the scorpion at 0.2 which equates to 20 cm/sec or 1 meter in 5 seconds.
-
-We also ran it in the simulator
-
-Tried with speed 1 in the simulator, but probably too fast for real robot
+We began by testing how far we would drive with different speed values. We found out that the scorpion robot takes an input from 1 to -1 which is in meters/sec. For the first assigment we chose to use a constant speed for the scorpion at 0.2 which equates to 20 cm/sec or 1 meter in 5 seconds.
 
 \subsection{square}
 
-Our program square loops driving 1 meter in 5 secounds,  and turns 90 degrees left in 6 seconds. This program is looped 4 times before stopping.
+Our program square loops driving 1 meter in 5 secounds,  and turns 15 degrees/sec left in 6 seconds totaling 90. This program is looped 4 times before stopping. This should result in a perfect square but due to observations small tweeks had to be made.
+\newline
+\newline
+To ensure the robot is at speed we started by driving for 300 miliseconds forward and we positioned the robot 5 degrees to the left due to initial jearking on opstart.
+\newline
+\newline
+To allow the robot to accelerate after turning we added 100 miliseconds when it drives forward after turning. These tweeks give us a square like shape with a inaccuracy of 2-3 cm.
+
+\newpage 
 
 \section{ Sub-exercise 2: Continuous motion}
 
+We began by testing that the turn rate equates to radians/sec and trying to make the robot drive in a perfect ciricle. We tested using 18 degrees in radians which in 20 seconds would turn 360 degrees. Like the previoues sub-exercise we used a driving speed of 20 cm/sec.
+
 \subsection{simple-eight}
 
-\subsection{trigonometry}
+Our program simple-eight infinitly loops two sections, one turning at 20 degrees/sec to the left, at a speed of 20cm/sec for 18 secounds. The other section does the same to the right, giving us a eight shaped figure of continoues motion.
+\newline
+\newline
+Like the previous sub-exercise we also had to tweek the program to make it more accurate. We had the robot begin by driving forward for 300 miliseconds to accelerate and it turns for an aditional 200 miliseconds to account for drifting.
 
 \end{document}

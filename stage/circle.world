@@ -1,0 +1,13 @@
+name "The Circle World"
+
+include "base/world.cfg"
+
+# Size of the world in meters.
+size [16 16]
+
+basicmap
+(
+  name "Circle map"
+  bitmap "circle.png"
+  size [16 16]
+)

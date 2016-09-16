@@ -7,23 +7,19 @@ void run(char* hostname, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
-  double move_speed = 0.2;
+  double speed = 0.2;
+  double turn = 0.0;
+
+  pp.SetSpeed(speed, DTOR(turn));
 
   while (true) {
+    sleep(0.8);
     robot.Read();
-    if (ir.GetRange(2) < 0.5) {
-      if (ir.GetRange(4) - ir.GetRange(3) > 0) {
-        pp.SetSpeed(0, DTOR(180)); //NW
-      } else {
-        pp.SetSpeed(0, DTOR(-180)); //NE
-      }
-      sleep(1.0);
-      pp.SetSpeed(move_speed, 0); //N
-    } else {
-      pp.SetSpeed(move_speed, 0); //N
+    printf("Number of IR range sensors: %i\n", ir.GetCount());
+    for (uint i = 0; i < ir.GetCount(); i++) {
+      printf("IR sensor %i: %f\n", i, ir.GetRange(i));
     }
-    sleep(0.02); // 0.02 seconds == 20 milliseconds
-  }
+  }	
 }
 
 int main(int argc, char* argv[]) {

@@ -2,28 +2,31 @@
 #include "sleep.hpp"
 using namespace PlayerCc;
 
+void wait() {
+  getc(stdin);
+}
+
 void run(char* hostname, int port, int device_index) {
   PlayerClient robot(hostname, port);
-  Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
-  double move_speed = 0.2;
+  FILE* f = fopen("measurements.txt", "w");
 
-  while (true) {
-    robot.Read();
-    if (ir.GetRange(2) < 0.5) {
-      if (ir.GetRange(4) - ir.GetRange(3) > 0) {
-        pp.SetSpeed(0, DTOR(180)); //NW
-      } else {
-        pp.SetSpeed(0, DTOR(-180)); //NE
-      }
-      sleep(1.0);
-      pp.SetSpeed(move_speed, 0); //N
-    } else {
-      pp.SetSpeed(move_speed, 0); //N
+  double dist;
+  for (int i = 10; i <= 60; i += 10) {
+    printf("Ready to measure distance at %d centimeters?\n", i);
+    wait();
+    fprintf(f, "%d cm\n", i);
+    for (int j = 0; j < 20; j++) {
+      robot.Read();
+      dist = ir.GetRange(2);
+      fprintf(f, "%lf ", dist);
+      sleep(0.01);
     }
-    sleep(0.02); // 0.02 seconds == 20 milliseconds
+    fprintf(f, "\n");
   }
+
+  fclose(f);
 }
 
 int main(int argc, char* argv[]) {

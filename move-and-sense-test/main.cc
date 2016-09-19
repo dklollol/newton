@@ -1,9 +1,23 @@
 #include <libplayerc++/playerc++.h>
-#include "sleep.hpp"
+#include <ctime>
 using namespace PlayerCc;
+
+void sleep(double seconds) {
+  struct timespec spec;
+  spec.tv_sec = (time_t) seconds;
+  spec.tv_nsec = (long) ((seconds - (double) spec.tv_sec) * 10e8);
+  nanosleep(&spec, NULL);
+}
+
+void set_pull_mode(PlayerClient *robot) {
+  robot->SetDataMode(PLAYER_DATAMODE_PULL);
+  robot->SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
+}
 
 void run(char* hostname, int port, int device_index) {
   PlayerClient robot(hostname, port);
+  set_pull_mode(&robot);
+
   Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
@@ -19,7 +33,7 @@ void run(char* hostname, int port, int device_index) {
     for (uint i = 0; i < ir.GetCount(); i++) {
       printf("IR sensor %i: %f\n", i, ir.GetRange(i));
     }
-  }	
+  }
 }
 
 int main(int argc, char* argv[]) {

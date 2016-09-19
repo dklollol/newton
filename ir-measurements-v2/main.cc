@@ -1,6 +1,9 @@
 #include <libplayerc++/playerc++.h>
-#include <ctime>
 using namespace PlayerCc;
+
+void wait() {
+  getc(stdin);
+}
 
 void sleep(double seconds) {
   struct timespec spec;
@@ -14,51 +17,29 @@ void set_pull_mode(PlayerClient *robot) {
   robot->SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
 }
 
-
-#define N_SENSORS 13
-int detections[N_SENSORS];
-
-bool checkSensor(int index, double threshold, IrProxy* ir) {
-  if (ir->GetRange(index) < threshold && detections[index] < 10) {
-    detections[index] += 1;
-  } else {
-    detections[index] = 0;
-  }
-
-  return (detections[index] > 9);
-}
-
 void run(char* hostname, int port, int device_index) {
   PlayerClient robot(hostname, port);
   set_pull_mode(&robot);
 
-  Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
-  for (int i = 0; i < N_SENSORS; i++) {
-    detections[i] = 0;
+  FILE* f = fopen("measurements.txt", "w");
+
+  double dist;
+  for (int i = 10; i <= 60; i += 10) {
+    printf("Ready to measure distance at %d centimeters?\n", i);
+    wait();
+    fprintf(f, "%d cm\n", i);
+    for (int j = 0; j < 20; j++) {
+      robot.Read();
+      dist = ir.GetRange(2);
+      fprintf(f, "%lf ", dist);
+      sleep(0.01);
+    }
+    fprintf(f, "\n");
   }
 
-  double move_speed = 0.2;
-  double turn_speed = 10;
-
-  bool collision = false;
-
-  while (true) {
-    // Check for near collision.
-    for (int i = 0; i < 9; i++) {
-      if (checkSensor(i, 0.5, &ir)) {
-        collision = true;
-      }
-    }
-
-    if (collision) {
-      pp.SetSpeed(0, DTOR(turn_speed));
-    } else {
-      pp.SetSpeed(move_speed, 0);
-    }
-    sleep(0.01);
-  }
+  fclose(f);
 }
 
 int main(int argc, char* argv[]) {

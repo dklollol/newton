@@ -24,11 +24,11 @@ def main():
             if float(sample) == 1.6:
                 continue
             greenData.append(float(sample)*100)
-    mean0, SD0 = SD(greenData[:20])
-    mean10, SD10 = SD(greenData[20:40])
-    mean20, SD20 = SD(greenData[40:60])
-    mean30, SD30 = SD(greenData[60:80])
-    mean40, SD40 = SD(greenData[80:])
+    gmean0, gSD0 = SD(greenData[:20])
+    gmean10, gSD10 = SD(greenData[20:40])
+    gmean20, gSD20 = SD(greenData[40:60])
+    gmean30, gSD30 = SD(greenData[60:80])
+    gmean40, gSD40 = SD(greenData[80:])
     readData = open("pink.txt", "r").read()
     dataList = readData.splitlines()
     pinkData = []
@@ -41,11 +41,11 @@ def main():
             if float(sample) == 1.6:
                 continue
             pinkData.append(float(sample)*100)
-    mean0, SD0 = SD(pinkData[:20])
-    mean10, SD10 = SD(pinkData[20:40])
-    mean20, SD20 = SD(pinkData[40:60])
-    mean30, SD30 = SD(pinkData[60:80])
-    mean40, SD40 = SD(pinkData[80:])
+    pmean0, pSD0 = SD(pinkData[:20])
+    pmean10, pSD10 = SD(pinkData[20:40])
+    pmean20, pSD20 = SD(pinkData[40:60])
+    pmean30, pSD30 = SD(pinkData[60:80])
+    pmean40, pSD40 = SD(pinkData[80:])
     realDistance = []
     x = -10
     for i in range(5):
@@ -57,9 +57,9 @@ def main():
     print "Fit for green test: "+str(a) + "*x + " + str(b)
     fit_fn_green = np.poly1d((a, b))
     # fit_fn is now a function which takes in x and returns an estimate for y
-    plt.plot(greenData, realDistance, "o", color="green")
+    #plt.plot(greenData, realDistance, "o", color="green")
     plt.ylim(-5,45)
-    plt.plot(greenData, fit_fn_green(greenData), color="green", lw=4)
+    #plt.plot(greenData, fit_fn_green(greenData), color="green", lw=4)
     x = -10
     realDistance = []
     for i in range(5):
@@ -70,8 +70,21 @@ def main():
     a, b = np.polyfit(pinkData, realDistance, 1)
     fit_fn_pink = np.poly1d((a, b))
     print "Fit for pink test: "+str(a) + "*x + " + str(b)
+
     plt.plot(pinkData, realDistance, "o", color="magenta")
     plt.plot(pinkData, fit_fn_pink(pinkData), color="magenta", lw=4)
+    # #green error bars
+    # plt.errorbar(gmean0, 0, xerr=gSD0, marker="|", color="red", lw=3, markersize=30, markeredgewidth=3 )
+    # plt.errorbar(gmean10, 10, xerr=gSD10, marker="|", color="red", lw=3, markersize=30, markeredgewidth=3 )
+    # plt.errorbar(gmean20, 20, xerr=gSD20, marker="|", color="red", lw=3, markersize=30, markeredgewidth=3 )
+    # plt.errorbar(gmean30, 30, xerr=gSD30, marker="|", color="red", lw=3, markersize=30, markeredgewidth=3 )
+    # plt.errorbar(gmean40, 40, xerr=gSD40, marker="|", color="red", lw=3, markersize=30, markeredgewidth=3 )
+    # # pink error bars
+    plt.errorbar(pmean40, 40, xerr=pSD40, marker="|", color="blue", lw=3, markersize=30, markeredgewidth=5 )
+    plt.errorbar(pmean30, 30, xerr=pSD30, marker="|", color="blue", lw=3, markersize=30, markeredgewidth=5 )
+    plt.errorbar(pmean20, 20, xerr=pSD20, marker="|", color="blue", lw=3, markersize=30, markeredgewidth=5 )
+    plt.errorbar(pmean10, 10, xerr=pSD10, marker="|", color="blue", lw=3, markersize=30, markeredgewidth=5 )
+    plt.errorbar(pmean0, 0, xerr=pSD0, marker="|", color="blue", lw=3, markersize=30, markeredgewidth=5 )
     plt.ylabel("True Distance")
     plt.xlabel("Sampled Distance")
     plt.show()

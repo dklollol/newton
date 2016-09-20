@@ -18,6 +18,31 @@ void set_pull_mode(PlayerClient &robot) {
   robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
 }
 
+void do_work(Mat &I) {
+  size_t n_channels = I.channels();
+  size_t n_rows = I.rows;
+  size_t n_cols = I.cols * n_channels;
+
+  // printf("n_channels: %zd\n", n_channels);
+  // printf("n_rows: %zd\n", n_rows);
+  // printf("n_cols: %zd\n", n_cols);
+
+  // Color input format: BGR
+
+  size_t x, y;
+  uint8_t* p = I.ptr<uint8_t>(0);
+  size_t index;
+  for(y = 0; y < n_rows; y++) {
+    for (x = 0; x < n_cols; x++) {
+      index = y * n_cols + x;
+      if (x % 3 == 1) {
+        p[index] = 0;
+      }
+      // printf("(x:%04zd, y:%04zd) = %03hhu\n", x, y, p[index]);
+    }
+  }
+}
+
 int run(char* host, int port, int device_index) {
   // Prepare robot
   PlayerClient robot(host, port);
@@ -41,7 +66,7 @@ int run(char* host, int port, int device_index) {
   cvMoveWindow(WIN_RF, 400, 0);
 
   // Prepare frame storage
-  Mat frameReference;
+  Mat frame;
 
 
   double move_speed = 0.1;
@@ -52,15 +77,17 @@ int run(char* host, int port, int device_index) {
   while (true) {
     // Get picture
     cvWaitKey(4);
-    cam >> frameReference;
+    cam >> frame;
 
-    if (frameReference.empty()) {
+    if (frame.empty()) {
       fprintf(stderr, "warning: could not get picture\n");
       break;
     }
 
-    // Show frames
-    imshow(WIN_RF, frameReference);
+    do_work(frame);
+
+    // Show frame
+    imshow(WIN_RF, frame);
 
     //sleep(0.1);
   }

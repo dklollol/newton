@@ -25,16 +25,34 @@
 
 \section{Measurements}
 
-We started by measuring the robot's front IR sensor
-
-20 measurements per distance
+We started by measuring the robot's front IR sensor on seven distances: 0 cm, 10
+cm, 20 cm, 30 cm, 40 cm, 50 cm, and 60 cm.  We positioned the robot in front of
+a green piece of paper in a lit room and had it make 20 IR measurements at each
+distance.  The distance was from the robot's bumper to the piece of paper.
 
 
 \section{Driving}
 
 \subsection{Issue: Pull mode vs. push mode}
 
-Niels skriver noget her.  Virke i Stage også.
+We had a problem with wrong IR readings on the Scorpion robots \emph{and} in the
+Stage simulator.  When not constantly calling the \texttt{Read()} function, the
+\texttt{libplayer} API sometimes gave us old readings instead of current ones.
+After doing some research, we found out that the issue was because of how the
+default data mode was used by
+\texttt{libplayer}\footnote{\url{http://playerstage.sourceforge.net/doc/Player-cvs/player/group__libplayerc__datamodes.html}}.
+By default it uses PULL mode.  This mode sends messages to the client when asked
+to, but if the client does not read often enough, buffer overflows in the server
+queue can occur.  To get rid of this problem, and not have to call
+\texttt{Read()} all the time, we have set a \texttt{libplayer} replace rule:
+
+\begin{verbatim}
+robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
+\end{verbatim}
+
+This rule tells \texttt{libplayer} to ignore the buffer queue and just replace
+every old measurement with every new measurement, thus ensuring that
+\texttt{Read()} gets us the newest measurement.
 
 
 \subsection{Abortmission}

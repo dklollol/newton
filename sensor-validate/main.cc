@@ -2,26 +2,40 @@
 #include <ctime>
 using namespace PlayerCc;
 
-bool checkSensor(int index, float threshold, IrProxy &ir) {
-  return (ir.GetRange(index) < threshold);
-}
-void run_square(char* host, int port, int device_index) {
-  PlayerClient robot(host, port);
-  Position2dProxy pp(&robot, device_index);
-  IrProxy ir(&robot, gIndex);
+void sleep(double seconds) {
+  struct timespec spec;
+  spec.tv_sec = (time_t) seconds;
+  spec.tv_nsec = (long) ((seconds - (double) spec.tv_sec) * 10e8);
+  nanosleep(&spec, NULL);
+}
 
-  double move_speed = 0.2;
-  double turn_speed = 30;
+void set_pull_mode(PlayerClient &robot) {
+  robot.SetDataMode(PLAYER_DATAMODE_PULL);
+  robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
+}
+
+bool check_sensor(int index, float threshold, IrProxy &ir) {
+  return (ir.GetRange(index) < threshold);
+}
+
+void run(char* host, int port, int device_index) {
+  PlayerClient robot(host, port);
+  set_pull_mode(robot);
+
+  Position2dProxy pp(&robot, device_index);
+  IrProxy ir(&robot, device_index);
+
+  double move_speed = 1.0; //0.2;
+  double turn_speed = 90; //30;
 
   bool collision = false;
-
   while (true) {
     robot.Read();
     collision = false;
-    
-    //Check for near collision
+
+    // Check for near collision.
     for (int i = 0; i < 9; i++) {
-      if (checkSensor(i, 0.5, &ir)) {
+      if (check_sensor(i, 0.5, ir)) {
         collision = true;
       }
     }

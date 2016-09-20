@@ -14,12 +14,8 @@ void set_pull_mode(PlayerClient &robot) {
   robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
 }
 
-float ir_correction(float range) {
-  return range * 0.93569 - 0.103488;
-}
-
-bool check_sensor(int index, float threshold, IrProxy &ir) {	
-  return (ir_correction(ir.GetRange(index)) < threshold);
+bool check_sensor(int index, float threshold, IrProxy &ir) {
+  return (ir.GetRange(index) < threshold);
 }
 
 void run(char* host, int port, int device_index) {
@@ -30,26 +26,20 @@ void run(char* host, int port, int device_index) {
   IrProxy ir(&robot, device_index);
 
   double move_speed = 0.2;
-  double turn_speed = 30;
 
+  pp.SetSpeed(move_speed, 0);
+  
   bool collision = false;
-  while (true) {
+  while (!collision) {
     robot.Read();
-    collision = false;
 
     // Check for near collision.
     for (int i = 0; i < 9; i++) {
       if (check_sensor(i, 0.5, ir)) {
         collision = true;
+		pp.SetSpeed(0, 0);
       }
     }
-
-    if (collision) {
-      pp.SetSpeed(0, DTOR(turn_speed));
-    } else {
-      pp.SetSpeed(move_speed, 0);
-    }
-    sleep(0.01);
   }
 }
 

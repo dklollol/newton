@@ -57,7 +57,7 @@ every old measurement with every new measurement, thus ensuring that
 
 \subsection{Abortmission}
 
-Our first test program Abortmission worked by driving straight forward at 20 cm/sec forever. While checking every 20 ms, if the front ir sensor detected anything within 50 cm. If so we would turn 180 degrees/sec left or right for 1 secound. We determined the turning direction by comparing the distance readings of the left and right ir sensor relative to the center ir sensor, shown as red and blue in figure 1. We always turn towards the longest sensor reading of the two. If they were equal we would turn right.
+Our first test program Abortmission worked by driving straight forward at 20 cm/sec forever. While checking every 20 ms, if the front ir sensor detected anything within 50 cm. If so we would stop and turn 180 degrees/sec left or right for 1 secound. We determined the turning direction by comparing the distance readings of the left and right ir sensor relative to the center ir sensor, shown as red and blue in figure 1. We always turn towards the longest sensor reading of the two. If they were equal we would turn right.
 \newline
 \newline
 This solution just barely worked, since it only used the front sensor and arbitrability just turned 1 secound in the chosen direction.
@@ -72,8 +72,8 @@ This solution just barely worked, since it only used the front sensor and arbitr
 We initially implemented Sensor-validate to only belive a sensor if it read out a valid distance within our threshold 10 times in a row, otherwise its counter would be reset. This was to ignore invalid readings but ended up making us never belive any sensors. Therefore we changed it to just see any sensor reading, within our threshold, as a potential collision.
 \newline
 \newline
-Sensor-validate
-
-Mark skriver noget?
-
+Sensor-validate works by having the robot drive straight forward at 20 cm/sec forever. If any of the 9 front mounted sensors detect anything within 50 cm we stop and turn left at 30 degrees/sec until no sensors detect anything. 
+\newline
+\newline
+This solution worked well as the robot would stop, with a good safety distance acounting for deacceleration, and turning until nothing was in its way, before continuing. This solution was not perfect as the ir sensors could not reliably detect table legs, round objects or reflective surfaces as it woulden't get accurate sensor readings.
 \end{document}

@@ -14,8 +14,12 @@ void set_pull_mode(PlayerClient &robot) {
   robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
 }
 
-bool check_sensor(int index, float threshold, IrProxy &ir) {
-  return (ir.GetRange(index) < threshold);
+float ir_correction(float range) {
+  return range * 0.93569 - 0.103488;
+}
+
+bool check_sensor(int index, float threshold, IrProxy &ir) {	
+  return (ir_correction(ir.GetRange(index)) < threshold);
 }
 
 void run(char* host, int port, int device_index) {

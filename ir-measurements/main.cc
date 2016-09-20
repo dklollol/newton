@@ -13,15 +13,17 @@ void run(char* hostname, int port, int device_index) {
   FILE* f = fopen("measurements.txt", "w");
 
   double dist;
-  for (int i = 10; i <= 60; i += 10) {
+  for (int i = 0; i <= 40; i += 10) {
     printf("Ready to measure distance at %d centimeters?\n", i);
     wait();
     fprintf(f, "%d cm\n", i);
     for (int j = 0; j < 20; j++) {
       robot.Read();
+      //sleep(1);
       dist = ir.GetRange(2);
+      printf("Read: %lf\n", dist);
       fprintf(f, "%lf ", dist);
-      sleep(0.01);
+      sleep(0.5);
     }
     fprintf(f, "\n");
   }

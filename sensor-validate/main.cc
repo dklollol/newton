@@ -1,9 +1,5 @@
 #include <libplayerc++/playerc++.h>
-#include <iostream>
-#include <args-debugexperiments.h>
-#include <scorpion.h>
-#include <time.h>
-#include <curses.h>
+#include <ctime>
 using namespace PlayerCc;
 
 bool checkSensor(int index, float threshold, IrProxy &ir) {
@@ -25,16 +21,17 @@ void run_square(char* host, int port, int device_index) {
     
     //Check for near collision
     for (int i = 0; i < 9; i++) {
-      if (checkSensor(i, 0.5, ir)) {
+      if (checkSensor(i, 0.5, &ir)) {
         collision = true;
       }
     }
 
-    if (collision) {      
+    if (collision) {
       pp.SetSpeed(0, DTOR(turn_speed));
     } else {
-      pp.SetSpeed(move_speed, 0);      
+      pp.SetSpeed(move_speed, 0);
     }
+    sleep(0.01);
   }
 }
 
@@ -50,7 +47,7 @@ int main(int argc, char* argv[]) {
   const int port = 6665;
   const int device_index = 0;
   try {
-    run_square(host, port, device_index);
+    run(host, port, device_index);
     return EXIT_SUCCESS;
   } catch (PlayerCc::PlayerError e) {
     std::cerr << e << std::endl;

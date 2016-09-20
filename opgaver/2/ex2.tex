@@ -57,11 +57,22 @@ every old measurement with every new measurement, thus ensuring that
 
 \subsection{Abortmission}
 
-Our first test program Abortmission worked by driving straight forward at 20 cm/sec forever. While checking every 20 ms, if the front ir sensor detected anything within 50 cm. If so we would turn 180 degrees/sec left or right for 1 secound. We determined the turning direction by comparing distance readings of the left and right ir sensor relative to the center ir sensor.
+Our first test program Abortmission worked by driving straight forward at 20 cm/sec forever. While checking every 20 ms, if the front ir sensor detected anything within 50 cm. If so we would turn 180 degrees/sec left or right for 1 secound. We determined the turning direction by comparing the distance readings of the left and right ir sensor relative to the center ir sensor, shown as red and blue in figure 1. We always turn towards the longest sensor reading of the two. If they were equal we would turn right.
+\newline
+\newline
+This solution just barely worked, since it only used the front sensor and arbitrability just turned 1 secound in the chosen direction.
 
+\begin{figure}
 \includegraphics{robot2.png}
+\caption{Robot sensors}
+\end{figure}
 
 \subsection{Sensor-validate}
+
+We initially implemented Sensor-validate to only belive a sensor if it read out a valid distance within our threshold 10 times in a row, otherwise its counter would be reset. This was to ignore invalid readings but ended up making us never belive any sensors. Therefore we changed it to just see any sensor reading, within our threshold, as a potential collision.
+\newline
+\newline
+Sensor-validate
 
 Mark skriver noget?
 

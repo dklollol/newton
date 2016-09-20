@@ -25,8 +25,8 @@ void run(char* host, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
   IrProxy ir(&robot, device_index);
 
-  double move_speed = 1.0; //0.2;
-  double turn_speed = 90; //30;
+  double move_speed = 0.2;
+  double turn_speed = 30;
 
   bool collision = false;
   while (true) {

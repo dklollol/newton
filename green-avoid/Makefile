@@ -1,0 +1,26 @@
+.PHONY: all clean
+
+# Misc. flags
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+
+# Compiler and link flags
+CXX = g++
+CXXFLAGS = `pkg-config --cflags playerc++` `pkg-config --cflags opencv`
+CXXFLAGS += -Wall -Wextra
+CXXFLAGS += $(IGNORE_LIBPLAYER_JUNK_FLAGS)
+LIBS = `pkg-config --libs playerc++` `pkg-config --libs opencv`
+
+# Executables
+EXECUTABLE = main
+
+# Files
+SOURCES = main.cc
+
+# Compilation
+all: $(EXECUTABLE)
+
+$(EXECUTABLE): $(SOURCES)
+	$(CXX) $(CXXFLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE)
+
+clean:
+	rm -f $(EXECUTABLE)

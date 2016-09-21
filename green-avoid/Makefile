@@ -1,26 +1,30 @@
 .PHONY: all clean
 
-# Misc. flags
-IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
-
-# Compiler and link flags
 CXX = g++
-CXXFLAGS = `pkg-config --cflags playerc++` `pkg-config --cflags opencv`
-CXXFLAGS += -Wall -Wextra
-CXXFLAGS += $(IGNORE_LIBPLAYER_JUNK_FLAGS)
-LIBS = `pkg-config --libs playerc++` `pkg-config --libs opencv`
+CXXFLAGS = -Wall -Wextra
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+CXXFLAGS_PLAYER = `pkg-config --cflags playerc++`
+CXXFLAGS_PLAYER += $(IGNORE_LIBPLAYER_JUNK_FLAGS)
+CXXFLAGS_OPENCV = `pkg-config --cflags opencv`
+LIBS_PLAYER = `pkg-config --libs playerc++`
+LIBS_OPENCV = `pkg-config --libs opencv`
 
-# Executables
-EXECUTABLE = main
+all: camtest main
 
-# Files
-SOURCES = main.cc
+camtest: cam.o camtest.o
+	$(CXX) cam.o camtest.o $(LIBS_OPENCV) -o camtest
 
-# Compilation
-all: $(EXECUTABLE)
+main: cam.o main.o
+	$(CXX) cam.o main.o $(LIBS_PLAYER) $(LIBS_OPENCV) -o main
 
-$(EXECUTABLE): $(SOURCES)
-	$(CXX) $(CXXFLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE)
+cam.o: cam.cc
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_OPENCV) -c $^
+
+camtest.o: camtest.cc
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_OPENCV) -c $^
+
+main.o: main.cc
+	$(CXX) $(CXXFLAGS) $(CXXFLAGS_PLAYER) $(CXXFLAGS_OPENCV) -c $^
 
 clean:
-	rm -f $(EXECUTABLE)
+	rm -f *.o camtest main

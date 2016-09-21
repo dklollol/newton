@@ -1,5 +1,20 @@
 #include "cam.h"
 
+// 1 is most close, 0 is least close.
+double closeness_hue(double a, double b) {
+  double temp;
+
+  if (b < a) {
+    temp = a;
+    a = b;
+    b = temp;
+  }
+
+  double linear = 1.0 - min(b - a, a + 360.0 - b) / (360.0 / 2.0);
+  double magic_exp = 3.3; // Lowers non-close values more than close values.
+  return pow(linear, magic_exp);
+}
+
 void do_work(Mat &I) {
   // Color input format: BGR
   cvtColor(I, I, CV_BGR2HSV, 0);
@@ -45,20 +60,29 @@ void do_work(Mat &I) {
       v = ((double) c2) / 255.0; // 0..1
 
       const double hue_green = 120.0;
-      const bool green_detect =
-        (h > hue_green - 30.0
-         && h < hue_green + 30.0);
 
-      if (green_detect) {
-        p[c0_i] = 255;
-        p[c1_i] = 255;
-        p[c2_i] = 255;
-      }
-      else {
-        p[c0_i] = 0;
-        p[c1_i] = 0;
-        p[c2_i] = 0;
-      }
+      // Continuous with closeness.
+      uint8_t green_closeness = (uint8_t) (closeness_hue(hue_green, h) * 255.0);
+      p[c0_i] = green_closeness;
+      p[c1_i] = green_closeness;
+      p[c2_i] = green_closeness;
+
+      // Discrete with threshold.
+      // const bool green_detect =
+      //   (h > hue_green - 30.0
+      //    && h < hue_green + 30.0);
+
+      // if (green_detect) {
+      //   p[c0_i] = 255;
+      //   p[c1_i] = 255;
+      //   p[c2_i] = 255;
+      // }
+      // else {
+      //   p[c0_i] = 0;
+      //   p[c1_i] = 0;
+      //   p[c2_i] = 0;
+      // }
+
     }
   }
 }

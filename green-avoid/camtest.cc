@@ -1,6 +1,6 @@
 #include "cam.h"
 
-int main(int argc, char* argv[]) {
+int main() {
   // Get an OpenCV camera handle
   VideoCapture cam(-1);
 
@@ -17,9 +17,18 @@ int main(int argc, char* argv[]) {
   // Prepare frame storage
   Mat frame;
 
+  char key;
+  bool show_raw = false;
   while (true) {
+    key = (char) cvWaitKey(4);
+    if (key == ' ') {
+      show_raw = !show_raw;
+    }
+    else if (key == 27) { // Esc
+      break;
+    }
+
     // Get picture
-    cvWaitKey(4);
     cam >> frame;
 
     if (frame.empty()) {
@@ -27,7 +36,9 @@ int main(int argc, char* argv[]) {
       break;
     }
 
-    do_work(frame);
+    if (!show_raw) {
+      do_work(frame);
+    }
     // Show frame
     imshow(WIN_RF, frame);
   }

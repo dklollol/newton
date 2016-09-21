@@ -4,7 +4,7 @@ void do_work(Mat &I) {
   // Color input format: BGR
   cvtColor(I, I, CV_BGR2HSV, 0);
   // Current format: HSV
-  
+
   size_t n_channels = I.channels();
   size_t n_rows = I.rows;
   size_t n_cols = I.cols * n_channels;
@@ -23,7 +23,7 @@ void do_work(Mat &I) {
   uint8_t c0, c1, c2;
 
   double h, s, v;
-  
+
   uint8_t* p = I.ptr<uint8_t>(0);
   for(y = 0; y < n_rows; y++) {
     for (x = 0; x < n_cols; x += 3) {

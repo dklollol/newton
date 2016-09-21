@@ -60,7 +60,7 @@ int run(char* host, int port, int device_index) {
     do_work(frame);
 
     // Show frame
-    //cvtColor(frame, frame, CV_HSV2BGR, 0);    
+    //cvtColor(frame, frame, CV_HSV2BGR, 0);
     imshow(WIN_RF, frame);
 
     //sleep(0.1);

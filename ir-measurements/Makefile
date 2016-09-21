@@ -2,7 +2,6 @@
 
 # Misc. flags
 IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
-STAGE_FLAGS = -DUSING_STAGE
 
 # Compiler and link flags
 CXX = g++
@@ -13,19 +12,15 @@ LIBS = `pkg-config --libs playerc++`
 
 # Executables
 EXECUTABLE = main
-EXECUTABLE_STAGE = main-stage
 
 # Files
-SOURCES = main.cc sleep.hpp
+SOURCES = main.cc
 
 # Compilation
-all: $(EXECUTABLE) $(EXECUTABLE_STAGE)
+all: $(EXECUTABLE)
 
 $(EXECUTABLE): $(SOURCES)
 	$(CXX) $(CXXFLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE)
 
-$(EXECUTABLE_STAGE): $(SOURCES)
-	$(CXX) $(CXXFLAGS) $(STAGE_FLAGS) $(SOURCES) $(LIBS) -o $(EXECUTABLE_STAGE)
-
 clean:
-	rm -f *.o $(EXECUTABLE) $(EXECUTABLE_STAGE)
+	rm -f *.o $(EXECUTABLE)

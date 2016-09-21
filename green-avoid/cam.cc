@@ -18,10 +18,11 @@ void do_work(Mat &I) {
   // Coordinates
   size_t x, y;
 
-  // Channels
+  // Channel indices and channels
   size_t c0_i, c1_i, c2_i;
   uint8_t c0, c1, c2;
 
+  // HSV
   double h, s, v;
 
   uint8_t* p = I.ptr<uint8_t>(0);

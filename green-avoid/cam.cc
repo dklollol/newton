@@ -39,13 +39,16 @@ void do_work(Mat &I) {
              x, y, c0, c1, c2);
 #endif
 
-      h = ((double) c0) / 255.0 * 360.0;
+      h = ((double) c0) * 2.0; // Degrees 0..360.
+      s = ((double) c1) / 255.0; // 0..1
+      v = ((double) c2) / 255.0; // 0..1
 
-      // p[c0_i] = c0;
-      // p[c1_i] = 0;
-      // p[c2_i] = 0;
-      
-      if (h > 50.0 && h < 100.0) {
+      const double hue_green = 120.0;
+      const bool green_detect =
+        (h > hue_green - 30.0
+         && h < hue_green + 30.0);
+
+      if (green_detect) {
         p[c0_i] = 255;
         p[c1_i] = 255;
         p[c2_i] = 255;

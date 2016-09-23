@@ -1,5 +1,5 @@
 #include "cam.h"
-
+#include <stdio.h>
 int main() {
   // Get an OpenCV camera handle
   VideoCapture cam(-1);

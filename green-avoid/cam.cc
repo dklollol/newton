@@ -12,7 +12,7 @@ double closeness_hue(double hue_target, double hue, double s, double v) {
     hue = temp;
   }
   double value_limit = 0.3;
-  double saturation_limit = 0.25;
+  double saturation_limit = 0.25; // limits used for filter our white
   if (v < value_limit || s < saturation_limit) {
     return 0;
   }
@@ -20,33 +20,31 @@ double closeness_hue(double hue_target, double hue, double s, double v) {
   double magic_exp = 3.3; // Lowers non-close values more than close values.
   return pow(linear, magic_exp);
 }
-
+// finds the center of the expected green object and color a red dot.
 void green_center(Mat I) {
   size_t n_channels = I.channels();
   size_t n_rows = I.rows;
   size_t n_cols = I.cols * n_channels;
   size_t index;
-  double sum_cols[n_cols];
-  double sum_rows[n_rows];
   double temp = 0.0;
   uint8_t* p = I.ptr<uint8_t>(0);
   int x0 = -1;
   int x1 = -1;
   int y0 = -1;
   int y1 = -1;
+  double green_value;
   for (size_t row = 0; row < n_rows; row++) {
     for (size_t col = 0; col < n_cols; col+=3) {
       index = row * n_cols + col;
       temp += p[index];
     }
-    double ha = temp / 255;
-    sum_rows[row] = ha;
-    if (ha > 35) {
+    green_value = temp / 255; // normalize green value
+    if (green_value > 35) { // checks if theres something green.
       if (y0 == -1) {
-        y0 = row;
+        y0 = row; // set start of green object at sighting
       }
-      y1 = row;
-      p[index+2] = 255;
+      y1 = row; // keep update last sighting of green object
+      p[index+2] = 255; // debug coloring
       //printf("temp: %lf\n", ha);      
     }
     temp = 0.0;
@@ -57,9 +55,8 @@ void green_center(Mat I) {
       index = row * n_cols + col;
       temp += p[index];
     }
-    double ha = temp / 255;
-    sum_cols[col] = ha;
-    if (ha > 35) {
+    green_value = temp / 255;
+    if (green_value > 35) {
       if (x0 == -1) {
         x0 = col;
       }
@@ -70,16 +67,11 @@ void green_center(Mat I) {
 
     temp = 0.0;
   }
-  // Nothing green found, thus return
+  // Nothing green found, thus return picture
   if (x0 < 0 || x1 < 0 || y0 < 0 || y1 < 0 ) {
     return;
   }
-  // Drawing the "expected" green box blue 
-  /*for (size_t row = y0; row <= y1; row++) {
-    for (size_t col = x0; col <= x1; col+=3) {    
-      p[row*n_cols+col] = 255;
-    }   
-    } */
+  // draws a circle in the middle of the green object
   circle(I, Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2),10, Scalar(0,0,255) , CV_FILLED);
 }
 

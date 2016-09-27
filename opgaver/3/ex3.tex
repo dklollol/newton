@@ -51,13 +51,14 @@ To detect a green object in a picture, we developed this algorithm:
 OpenCV 2 returns the pixel data in RGB format.  Our program does this:
 
 \begin{enumerate}
-\item
+\item 
 
 Convert all pixels to HSV.
 
-\item
+\item 	
 
-For each pixel:
+For each pixel
+
 
 \begin{enumerate}
 \item
@@ -137,10 +138,11 @@ illustrating the length and height of the object, respectively.}
 \label{fig:detect-test}
 \end{figure}
 
-
 \section{Driving}
 
-
-
+When the Robot have found a box, it will try center the robot to the box. This is done by turning until the center of the box is within the margin of 5 pixels to the center of the camera frame. \\
+When the center of the found box is within 5 pixels of the camera center, the robot will drive forward for 0.5 seconds. \\
+After driving, the robot will take a picture, find the box and check whether box in the middle of the camera, if so it will continue driving otherwise it will re-align. \\
+The robot will not stop in front the box since the IR-sensor is to unreliable. 
 
 \end{document}

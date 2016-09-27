@@ -104,14 +104,30 @@ rectangle -- if the picture is a large green box -- or just blackish values if
 there is no large green box in the picture.
 
 
-\subsection{Box detection}
+\subsection{Center finding}
 
+The code then attempts to find the center of a large green box.  It follows this
+algorithm:
+
+\begin{enumerate}
+\item Start at the top of the picture.
+\item For each row:
+\begin{enumerate}
+\item If the sum of all pixels in the row is above $45$, we deem the row ``green
+enough'' and set $y_0$ to the row number if $y_0$ has not been previously set,
+otherwise $y_1$.
+\end{enumerate}
+\item Start at the left of the picture, and do the same for $x_0$ and $x_1$
+\item Find the center by using the four rectangle points $(x_0, y_0)$,
+$(x_0, y_1)$, $(x_1, y_0)$, and $(x_1, y_1)$.
+\end{enumerate}
 
 
 \subsection{Test}
 
 We have tested our complete detection algorithm by running it with input from
-one of our webcams; see figure~\ref{fig:detect-test}.
+one of our webcams; see figure~\ref{fig:detect-test}.  It seems to work alright
+even when also smaller green objects are present in the frame.
 
 \begin{figure}[h]
 \includegraphics[width=.9\textwidth]{test.png}
@@ -120,6 +136,7 @@ green box.  There is also a red line in the bottom and a red line to the right,
 illustrating the length and height of the object, respectively.}
 \label{fig:detect-test}
 \end{figure}
+
 
 \section{Driving}
 

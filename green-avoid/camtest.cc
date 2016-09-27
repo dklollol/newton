@@ -16,10 +16,11 @@ int main() {
 
   // Prepare frame storage
   Mat frame;
-
+  Box box;
+  box.found = false;
   char key;
   bool show_raw = false;
-  while (true) {
+  while (!box.found) {
     key = (char) cvWaitKey(4);
     if (key == ' ') {
       show_raw = !show_raw;
@@ -37,11 +38,11 @@ int main() {
     }
 
     if (!show_raw) {
-      do_work(frame);
+      box = do_work(frame);
     }
     // Show frame
     imshow(WIN_RF, frame);
   }
-
+  printf("x0 : %d, y0: %d, x1: %d, y1: %d\n", box.x0, box.y0, box.x1, box.y1);
   return EXIT_SUCCESS;
 }

@@ -2,6 +2,8 @@
 #include <stdio.h>
 #include <iostream>
 
+
+
 // 1 is most close, 0 is least close.
 double closeness_hue(double hue_target, double hue, double s, double v) {
   double temp;
@@ -21,7 +23,7 @@ double closeness_hue(double hue_target, double hue, double s, double v) {
   return pow(linear, magic_exp);
 }
 // finds the center of the expected green object and color a red dot.
-void green_center(Mat I) {
+Box green_center(Mat I) {
   size_t n_channels = I.channels();
   size_t n_rows = I.rows;
   size_t n_cols = I.cols * n_channels;
@@ -39,7 +41,7 @@ void green_center(Mat I) {
       temp += p[index];
     }
     green_value = temp / 255; // normalize green value
-    if (green_value > 35) { // checks if theres something green.
+    if (green_value > 45) { // checks if theres something green.
       if (y0 == -1) {
         y0 = row; // set start of green object at sighting
       }
@@ -56,7 +58,7 @@ void green_center(Mat I) {
       temp += p[index];
     }
     green_value = temp / 255;
-    if (green_value > 35) {
+    if (green_value > 45) {
       if (x0 == -1) {
         x0 = col;
       }
@@ -67,15 +69,28 @@ void green_center(Mat I) {
 
     temp = 0.0;
   }
+  Box return_box;
   // Nothing green found, thus return picture
   if (x0 < 0 || x1 < 0 || y0 < 0 || y1 < 0 ) {
-    return;
+    return_box.x0 = 0;
+    return_box.y0 = 0;
+    return_box.x1 = 0;
+    return_box.y1 = 0;
+    return_box.found = false;
+    return return_box;
   }
+  return_box.x0 = x0;
+  return_box.y0 = y0;
+  return_box.x1 = x1;
+  return_box.y1 = y1;
+  return_box.center = Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2);
+  return_box.found = ((x1 - x0) * (y1 - y0)) > 20 * 20;
   // draws a circle in the middle of the green object
-  circle(I, Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2),10, Scalar(0,0,255) , CV_FILLED);
+  //circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
+  return return_box;
 }
 
-void do_work(Mat &I) {
+Box do_work(Mat &I) {
   // Color input format: BGR
   cvtColor(I, I, CV_BGR2HSV, 0);
   // Current format: HSV
@@ -126,26 +141,9 @@ void do_work(Mat &I) {
       p[c0_i] = green_closeness;
       p[c1_i] = green_closeness;
       p[c2_i] = green_closeness;
-
-      // Discrete with threshold.
-      // const bool green_detect =
-      //   (h > hue_green - 30.0
-      //    && h < hue_green + 30.0);
-
-      // if (green_detect) {
-      //   p[c0_i] = 255;
-      //   p[c1_i] = 255;
-      //   p[c2_i] = 255;
-      // }
-      // else {
-      //   p[c0_i] = 0;
-      //   p[c1_i] = 0;
-      //   p[c2_i] = 0;
-      // }
-
-    }
+     }
   }
   erode(I, I, Mat(), Point(-1, -1), 3);
   dilate(I, I, Mat(), Point(-1, -1), 1);
-  green_center(I);
+  return green_center(I);
 }

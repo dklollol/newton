@@ -86,7 +86,7 @@ Box green_center(Mat I) {
   return_box.center = Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2);
   return_box.found = ((x1 - x0) * (y1 - y0)) > 20 * 20;
   // draws a circle in the middle of the green object
-  //circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
+  circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
   return return_box;
 }
 
@@ -145,5 +145,10 @@ Box do_work(Mat &I) {
   }
   erode(I, I, Mat(), Point(-1, -1), 3);
   dilate(I, I, Mat(), Point(-1, -1), 1);
-  return green_center(I);
+  const char *WIN_RF = "Newton CAM";
+  namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
+  cvMoveWindow(WIN_RF, 400, 0);
+  Box box = green_center(I);
+  imshow(WIN_RF, I);
+  return box;
 }

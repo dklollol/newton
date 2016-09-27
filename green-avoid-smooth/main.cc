@@ -1,7 +1,7 @@
 #include <ctime>
 #include <libplayerc++/playerc++.h>     // Robot interaction
 #include "cam.h"
-
+#include <math.h>
 using namespace PlayerCc;
 
 void sleep(double seconds) {
@@ -55,11 +55,11 @@ int run(char* host, int port, int device_index) {
   }
 
   // Initialise the GUI
-  const char *WIN_RF = "Newton CAM";
-  namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
-  cvMoveWindow(WIN_RF, 400, 0);
+  // const char *WIN_RF = "Newton CAM";
+  // namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
+  // cvMoveWindow(WIN_RF, 400, 0);
   
-  imshow(WIN_RF, frame);
+  //imshow(WIN_RF, frame);
 
   // Prepare frame storage
   Mat frame;
@@ -71,12 +71,17 @@ int run(char* host, int port, int device_index) {
   double resolution = 640;
 
   while (true) {
+
     if (!box.found) {
       pp.SetSpeed(0, DTOR(10));
     } else {	
 		diff = ((resolution / 2) - box.center.x) / (resolution / 2);
 		
-		pp.SetSpeed(0, DTOR(10 * diff));
+		pp.SetSpeed(0, DTOR(20 * diff));
+        if (abs(diff) < 0.1) {
+          pp.SetSpeed(move_speed, DTOR(turn_speed));
+          // imshow(WIN_RF, frame);
+        }
 	}
     box = get_box(cam);
   }

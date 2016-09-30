@@ -19,6 +19,12 @@ double distance_height_known(double box_height_px, double cam_height_px,
   return b;
 }
 
+double distance_two_pictures(double dist,
+                             double box0_height_px, double box1_height_px) {
+  double Z2 = dist * (box0_height_px / (box1_height_px - box0_height_px));
+  return Z2;
+}
+
 // 1 is most close, 0 is least close.
 static double closeness_hue(double hue_target, double hue, double s, double v) {
   double temp;

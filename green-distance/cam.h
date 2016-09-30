@@ -27,4 +27,6 @@ double get_cam_height(VideoCapture &cam);
 double distance_height_known(double box_height_px, double cam_height_px,
                              double box_height_known, double fov_degrees);
 
+double distance_two_pictures(double dist,
+                             double box0_height_px, double box1_height_px);
 #endif

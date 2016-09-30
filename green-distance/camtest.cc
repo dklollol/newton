@@ -16,43 +16,30 @@ int main() {
 
   // Prepare frame storage
   Mat frame;
-  Box box;
-  box.found = false;
-  char key;
-  bool show_raw = false;
-  while (true) {
-    key = (char) cvWaitKey(4);
-    if (key == ' ') {
-      show_raw = !show_raw;
-    }
-    else if (key == 27) { // Esc
-      break;
-    }
 
-    // Get picture
-    cam >> frame;
+  Box box0;
+  box0.found = false;
+  Box box1;
+  box1.found = false;
 
-    if (frame.empty()) {
-      fprintf(stderr, "warning: could not get picture\n");
-      break;
-    }
+  cam >> frame;
+  box0 = do_work(frame);
 
-    if (!show_raw) {
-      box = do_work(frame);
-    }
-    
-    // Show frame
-    imshow(WIN_RF, frame);
+  char key = (char) cvWaitKey(4);
+  key = key;
 
-    // Calculate!
-    printf("height: %d\n", box.height);
-    
-    double fov = 106.0; // Niels' camera, fix this
-    double box_height = 14.5; // Fix this
-    printf("distance: %lf\n",
-           distance_height_known((double) box.height, get_cam_height(cam),
-                                 box_height, fov));
-  }
+  cam >> frame;
+  box1 = do_work(frame);
+
+  // double fov = 106.0; // Niels' camera, fix this
+  // double box_height = 14.5; // Fix this
+  // printf("distance: %lf\n",
+  //        distance_height_known((double) box.height, get_cam_height(cam),
+  //                              box_height, fov));
+  double dist = 100.0;
+  printf("distance: %lf\n",
+         distance_two_pictures(dist,
+                               (double) box0.height, (double) box1.height));
 
   return EXIT_SUCCESS;
 }

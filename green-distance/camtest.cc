@@ -42,6 +42,8 @@ int main() {
   //        distance_height_known((double) box.height, get_cam_height(cam),
   //                              box_height, fov));
   double dist = 50.0;
+  printf("box0 height: %d\n", box0.height);
+  printf("box1 height: %d\n", box1.height);
   printf("distance: %lf\n",
          distance_two_pictures(dist,
                                (double) box0.height, (double) box1.height));

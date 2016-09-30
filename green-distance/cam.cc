@@ -19,9 +19,8 @@ double distance_height_known(double box_height_px, double cam_height_px,
   return b;
 }
 
-
 // 1 is most close, 0 is least close.
-double closeness_hue(double hue_target, double hue, double s, double v) {
+static double closeness_hue(double hue_target, double hue, double s, double v) {
   double temp;
 
   if (hue < hue_target) {
@@ -30,7 +29,7 @@ double closeness_hue(double hue_target, double hue, double s, double v) {
     hue = temp;
   }
   double value_limit = 0.3;
-  double saturation_limit = 0.25; // limits used for filter our white
+  double saturation_limit = 0.25; // Limits used for filter our white
   if (v < value_limit || s < saturation_limit) {
     return 0;
   }
@@ -39,8 +38,8 @@ double closeness_hue(double hue_target, double hue, double s, double v) {
   return pow(linear, magic_exp);
 }
 
-// finds the center of the expected green object and color a red dot.
-Box green_center(Mat I) {
+// Finds the green box.
+static Box green_box(Mat &I) {
   size_t n_channels = I.channels();
   size_t n_rows = I.rows;
   size_t n_cols = I.cols * n_channels;
@@ -165,10 +164,12 @@ Box do_work(Mat &I) {
   erode(I, I, Mat(), Point(-1, -1), 3);
   dilate(I, I, Mat(), Point(-1, -1), 1);
 
+  Box box = green_box(I);
+
   const char *WIN_RF = "Newton CAM";
   namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
   cvMoveWindow(WIN_RF, 400, 0);
-  Box box = green_center(I);
   imshow(WIN_RF, I);
+
   return box;
 }

@@ -48,7 +48,7 @@ int main() {
     printf("height: %d\n", box.height);
     
     double fov = 106.0; // Niels' camera, fix this
-    double box_height = 18.0; // Fix this
+    double box_height = 14.5; // Fix this
     printf("distance: %lf\n",
            distance_height_known((double) box.height, get_cam_height(cam),
                                  box_height, fov));

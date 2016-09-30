@@ -84,7 +84,7 @@ Box green_center(Mat I) {
   return_box.x1 = x1;
   return_box.y1 = y1;
   return_box.center = Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2);
-  return_box.found = ((x1 - x0) * (y1 - y0)) > 20 * 20;
+  return_box.found = ((x1 - x0)/3 * (y1 - y0)) > 40 * 40;
   // draws a circle in the middle of the green object
   circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
   return return_box;

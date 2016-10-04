@@ -78,7 +78,8 @@ int run(char* host, int port, int device_index) {
 		diff = ((resolution / 2) - box.center.x) / (resolution / 2);
 		
 		pp.SetSpeed(0, DTOR(20 * diff));
-        if (abs(diff) < 0.1) {
+
+        if (fabs(diff) < 0.1) {
           pp.SetSpeed(move_speed, DTOR(turn_speed));
           // imshow(WIN_RF, frame);
         }

@@ -29,6 +29,27 @@
 
 \section{Distance from one image}
 
+Let
+\begin{itemize}
+\item $h_b$ be the known height of the box in centimeters;
+\item $v_c$ be the known vertical resolution of the camera in pixels;
+\item $v_b$ be the measured vertical size of the box in pixels;
+\item $f$ be the known focal length; and
+\item $d$ be the distance to the box
+\end{itemize}
+
+Then we have
+
+\begin{align*}
+  A &= \frac{f}{2}\\
+  a &= h_b \cdot \frac{v_c}{v_b}\\
+  c &= \frac{a}{\sin A}\\
+  b &= c \cdot \cos A\\
+  d &= b.
+\end{align*}
+
+TODO: Add triangle for added description.
+
 \section{Accuracy}
 
 \subsection{Testing}

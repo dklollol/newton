@@ -9,10 +9,13 @@ CXXFLAGS_OPENCV = `pkg-config --cflags opencv`
 LIBS_PLAYER = `pkg-config --libs playerc++`
 LIBS_OPENCV = `pkg-config --libs opencv`
 
-all: camtest main
+all: camtest findfov main
 
 camtest: cam.o camtest.o
 	$(CXX) cam.o camtest.o $(LIBS_OPENCV) -o camtest
+
+findfov: cam.o findfov.o
+	$(CXX) cam.o findfov.o $(LIBS_OPENCV) -o findfov
 
 main: cam.o main.o
 	$(CXX) cam.o main.o $(LIBS_PLAYER) $(LIBS_OPENCV) -o main

@@ -69,11 +69,11 @@ static Box green_box(Mat &I) {
       }
       y1 = row; // keep update last sighting of green object
       p[index+2] = 255; // debug coloring
-      //printf("temp: %lf\n", ha);      
+      //printf("temp: %lf\n", ha);
     }
     temp = 0.0;
   }
-  
+
   for (size_t col = 0; col < n_cols; col+=3) {
     for (size_t row = 0; row < n_rows; row++) {
       index = row * n_cols + col;
@@ -86,7 +86,7 @@ static Box green_box(Mat &I) {
       }
       x1 = col;
       p[index+2] = 255;
-      // printf("temp: %lf\n", ha);      
+      // printf("temp: %lf\n", ha);
     }
 
     temp = 0.0;
@@ -140,7 +140,7 @@ Box do_work(Mat &I) {
   double h, s, v;
 
   const double hue_green = 120.0;
-  
+
   uint8_t* p = I.ptr<uint8_t>(0);
   for(y = 0; y < n_rows; y++) {
     for (x = 0; x < n_cols; x += n_channels) {

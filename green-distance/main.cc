@@ -42,7 +42,26 @@ void set_pull_mode(PlayerClient &robot) {
 }
 
 int run(char* host, int port, int device_index) {
-  
+  // Prepare robot.
+  PlayerClient robot(host, port);
+  set_pull_mode(robot);
+
+  Position2dProxy pp(&robot, device_index);
+  IrProxy ir(&robot, device_index);
+
+  // Get an OpenCV camera handle.
+  VideoCapture cam(-1);
+
+  if (!cam.isOpened()) {
+    fprintf(stderr, "error: could not open camera\n");
+    return EXIT_FAILURE;
+  }
+
+  // Prepare frame storage.
+  Mat frame;
+
+
+
   return EXIT_SUCCESS;
 }
 

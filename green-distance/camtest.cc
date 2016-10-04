@@ -4,6 +4,9 @@ int main() {
   // Get an OpenCV camera handle
   VideoCapture cam(-1);
 
+  cam.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
+  cam.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+  
   if (!cam.isOpened()) {
     fprintf(stderr, "error: could not open camera\n");
     return EXIT_FAILURE;

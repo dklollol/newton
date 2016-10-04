@@ -1,0 +1,59 @@
+\documentclass[a4paper,12pt]{article}
+
+\title{Exercise 4: Distance to the green box}
+\author{Gruppe 6:\\Niels\\Troels\\Mark\\Kristian}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[british]{babel}
+\usepackage{microtype}
+
+\usepackage{amsmath}
+
+\usepackage{graphicx}
+
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parskip}{1ex}
+\setlength{\parindent}{0pt}
+\setlength{\parfillskip}{30pt plus 1 fil}
+
+\begin{document}
+
+\maketitle
+
+\section{Estimating focal length}
+
+\section{Distance from two images}
+
+\section{Distance from one image}
+
+Let
+\begin{itemize}
+\item $h_b$ be the known height of the box in centimeters;
+\item $v_c$ be the known vertical resolution of the camera in pixels;
+\item $v_b$ be the measured vertical size of the box in pixels;
+\item $f$ be the known focal length; and
+\item $d$ be the distance to the box
+\end{itemize}
+
+Then we have
+
+\begin{align*}
+  A &= \frac{f}{2}\\
+  a &= h_b \cdot \frac{v_c}{v_b}\\
+  c &= \frac{a}{\sin A}\\
+  b &= c \cdot \cos A\\
+  d &= b.
+\end{align*}
+
+TODO: Add triangle for added description.
+
+\section{Accuracy}
+
+\subsection{Testing}
+
+\subsection{Standard deviation}
+
+\end{document}

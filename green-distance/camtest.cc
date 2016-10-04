@@ -8,7 +8,7 @@ int main() {
   // Maybe comment this out to get a larger resolution from your webcam.
   // cam.set(CV_CAP_PROP_FRAME_WIDTH, 1280);
   // cam.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
-  
+
   if (!cam.isOpened()) {
     fprintf(stderr, "error: could not open camera\n");
     return EXIT_FAILURE;

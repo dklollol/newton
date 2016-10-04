@@ -35,7 +35,7 @@ int run(char* host, int port, int device_index) {
   // Prepare frame storage.
   Mat frame;
 
-  
+
 
   return EXIT_SUCCESS;
 }

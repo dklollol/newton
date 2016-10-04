@@ -2,6 +2,19 @@
 #include <stdio.h>
 #include <iostream>
 
+Box get_box(VideoCapture cam) {
+  Mat frame;
+  // Get picture
+  cvWaitKey(4);
+  cam >> frame;
+
+  if (frame.empty()) {
+    fprintf(stderr, "warning: could not get picture\n");
+  }
+
+  return do_work(frame);
+}
+
 double get_cam_height(VideoCapture &cam) {
   return cam.get(CV_CAP_PROP_FRAME_HEIGHT);
 }

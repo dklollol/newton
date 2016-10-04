@@ -17,3 +17,24 @@ void drive_dist(Position2dProxy pp, double dist, double speed) {
   sleep(time+acc_time);
   pp.SetSpeed(0, DTOR(0));
 }
+float ir_correction(float range) {
+  return range * 0.93569 - 0.103488;
+}
+
+bool check_sensor(int index, float threshold, IrProxy &ir) {  
+  return (ir_correction(ir.GetRange(index)) < threshold);
+}
+
+void center_robot_green_box(Position2dProxy pp, Box box) {
+  double resolution = 640;
+  while(true) {
+    double diff = ((resolution / 2) - box.center.x) / (resolution / 2);
+		
+    pp.SetSpeed(0, DTOR(20 * diff));
+
+    if (fabs(diff) < 0.1) {
+      return;
+    }
+  }
+  
+}

@@ -19,6 +19,8 @@ struct Box {
   int height;
 };
 
+Box get_box(VideoCapture cam);
+
 Box do_work(Mat &I);
 
 double get_cam_height(VideoCapture &cam);

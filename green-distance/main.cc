@@ -18,12 +18,18 @@ int run(char* host, int port, int device_index) {
 
   // Get an OpenCV camera handle.
   VideoCapture cam(-1);
-
+  printf("haha12e\n");
+  // Initialise the GUI.
+  const char *WIN_RF = "Newton CAM";
+  namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
+  cvMoveWindow(WIN_RF, 400, 0);
+  
   if (!cam.isOpened()) {
     fprintf(stderr, "error: could not open camera\n");
     return EXIT_FAILURE;
   }
   FILE* f = fopen("measurements.txt", "w");
+  FILE* f1 = fopen("measurements1.txt", "w");
   double dist = 25.0;
   double move_speed = 0.1;
 
@@ -31,32 +37,55 @@ int run(char* host, int port, int device_index) {
   // Prepare frame storage.
   Mat frame;
   Box box;
-
+  box.found = false;
+  double known_height = 29;
+  bool temp;
+  printf("he");
   for (int i = 0; i < 8; i++) {
-    sleep(1);
-    cam>>frame;
-    box = do_work(frame);
-    center_robot_green_box(pp, box);
+    temp = center_robot_green_box(cam, &pp, &box);
+    while(!(temp)) {
+      printf("cam\n");
+      cam>>frame;
+      printf("do_work\n");
+      box = do_work(frame);
+      printf("Trying to find a box\n");
+      printf("found:%d\n", box.found);
+      imshow(WIN_RF, frame);
+      temp = center_robot_green_box(cam, &pp, &box);
+    }
+    printf("Found a box\n");
     for (int t = 0; t < 10; t++) {
       cam >> frame;
       box = do_work(frame);
-      distances[t][i] = box;
+      distances[i][t] = box;
     }
-    drive_dist(pp, dist, move_speed);
+
+    double time = dist / move_speed; 
+    printf("time : %f", time);
+    printf("driving\n");
+    drive_dist(&pp, dist, move_speed);
+    printf("done driving\n");
   }
   Box box0;
   Box box1;
   // calculate distances 225,200..75
-  for (int t = 1; t < 8; t++) {
-    fprintf(f, "%d centimeters\n", 250-t*25);
-    for (int i = 0; i < 10; i++) {
-      box0 = distances[t-1][i];
-      box1 = distances[t][i];
+  for (int i = 1; i < 8; i++) {
+    fprintf(f, "%d centimeters\n", 250-i*25);
+    for (int t = 0; t < 10; t++) {
+      box0 = distances[i-1][t];
+      box1 = distances[i][t];
       fprintf(f, "%lf ",
               distance_two_pictures(dist,
                                     (double) box0.height, (double) box1.height));
     }
     fprintf(f, "\n");
+  }
+  for (int i = 0; i < 8; i++) {
+    fprintf(f1, "%d centimeters\n", 250-i*25);
+    for (int t = 0; t < 10; t++) {
+      fprintf(f1, "%lf", find_fov(cam, &distances[i][t], 250-i*25, known_height));
+    }
+    fprintf(f1, "\n");
   }
 
   

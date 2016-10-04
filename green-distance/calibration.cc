@@ -10,12 +10,19 @@ void sleep(double seconds) {
 
 
 // drives xx cm and stops 
-void drive_dist(Position2dProxy pp, double dist, double speed) {
+void drive_dist(Position2dProxy *pp, double dist, double speed) {
   double acc_time = speed*pow(10, -6);
-  double time = dist / speed;
-  pp.SetSpeed(speed, DTOR(0));
+  double time = (dist / speed)/100;
+  printf("time:%f", time);
+  printf("time:%f", time);
+  printf("time:%f", time);
+  printf("time:%f", time);
+  printf("time:%f", time);
+  printf("time:%f", time);
+  printf("time:%f", time);
+  pp->SetSpeed(speed, DTOR(0));
   sleep(time+acc_time);
-  pp.SetSpeed(0, DTOR(0));
+  pp->SetSpeed(0, DTOR(0));
 }
 float ir_correction(float range) {
   return range * 0.93569 - 0.103488;
@@ -25,16 +32,32 @@ bool check_sensor(int index, float threshold, IrProxy &ir) {
   return (ir_correction(ir.GetRange(index)) < threshold);
 }
 
-void center_robot_green_box(Position2dProxy pp, Box box) {
-  double resolution = 640;
-  while(true) {
-    double diff = ((resolution / 2) - box.center.x) / (resolution / 2);
-		
-    pp.SetSpeed(0, DTOR(20 * diff));
-
-    if (fabs(diff) < 0.1) {
-      return;
-    }
+bool center_robot_green_box(VideoCapture cam, Position2dProxy *pp, Box *box) {
+  printf("green box1\n");
+  if (!(box->found)) {
+    printf("heufahefueahfuae\n");
+    return false;
   }
-  
+  double resolution = 640;
+  printf("green box2\n");
+  Box box1;
+  while(true) {
+    double diff = ((resolution / 2) - box->center.x) / (resolution / 2);
+    pp->SetSpeed(0, DTOR(20 * diff));
+    if (fabs(diff) < 0.1) {
+      return true;
+    }
+    box1 = get_box(cam);
+    box = &box1;
+  }
+}
+
+double find_fov(VideoCapture cam, Box *box, double known_dist, double known_height) {
+  double total_height = (get_cam_height(cam) / box->height) * known_height;
+  double a = total_height / 2;
+  double b = known_dist;
+  double c = sqrt(a * a + b * b);
+  double A = asin(a / c);
+  double fov = radians_to_degrees(A * 2.0);
+  return fov;
 }

@@ -57,7 +57,10 @@ static double closeness_hue(double hue_target, double hue, double s, double v) {
     return 0;
   }
   double linear = 1.0 - min(hue - hue_target, hue_target + 360.0 - hue) / (360.0 / 2.0);
-  double magic_exp = 3.3; // Lowers non-close values more than close values.
+  if (linear < 0.7) {
+    return 0;
+  }
+  double magic_exp = 7.3; // Lowers non-close values more than close values.
   return pow(linear, magic_exp);
 }
 
@@ -80,7 +83,7 @@ static Box green_box(Mat &I) {
       temp += p[index];
     }
     green_value = temp / 255; // normalize green value
-    if (green_value > 45) { // checks if theres something green.
+    if (green_value > 30) { // checks if theres something green.
       if (y0 == -1) {
         y0 = row; // set start of green object at sighting
       }
@@ -97,7 +100,7 @@ static Box green_box(Mat &I) {
       temp += p[index];
     }
     green_value = temp / 255;
-    if (green_value > 45) {
+    if (green_value > 30) {
       if (x0 == -1) {
         x0 = col;
       }
@@ -127,7 +130,7 @@ static Box green_box(Mat &I) {
   return_box.width = x1 - x0;
   return_box.height = y1 - y0;
   // draws a circle in the middle of the green object
-  //circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
+  circle(I, return_box.center, 10, Scalar(0,0,255) , CV_FILLED);
   return return_box;
 }
 

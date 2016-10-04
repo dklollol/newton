@@ -33,4 +33,4 @@ main.o: main.cc
 	$(CXX) $(CXXFLAGS) $(CXXFLAGS_PLAYER) $(CXXFLAGS_OPENCV) -c $^
 
 clean:
-	rm -f *.o camtest main
+	rm -f *.o camtest findfov main

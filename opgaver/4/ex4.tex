@@ -8,6 +8,7 @@
 \usepackage[utf8]{inputenc}
 \usepackage[british]{babel}
 \usepackage{microtype}
+\usepackage{underscore}
 
 \usepackage{amsmath}
 
@@ -23,22 +24,86 @@
 
 \maketitle
 
-\section{Estimating focal length}
+\section{Estimating the field of view}
+
+See our program \texttt{findfov.cc} for the implementation.
+
+Let
+\begin{itemize}
+\item $h_b$ be the known height of a box in centimeters;
+\item $d$ be the known distance to the box;
+\end{itemize}
+
+and let
+\begin{itemize}
+\item $h_t$ be the total height of the image;
+\item $v_c$ be the known vertical resolution of the camera in pixels;
+\item $v_b$ be the measured vertical size of the box in pixels; and
+\item $f$ be the field of view.
+\end{itemize}
+
+Then we consider the triangle with sides $a$, $b$, and $c$ and angles $A$, $B$,
+and $C$, and calculate $f$:
+
+\begin{align*}
+  h_t &= \frac{v_c}{v_b} \cdot h_b\\
+  a &= \frac{h_t}{2}\\
+  b &= d\\
+  c &= \sqrt{a^2 + b^2}\\
+  A &= \arcsin \frac{a}{c}\\
+  f &= 2 \cdot A
+\end{align*}
+
 
 \section{Distance from two images}
 
+See our library function \texttt{distance_height_known} in \texttt{cam.cc} for
+the implementation.
+
+Let
+
+\begin{itemize}
+\item $d_b$ be the known travelled distance from the first position to the
+second position; and
+\end{itemize}
+
+and let
+
+\begin{itemize}
+\item $v_{b_1}$ be the measured vertical size of the box in pixels from the
+starting point;
+\item $v_{b_2}$ be the measured vertical size of the box in pixels after having
+travelled $d$ centimeters; and
+\item $d$ be the distance to the box from the second position.
+\end{itemize}
+
+Then we use the relationship between the measured sizes to calculate $d$:
+
+\begin{align*}
+  d &= d_b * \frac{v_{b_1}}{v_{b_2} - v_{b_1}}
+\end{align*}
+
+
 \section{Distance from one image}
+
+See our library function \texttt{distance_two_pictures} in \texttt{cam.cc} for
+the implementation.
 
 Let
 \begin{itemize}
 \item $h_b$ be the known height of the box in centimeters;
 \item $v_c$ be the known vertical resolution of the camera in pixels;
-\item $v_b$ be the measured vertical size of the box in pixels;
-\item $f$ be the known focal length; and
-\item $d$ be the distance to the box
+\item $f$ be the known field of view;
 \end{itemize}
 
-Then we have
+and let
+\begin{itemize}
+\item $v_b$ be the measured vertical size of the box in pixels; and
+\item $d$ be the distance to the box.
+\end{itemize}
+
+Then we consider the triangle with sides $a$, $b$, and $c$ and angles $A$, $B$,
+and $C$, and calculate $d$:
 
 \begin{align*}
   A &= \frac{f}{2}\\
@@ -48,7 +113,6 @@ Then we have
   d &= b.
 \end{align*}
 
-TODO: Add triangle for added description.
 
 \section{Accuracy}
 

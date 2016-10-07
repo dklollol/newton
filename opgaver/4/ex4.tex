@@ -26,7 +26,12 @@
 
 \section{Estimating the field of view}
 
-See our program \texttt{findfov.cc} for the implementation.
+We need to know the FOV of our camera to be able to measure the distance to an
+object with just one image.
+
+See our program \texttt{findfov.cc} for the implementation.  It detects a green
+box and uses its height in pixels in the image to calculate the field of view in
+degrees.
 
 Let
 \begin{itemize}
@@ -52,35 +57,6 @@ and $C$, and calculate $f$:
   c &= \sqrt{a^2 + b^2}\\
   A &= \arcsin \frac{a}{c}\\
   f &= 2 \cdot A
-\end{align*}
-
-
-\section{Distance from two images}
-
-See our library function \texttt{distance_height_known} in \texttt{cam.cc} for
-the implementation.
-
-Let
-
-\begin{itemize}
-\item $d_b$ be the known travelled distance from the first position to the
-second position; and
-\end{itemize}
-
-and let
-
-\begin{itemize}
-\item $v_{b_1}$ be the measured vertical size of the box in pixels from the
-starting point;
-\item $v_{b_2}$ be the measured vertical size of the box in pixels after having
-travelled $d$ centimeters; and
-\item $d$ be the distance to the box from the second position.
-\end{itemize}
-
-Then we use the relationship between the measured sizes to calculate $d$:
-
-\begin{align*}
-  d &= d_b * \frac{v_{b_1}}{v_{b_2} - v_{b_1}}
 \end{align*}
 
 
@@ -111,6 +87,35 @@ and $C$, and calculate $d$:
   c &= \frac{a}{\sin A}\\
   b &= c \cdot \cos A\\
   d &= b.
+\end{align*}
+
+
+\section{Distance from two images}
+
+See our library function \texttt{distance_height_known} in \texttt{cam.cc} for
+the implementation.
+
+Let
+
+\begin{itemize}
+\item $d_b$ be the known travelled distance from the first position to the
+second position; and
+\end{itemize}
+
+and let
+
+\begin{itemize}
+\item $v_{b_1}$ be the measured vertical size of the box in pixels from the
+starting point;
+\item $v_{b_2}$ be the measured vertical size of the box in pixels after having
+travelled $d$ centimeters; and
+\item $d$ be the distance to the box from the second position.
+\end{itemize}
+
+Then we use the relationship between the measured sizes to calculate $d$:
+
+\begin{align*}
+  d &= d_b * \frac{v_{b_1}}{v_{b_2} - v_{b_1}}
 \end{align*}
 
 

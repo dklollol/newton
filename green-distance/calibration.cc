@@ -13,13 +13,6 @@ void sleep(double seconds) {
 void drive_dist(Position2dProxy *pp, double dist, double speed) {
   double acc_time = speed*pow(10, -6);
   double time = (dist / speed)/100;
-  printf("time:%f", time);
-  printf("time:%f", time);
-  printf("time:%f", time);
-  printf("time:%f", time);
-  printf("time:%f", time);
-  printf("time:%f", time);
-  printf("time:%f", time);
   pp->SetSpeed(speed, DTOR(0));
   sleep(time+acc_time);
   pp->SetSpeed(0, DTOR(0));
@@ -33,13 +26,10 @@ bool check_sensor(int index, float threshold, IrProxy &ir) {
 }
 
 bool center_robot_green_box(VideoCapture cam, Position2dProxy *pp, Box *box) {
-  printf("green box1\n");
   if (!(box->found)) {
-    printf("heufahefueahfuae\n");
     return false;
   }
   double resolution = 640;
-  printf("green box2\n");
   Box box1;
   while(true) {
     double diff = ((resolution / 2) - box->center.x) / (resolution / 2);

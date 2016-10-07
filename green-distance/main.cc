@@ -40,16 +40,12 @@ int run(char* host, int port, int device_index) {
   box.found = false;
   double known_height = 29;
   bool temp;
-  printf("he");
+  // take pictures from distances
   for (int i = 0; i < 8; i++) {
     temp = center_robot_green_box(cam, &pp, &box);
     while(!(temp)) {
-      printf("cam\n");
       cam>>frame;
-      printf("do_work\n");
       box = do_work(frame);
-      printf("Trying to find a box\n");
-      printf("found:%d\n", box.found);
       imshow(WIN_RF, frame);
       temp = center_robot_green_box(cam, &pp, &box);
     }
@@ -60,11 +56,7 @@ int run(char* host, int port, int device_index) {
       distances[i][t] = box;
     }
 
-    double time = dist / move_speed; 
-    printf("time : %f", time);
-    printf("driving\n");
     drive_dist(&pp, dist, move_speed);
-    printf("done driving\n");
   }
   Box box0;
   Box box1;

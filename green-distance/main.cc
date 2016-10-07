@@ -18,7 +18,9 @@ int run(char* host, int port, int device_index) {
 
   // Get an OpenCV camera handle.
   VideoCapture cam(-1);
-  printf("haha12e\n");
+  //cam.set(CV_CAP_PROP_FRAME_WIDTH, 1);
+  //cam.set(CV_CAP_PROP_FRAME_HEIGHT, 720);
+
   // Initialise the GUI.
   const char *WIN_RF = "Newton CAM";
   namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
@@ -30,7 +32,7 @@ int run(char* host, int port, int device_index) {
   }
   FILE* f = fopen("measurements.txt", "w");
   FILE* f1 = fopen("measurements1.txt", "w");
-  double dist = 25.0;
+  double dist = 10.0;
   double move_speed = 0.1;
 
   Box distances[8][10]; //250,225,200..75
@@ -49,8 +51,8 @@ int run(char* host, int port, int device_index) {
       imshow(WIN_RF, frame);
       temp = center_robot_green_box(cam, &pp, &box);
     }
-    printf("Found a box\n");
     for (int t = 0; t < 10; t++) {
+      sleep(1);
       cam >> frame;
       box = do_work(frame);
       distances[i][t] = box;
@@ -66,7 +68,7 @@ int run(char* host, int port, int device_index) {
     for (int t = 0; t < 10; t++) {
       box0 = distances[i-1][t];
       box1 = distances[i][t];
-      fprintf(f, "%lf ",
+      fprintf(f, " %lf ",
               distance_two_pictures(dist,
                                     (double) box0.height, (double) box1.height));
     }
@@ -75,7 +77,8 @@ int run(char* host, int port, int device_index) {
   for (int i = 0; i < 8; i++) {
     fprintf(f1, "%d centimeters\n", 250-i*25);
     for (int t = 0; t < 10; t++) {
-      fprintf(f1, "%lf", find_fov(cam, &distances[i][t], 250-i*25, known_height));
+      box0 = distances[i][t];
+      fprintf(f1, " %lf", find_fov(cam, &box0, 250-i*25, known_height));
     }
     fprintf(f1, "\n");
   }

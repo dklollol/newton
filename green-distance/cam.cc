@@ -77,13 +77,14 @@ static Box green_box(Mat &I) {
   int y0 = -1;
   int y1 = -1;
   double green_value;
+  const double green_lower_limit = 10;
   for (size_t row = 0; row < n_rows; row++) {
     for (size_t col = 0; col < n_cols; col+=3) {
       index = row * n_cols + col;
       temp += p[index];
     }
     green_value = temp / 255; // normalize green value
-    if (green_value > 30) { // checks if theres something green.
+    if (green_value > green_lower_limit) { // checks if theres something green.
       if (y0 == -1) {
         y0 = row; // set start of green object at sighting
       }
@@ -100,7 +101,7 @@ static Box green_box(Mat &I) {
       temp += p[index];
     }
     green_value = temp / 255;
-    if (green_value > 30) {
+    if (green_value > green_lower_limit) {
       if (x0 == -1) {
         x0 = col;
       }
@@ -126,7 +127,7 @@ static Box green_box(Mat &I) {
   return_box.x1 = x1;
   return_box.y1 = y1;
   return_box.center = Point((x0+(x1-x0)/2)/3, y0+(y1-y0)/2);
-  return_box.found = ((x1 - x0) * (y1 - y0)) > 20 * 20;
+  return_box.found = ((x1 - x0) * (y1 - y0)) > 15 * 15;
   return_box.width = x1 - x0;
   return_box.height = y1 - y0;
   // draws a circle in the middle of the green object
@@ -192,10 +193,10 @@ Box do_work(Mat &I) {
 
   Box box = green_box(I);
 
-  const char *WIN_RF = "Newton CAM";
-  namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
-  cvMoveWindow(WIN_RF, 400, 0);
-  imshow(WIN_RF, I);
+  // const char *WIN_RF = "Newton CAM";
+  // namedWindow(WIN_RF, CV_WINDOW_AUTOSIZE);
+  // cvMoveWindow(WIN_RF, 400, 0);
+  // imshow(WIN_RF, I);
 
   return box;
 }

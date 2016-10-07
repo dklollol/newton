@@ -33,10 +33,11 @@ bool center_robot_green_box(VideoCapture cam, Position2dProxy *pp, Box *box) {
   Box box1;
   while(true) {
     double diff = ((resolution / 2) - box->center.x) / (resolution / 2);
-    pp->SetSpeed(0, DTOR(20 * diff));
     if (fabs(diff) < 0.1) {
+      pp->SetSpeed(0, DTOR(0));
       return true;
     }
+    pp->SetSpeed(0, DTOR(20 * diff));
     box1 = get_box(cam);
     box = &box1;
   }

@@ -24,7 +24,7 @@ public:
     }
     
     // Assignment operator
-    particle const & operator=(const particle& p) {
+    void operator=(const particle& p) {
         x = p.x;
         y = p.y;
         theta = p.theta;

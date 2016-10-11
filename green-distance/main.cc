@@ -41,6 +41,7 @@ int run(char* host, int port, int device_index) {
   Box box;
   box.found = false;
   double known_height = 29;
+  double known_fov_degrees = 43.0;
   bool temp;
   // take pictures from distances
   for (int i = 0; i < 8; i++) {
@@ -78,7 +79,8 @@ int run(char* host, int port, int device_index) {
     fprintf(f1, "%d centimeters\n", 250-i*25);
     for (int t = 0; t < 10; t++) {
       box0 = distances[i][t];
-      fprintf(f1, " %lf", find_fov(cam, &box0, 250-i*25, known_height));
+      fprintf(f1, " %lf", distance_height_known(box1.height, get_cam_height(cam),
+                                                known_height, known_fov_degrees));
     }
     fprintf(f1, "\n");
   }

@@ -51,8 +51,8 @@ static double closeness_hue(double hue_target, double hue, double s, double v) {
     hue_target = hue;
     hue = temp;
   }
-  double value_limit = 0.3;
-  double saturation_limit = 0.25; // Limits used for filter our white
+  double value_limit = 0.1;
+  double saturation_limit = 0.1; // Limits used for filter our white
   if (v < value_limit || s < saturation_limit) {
     return 0;
   }
@@ -60,7 +60,7 @@ static double closeness_hue(double hue_target, double hue, double s, double v) {
   if (linear < 0.7) {
     return 0;
   }
-  double magic_exp = 7.3; // Lowers non-close values more than close values.
+  double magic_exp = 2.3; // Lowers non-close values more than close values.
   return pow(linear, magic_exp);
 }
 

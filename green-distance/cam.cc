@@ -30,7 +30,7 @@ double radians_to_degrees(double radians) {
 double distance_height_known(double box_height_px, double cam_height_px,
                              double box_height_known, double fov_degrees) {
   double A = degrees_to_radians(fov_degrees / 2.0);
-  double a = box_height_known * (cam_height_px / box_height_px);
+  double a = box_height_known * (cam_height_px / box_height_px) / 2.0;
   double c = a / sin(A);
   double b = c * cos(A);
   return b;

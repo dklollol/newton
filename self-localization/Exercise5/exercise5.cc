@@ -9,8 +9,8 @@
 #if CV_MAJOR_VERSION == 3 || CV_MAJOR_VERSION == 2
 // This works with OpenCV 2 and above
 #include <opencv2/opencv.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 #endif
 
 #include <stdio.h>

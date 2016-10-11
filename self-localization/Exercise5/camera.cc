@@ -2,7 +2,9 @@
 
 #if CV_MAJOR_VERSION == 3 || CV_MAJOR_VERSION == 2
 // This works with OpenCV 2 and above
-#include <opencv2/calib3d.hpp>
+#include <opencv2/imgproc/imgproc.hpp>  // OpenCV image processing
+#include <opencv2/calib3d/calib3d.hpp>
+using namespace cv;
 #else
 // Opencv 1
 #include "cv.h"
@@ -43,12 +45,12 @@ camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
     // Set camera parameters
     cam.set(CV_CAP_PROP_FRAME_WIDTH, imsize.width);
     cam.set(CV_CAP_PROP_FRAME_HEIGHT, imsize.height);
-    cam.set(CV_CAP_PROP_BUFFERSIZE, 1);
+    //cam.set(CV_CAP_PROP_BUFFERSIZE, 1);
     
     
-    std::cout << "Camera.width = " << cam.get(CV_CAP_PROP_FRAME_WIDTH)
-              << "  Camera.height = " << cam.get(CV_CAP_PROP_FRAME_HEIGHT)
-              << "  Camera.buffersize = " << cam.get(CV_CAP_PROP_BUFFERSIZE) << std::endl;
+    // std::cout << "Camera.width = " << cam.get(CV_CAP_PROP_FRAME_WIDTH)
+    //           << "  Camera.height = " << cam.get(CV_CAP_PROP_FRAME_HEIGHT)
+    //           << "  Camera.buffersize = " << cam.get(CV_CAP_PROP_BUFFERSIZE) << std::endl;
     
     // Save results in YAML format
     cv::FileStorage fs("calibration_params_MacBookPro.yml", cv::FileStorage::READ );

@@ -32,7 +32,7 @@ int run(char* host, int port, int device_index) {
   }
   FILE* f = fopen("measurements.txt", "w");
   FILE* f1 = fopen("measurements1.txt", "w");
-  double dist = 10.0;
+  double dist = 25.0;
   double move_speed = 0.1;
 
   Box distances[8][10]; //250,225,200..75
@@ -40,8 +40,8 @@ int run(char* host, int port, int device_index) {
   Mat frame;
   Box box;
   box.found = false;
-  double known_height = 29;
-  double known_fov_degrees = 43.0;
+  double known_height = 29.7;
+  double known_fov_degrees = 39.7;
   bool temp;
   // take pictures from distances
   for (int i = 0; i < 8; i++) {
@@ -79,7 +79,7 @@ int run(char* host, int port, int device_index) {
     fprintf(f1, "%d centimeters\n", 250-i*25);
     for (int t = 0; t < 10; t++) {
       box0 = distances[i][t];
-      fprintf(f1, " %lf", distance_height_known(box1.height, get_cam_height(cam),
+      fprintf(f1, " %lf", distance_height_known(box0.height, get_cam_height(cam),
                                                 known_height, known_fov_degrees));
     }
     fprintf(f1, "\n");

@@ -1,8 +1,9 @@
 #include <vector>
-#include "particles.h"
-#include "random_numbers.h"
 #include <math.h>
 #include <iostream>
+
+#include "particles.h"
+#include "random_numbers.h"
 
 particle estimate_pose (std::vector<particle> &particles)
 {
@@ -52,4 +53,3 @@ void add_uncertainty_von_mises (std::vector<particle> &particles, double sigma, 
         particles[i].theta = fmod(rand_von_mises (particles[i].theta, theta_kappa), 2.0f * M_PI) - M_PI;
     }
 }
-

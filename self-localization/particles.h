@@ -1,8 +1,7 @@
-#ifndef PARTICLES_H
-#define PARTICLES_H
+#ifndef EX5_PARTICLES_H
+#define EX5_PARTICLES_H
 
 #include <vector>
-#include "cxcore.h"
 
 /**
  * Data structure for storing particle information (state and weight)
@@ -14,7 +13,7 @@ public:
     particle(double _x, double _y, double _theta = 0, double _weight = 0) {
         x = _x; y = _y; theta = _theta; weight = _weight;
     };
-    
+
     // Copy constructor
     particle(const particle& p) {
         x = p.x;
@@ -22,7 +21,7 @@ public:
         theta = p.theta;
         weight = p.weight;
     }
-    
+
     // Assignment operator
     void operator=(const particle& p) {
         x = p.x;
@@ -30,7 +29,7 @@ public:
         theta = p.theta;
         weight = p.weight;
     }
-    
+
     // Data
     double x;
     double y;

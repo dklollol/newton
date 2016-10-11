@@ -22,7 +22,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 # Compilation.
 %.o : %.cc
-	$(CXX) $(CXXFLAGS) -c $^ 
+	$(CXX) $(CXXFLAGS) -c $^
 
 # Cleaning up
 clean :

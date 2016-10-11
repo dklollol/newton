@@ -1,12 +1,12 @@
-#ifndef RANDOM_NUMBERS_H
-#define RANDOM_NUMBERS_H
+#ifndef EX5_RANDOM_NUMBERS_H
+#define EX5_RANDOM_NUMBERS_H
 
-/** 
+/**
  * Random number between 0 and 1 (uniform distribution)
  */
 double randf ();
 
-/** 
+/**
  * The normal distribution.
  * Computes the value of a normal distribution with mean value 'mean'
  * and standard deviation 'sigma' at the point 'x'.

@@ -53,7 +53,6 @@ int run(char* host, int port, int device_index) {
       temp = center_robot_green_box(cam, &pp, &box);
     }
     for (int t = 0; t < 10; t++) {
-      sleep(1.0);
       cam >> frame;
       box = do_work(frame);
       distances[i][t] = box;

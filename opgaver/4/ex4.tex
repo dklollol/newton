@@ -58,7 +58,7 @@ and $C$, and calculate $f$:
   f &= 2 \cdot A
 \end{align*}
 
-We measured the FOV of our camera to be ???.
+We measured the FOV of our camera to be 39.5 dregrees.
 
 
 \subsection{Measuring the distance to the box}
@@ -122,14 +122,32 @@ Then we use the relationship between the measured sizes to calculate $d$:
 
 \section{Detection of green box}
 
-We're using the same algorithm as in our previous assigment, although with minor
+We're using the same algorithm as in our previous assignment, although with minor
 tweaks in its magic constants.
+\section{Test-program}
+To calculate the distances we first wrote a test-program to collect the test results. The robot-program starts 250 centimeters from a green piece of paper and runs until it's 75 centimeters away. The program runs in a loop where it first centers the robot such that the green piece of paper is in the middle of the camera's picture. Once it's centered it takes ten pictures and run 25 centimeters closer to the paper. This loop repeats until the last measurements are made. 
+We save all measurements in a Matrix(List List). We then use the two different techniques to calculate the distances and write them to separate txt files.
+We this use a python-script (reg.py) to make a fit on the data, calculate the variance, and plot the data.
+\subsection{Data}
+The first graph represents the calculated fit using the field-of-view technique.
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.65]{fov}
+\caption{Regression of sample data from field-of-view technique}
+\label{fig:fov}
+\end{figure}
+We have made a rough selection of removed outliers, yet we still see that the variance is high. The fitted regression gave us: $0.81005588729\cdot x + 15.2963279573$. This isn't very good. We would hope the the value $\sim$15.3 would be closer to 0 and the $\sim$0.81 would be closer to 1. If this was the case the method could be proper to estimate the real distances.
+\\
 
+The second graph represents the calculated fit using the two-pictures-technique.
+\begin{figure}[!h]
+\centering
+\includegraphics[scale=0.75]{box}
+\caption{Regression of sample data from two-pictures-technique}
+\label{fig:box}
+\end{figure}
 
-\section{Accuracy}
+Here we see that the variance is a bit lower giving us a somewhat better result. The fitted regression gave us: $1.04749081738\cdot x + 3.20182889525$. This is a lot closer to the expected values of 1 and 0, which could indicate that the two-pictures technique gives us a better better result.
 
-\subsection{Testing}
-
-\subsection{Standard deviation}
 
 \end{document}

@@ -1,6 +1,8 @@
 #include <cstdlib>
 #include <math.h>
 
+#include "random_numbers.h"
+
 // Auxil. functions
 inline double sign (double a)
 {
@@ -31,13 +33,13 @@ double bessi0 (double x)
   if (abs_x < 3.75)
     {
       const double y = square (x / 3.75);
-      retval = 1.0 + y * (3.5156229 + y * (3.0899424 + y * (1.2067492 + 
+      retval = 1.0 + y * (3.5156229 + y * (3.0899424 + y * (1.2067492 +
                      y * (0.2659732 + y * (0.360768e-1 + y * 0.45813e-2)))));
     }
   else
     {
       const double y = 3.75 / abs_x;
-      retval = (exp (abs_x) / sqrt(abs_x)) * (0.39894228 + y * (0.1328592e-1 + 
+      retval = (exp (abs_x) / sqrt(abs_x)) * (0.39894228 + y * (0.1328592e-1 +
                y * (0.225319e-2 + y * (-0.157565e-2 + y * (0.916281e-2 +
                y * (-0.2057706e-1 + y * (0.2635537e-1 + y * (-0.1647633e-1 +
                y * 0.392377e-2))))))));
@@ -76,7 +78,7 @@ double randn (double m, double s)
         w = x1 * x1 + x2 * x2;
       }
     while (w >= 1.0);
-    
+
     w = sqrt ((-2.0 * log(w)) / w);
     y1 = x1 * w;
     //y2 = x2 * w;
@@ -110,18 +112,17 @@ double rand_von_mises (const double mu, const double kappa)
         {
           const double u1 = randf ();
           const double u2 = randf ();
-      
+
           const double z = cos (M_PI * u1);
           f = (1.0 + r * z) / (r + z);
           const double c = kappa * (r - f);
-      
+
           not_done = (u2 >= c * (2.0 - c)) && (log (c) - log (u2) + 1.0 - c < 0.0);
         }
-    
+
       const double u3 = randf ();
       theta = mu + sign (u3 - 0.5) * acos (f);
     }
-  
+
   return theta;
 }
-

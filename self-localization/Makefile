@@ -1,36 +1,29 @@
-.PHONY: all clean
+# Compile and link flags
+CXX         =  g++
+CXXFLAGS    = -Wall
+OPENCVFLAGS = `pkg-config opencv --cflags`
+CXXFLAGS    = $(OPENCVFLAGS) -Wall
+OPENCVLIBS  = `pkg-config opencv --libs`
 
-CXX = g++
-CXXFLAGS = -Wall -Wextra
-IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
-CXXFLAGS_PLAYER = `pkg-config --cflags playerc++`
-CXXFLAGS_PLAYER += $(IGNORE_LIBPLAYER_JUNK_FLAGS)
-CXXFLAGS_OPENCV = `pkg-config --cflags opencv`
-LIBS_PLAYER = `pkg-config --libs playerc++`
-LIBS_OPENCV = `pkg-config --libs opencv`
+# Main executable
+EXECUTABLE = exercise5
 
-all: camtest findfov main
+# Files
+SOURCES = particles.cc random_numbers.cc camera.cc
+CCFILES = $(EXECUTABLE).cc $(SOURCES)
+OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 
-camtest: cam.o camtest.o
-	$(CXX) cam.o camtest.o $(LIBS_OPENCV) -o camtest
+## Compile everything ##
+all: $(EXECUTABLE)
 
-findfov: cam.o findfov.o
-	$(CXX) cam.o findfov.o $(LIBS_OPENCV) -o findfov
+# Linking
+$(EXECUTABLE): $(OBJECTS)
+	$(CXX) $(OPENCVLIBS) $(OBJECTS) -o $(EXECUTABLE)
 
-main: cam.o main.o calibration.o
-	$(CXX) cam.o main.o calibration.o $(LIBS_PLAYER) $(LIBS_OPENCV) -o main
+# Compilation.
+%.o : %.cc
+	$(CXX) $(CXXFLAGS) -c $^
 
-cam.o: cam.cc
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_OPENCV) -c $^
-
-calibration.o: calibration.cc
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_PLAYER) $(CXXFLAGS_OPENCV) -c $^
-
-camtest.o: camtest.cc
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_OPENCV) -c $^
-
-main.o: main.cc
-	$(CXX) $(CXXFLAGS) $(CXXFLAGS_PLAYER) $(CXXFLAGS_OPENCV) -c $^
-
-clean:
-	rm -f *.o camtest findfov main
+# Cleaning up
+clean :
+	rm -f *.o $(EXECUTABLE)

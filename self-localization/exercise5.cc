@@ -1,26 +1,16 @@
-
-#include <cv.h>
-
-#if CV_MAJOR_VERSION == 1
-#include "cxcore.h"
-#include "highgui.h"
-#endif
-
-#if CV_MAJOR_VERSION == 3 || CV_MAJOR_VERSION == 2
-// This works with OpenCV 2 and above
 #include <opencv2/opencv.hpp>
-#include <opencv2/core.hpp>
-#include <opencv2/highgui.hpp>
-#endif
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
 
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
 
-//#include "index.h"
 #include "camera.h"
 #include "particles.h"
 #include "random_numbers.h"
+
+using namespace cv;
 
 /*
  * Some colors
@@ -67,7 +57,7 @@ CvScalar jet (const double x)
     const double b = (x < 1.0/8.0) * (4.0 * x + 1.0/2.0)
     + (x >= 1.0/8.0 && x < 3.0/8.0)
     + (x >= 3.0/8.0 && x < 5.0/8.0) * (-4.0 * x + 5.0/2.0);
-    
+
     return CV_RGB (255.0*r, 255.0*g, 255.0*b);
 }
 
@@ -78,16 +68,16 @@ CvScalar jet (const double x)
 void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &im)
 {
     const int offset = 100;
-    
+
     // White background
     im = CWHITE; // assign the colour white to all pixels
-    
+
     // Find largest weight
     const int len = particles.size ();
     double max_weight = particles [0].weight;
     for (int i = 1; i < len; i++)
         max_weight = std::max (max_weight, particles [i].weight);
-    
+
     // Draw particles
     for (int i = 0; i < len; i++)
     {
@@ -99,13 +89,13 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
                                        (int)(particles[i].y + 15.0*sin(particles[i].theta))+offset);
         cv::line   (im, cv::Point2i (x,y), b, colour, 2);
     }
-    
+
     // Draw landmarks
     const cv::Point2i lm0 = cv::Point2i (landmarks[0].x+offset, landmarks[0].y+offset);
     const cv::Point2i lm1 = cv::Point2i (landmarks[1].x+offset, landmarks[1].y+offset);
     cv::circle (im, lm0, 5, CRED, 2);
     cv::circle (im, lm1, 5, CGREEN, 2);
-    
+
     // Draw estimated robot pose
     const cv::Point2i a = cv::Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);
     const cv::Point2i b = cv::Point2i ((int)(est_pose.x + 15.0*cos(est_pose.theta))+offset,
@@ -126,7 +116,7 @@ int main()
     cv::namedWindow (map, CV_WINDOW_AUTOSIZE);
     cv::namedWindow (window, CV_WINDOW_AUTOSIZE);
     cv::moveWindow (window, 500, 20);
-    
+
     // Initialize particles
     const int num_particles = 2000;
     std::vector<particle> particles(num_particles);
@@ -139,25 +129,25 @@ int main()
         particles[i].weight = 1.0/(double)num_particles;
     }
     particle est_pose = estimate_pose (particles); // The estimate of the robots current pose
-    
+
     // The camera interface
     camera cam(0, cv::Size(640,480), false);
-    
-    
-    
+
+
+
     // Initialize player (XXX: You do this)
-    
-    
-    
+
+
+
     // Driving parameters
     double velocity = 15; // cm/sec
     const double acceleration = 12; // cm/sec^2
     double angular_velocity = 0.0; // radians/sec
     const double angular_acceleration = M_PI/2.0; // radians/sec^2
-    
+
     // Draw map
     draw_world (est_pose, particles, world);
-    
+
     // Main loop
     while (true)
     {
@@ -195,20 +185,20 @@ int main()
             case 'q': // Quit
                 goto theend;
         }
-        
-        
+
+
         //XXX: Make player drive. You do this
-        
+
         // Prediction step
         // Read odometry, see how far we have moved, and update particles.
         // Or use motor controls to update particles (
         //XXX: You do this
-        
-        
-        
+
+
+
         // Grab image
         cv::Mat im = cam.get_colour ();
-        
+
         // Do landmark detection
         double measured_distance, measured_angle;
         colour_prop cp;
@@ -218,7 +208,7 @@ int main()
             printf ("Measured distance: %f\n", measured_distance);
             printf ("Measured angle:    %f\n", measured_angle);
             printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
-            
+
             if (ID == object::horizontal)
             {
                 printf ("Landmark is horizontal\n");
@@ -232,41 +222,41 @@ int main()
                 printf ("Unknown landmark type!\n");
                 continue;
             }
-            
+
             // Correction step
             // Compute particle weights
             // XXX: You do this
-            
-            
+
+
             // Resampling step
             // XXX: You do this
-            
+
             // Draw the object in the image (for visualisation)
             cam.draw_object (im);
-            
+
         } else { // end: if (found_landmark)
-            
+
             // No observation - reset weights to uniform distribution
             for (int i = 0; i < num_particles; i++)
             {
                 particles[i].weight = 1.0/(double)num_particles;
             }
-            
+
         }  // end: if (not found_landmark)
-        
+
         // Estimate pose
         est_pose = estimate_pose (particles);
-        
+
         // Visualisation
         draw_world (est_pose, particles, world);
         cv::imshow(map, world);
         cv::imshow(window, im);
     } // End: while (true)
-    
+
 theend:
-    
+
     // Stop the robot
     // XXX: You do this
-    
+
     return 0;
 }

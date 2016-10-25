@@ -10,7 +10,7 @@
 #include "camera.h"
 #include "particles.h" 
 #include "random_numbers.h"
-
+ 
 
 using namespace cv;
 using namespace PlayerCc;
@@ -121,7 +121,7 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 2000;
+  const int num_particles = 2;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
@@ -245,17 +245,31 @@ int main_old(char* host, int port, int device_index)
           // Compute particle weights
           // XXX: You do this
           Wavg = 0;
+          double weightSum = 0;
+          double weight;
           for (int i = 0; i < num_particles; i++) {
-            particles[i].weight = landmark(particles[i], measured_distance/10, measured_angle,
-                                           landmark_id);
+            weight = landmark(particles[i], measured_distance/10, measured_angle,
+                              landmark_id);
+            particles[i].weight = weight;
+            Wavg += Wavg + 1/num_particles*weight;
+            weightSum += weight;
           }
+          for (int i = 0; i < num_particles; i++) {
+            particles[i].weight /= weightSum;
+          }
+
 
           //Wslow += xxx * (Wavg - Wslow)
           //Wfast += xxx * (Wavg - Wfast)
 
           // Resampling step
           // XXX: You do this
-
+          double z = randf();
+          /*
+            code for remove 0 elements
+           */
+          
+          
           // Draw the object in the image (for visualisation)
           cam.draw_object (im);
 

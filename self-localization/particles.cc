@@ -5,6 +5,16 @@
 #include "particles.h"
 #include "random_numbers.h"
 
+double distance_to_landmark(double landmark_dist) {
+  double VAR = pow(0.5, 2); //determine cm or M.
+  return 1/sqrt(2*M_PI*VAR)*exp(-(pow(landmark_dist, 2))/2*VAR);
+}
+
+double angle_to_landmark(double landmark_angle) {
+  double VAR = pow(1.5, 2); //determine cm or M.
+  return 1/sqrt(2*M_PI*VAR)*exp(-(pow(landmark_angle, 2))/2*VAR);
+}
+
 particle estimate_pose (std::vector<particle> &particles)
 {
     double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;

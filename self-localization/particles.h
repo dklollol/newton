@@ -67,4 +67,7 @@ void add_uncertainty(std::vector<particle> &particles, double sigma, double sigm
  */
 void add_uncertainty_von_mises(std::vector<particle> &particles, double sigma, double theta_kappa);
 
+double distance_to_landmark(double landmark_dist);
+
+double angle_to_landmark(double landmark_angle);
 #endif

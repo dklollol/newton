@@ -203,9 +203,9 @@ int main_old(char* host, int port, int device_index)
       //XXX: You do this
       drive(&pp);
       for (int i = 0; i < num_particles; i++) {
-        pos.x = 0;
-        pos.y = 0;
-        pos.yaw = 0;
+        // pos.x = 0;
+        // pos.y = 0;
+        // pos.yaw = 0;
         drive_particle(particles[i], &pos);
         move_particle(particles[i], pos.x, pos.y, pos.yaw);
             

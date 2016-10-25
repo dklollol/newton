@@ -1,48 +1,49 @@
 #include <vector>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 
 #include "particles.h"
 #include "random_numbers.h"
 
-double distance_to_landmark(double landmark_dist) {
-  double VAR = pow(0.5, 2); //determine cm or M.
-  return 1/sqrt(2*M_PI*VAR)*exp(-(pow(landmark_dist, 2))/2*VAR);
+double prob(double arg, double sd) {
+  double var = pow(sd, 2); //determine cm or M.
+  return 1/sqrt(2*M_PI*var)*exp(-(pow(arg, 2))/2*var);
 }
 
-double angle_to_landmark(double landmark_angle) {
-  double VAR = pow(1.5, 2); //determine cm or M.
-  return 1/sqrt(2*M_PI*VAR)*exp(-(pow(landmark_angle, 2))/2*VAR);
-}
 
 particle estimate_pose (std::vector<particle> &particles)
 {
-    double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;
-    const int len = particles.size ();
-    for (int i = 0; i < len; i++)
-      {
-        x_sum += particles[i].x;
-        y_sum += particles[i].y;
-        cos_sum += cos (particles[i].theta);
-        sin_sum += sin (particles[i].theta);
-      }
-    const double flen = (double)len;
-    const double x = x_sum/flen;
-    const double y = y_sum/flen;
-    const double theta = atan2 (sin_sum/flen, cos_sum/flen);
-    return particle (x, y, theta);
+  double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;
+  const int len = particles.size ();
+  for (int i = 0; i < len; i++)
+    {
+      x_sum += particles[i].x;
+      y_sum += particles[i].y;
+      cos_sum += cos (particles[i].theta);
+      sin_sum += sin (particles[i].theta);
+    }
+  const double flen = (double)len;
+  const double x = x_sum/flen;
+  const double y = y_sum/flen;
+  const double theta = atan2 (sin_sum/flen, cos_sum/flen);
+  return particle (x, y, theta);
 }
 
 // XXX: You implement this
 void move_particle (particle &p, double delta_x, double delta_y, double delta_theta)
 {
-    //std::cerr << "particle.cc: move_particle not implemented. You should do this." << std::endl;
-    p.x += delta_x;
-    p.y += delta_y;
-    p.theta += delta_theta;
+  p.x += delta_x;
+  p.y += delta_y;
+  p.theta += delta_theta;
 }
 
-
+double landmark(particle &p, double dist, double angle, int landmark_id) {
+  double landmark_y = landmark_id ? 0 : 300;
+  double dist_diff = std::abs(dist - sqrt(pow(p.x, 2)+ pow(p.y-landmark_y, 2)));
+  double angle_diff = p.theta - angle;
+  return prob(dist_diff, 0.05) + prob(angle_diff, 0.0015);
+      
+}
 
 void add_uncertainty (std::vector<particle> &particles, double sigma, double sigma_theta)
 {

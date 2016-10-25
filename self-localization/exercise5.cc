@@ -121,7 +121,7 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 100;
+  const int num_particles = 2000;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
@@ -201,13 +201,19 @@ int main_old(char* host, int port, int device_index)
       // Read odometry, see how far we have moved, and update particles.
       // Or use motor controls to update particles (
       //XXX: You do this
-      pos.x = 0;
-      pos.y = 0;
-      pos.yaw = 0;
-      drive(&pp, &pos);
+      drive(&pp);
+      for (int i = 0; i < num_particles; i++) {
+        pos.x = 0;
+        pos.y = 0;
+        pos.yaw = 0;
+        drive_particle(particles[i], &pos);
+        move_particle(particles[i], pos.x, pos.y, pos.yaw);
+            
+      }
+      add_uncertainty(particles, 0.05, 0.0015);
       // Grab image
       cv::Mat im = cam.get_colour ();
-
+      int landmark_id = 0;
       // Do landmark detection
       double measured_distance, measured_angle;
       colour_prop cp;
@@ -221,7 +227,7 @@ int main_old(char* host, int port, int device_index)
           if (ID == object::horizontal)
             {
               // observed an Landmark!
-              
+              landmark_id = 1;
               printf ("Landmark is horizontal\n");
             }
           else if (ID == object::vertical)
@@ -238,13 +244,12 @@ int main_old(char* host, int port, int device_index)
           // Correction step
           // Compute particle weights
           // XXX: You do this
-            
           Wavg = 0;
-
           for (int i = 0; i < num_particles; i++) {
-            move_particle(particles[i], pos.x, pos.y, pos.yaw);
-            
+            particles[i].weight = landmark(particles[i], measured_distance/10, measured_angle,
+                                           landmark_id);
           }
+
           //Wslow += xxx * (Wavg - Wslow)
           //Wfast += xxx * (Wavg - Wfast)
 

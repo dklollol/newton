@@ -1,4 +1,5 @@
 #include "robot.h"
+#include "particles.h"
 
 void sleep(double seconds) {
   struct timespec spec;
@@ -9,18 +10,21 @@ void sleep(double seconds) {
 
 
 // drives xx cm and stops 
-void drive(Position2dProxy *pp, pos_t *pos) {
+void drive(Position2dProxy *pp) {
   pp->SetSpeed(SPEED, DTOR(0));
   sleep(TIME+ACC_TIME);
   pp->SetSpeed(0, DTOR(0));
-  pos->x = cos(pos->yaw)*SPEED*TIME;
-  pos->y = sin(pos->yaw)*SPEED*TIME;
 }
 
-void turn(Position2dProxy *pp, pos_t *pos, double yaw) {
-  pp->SetSpeed(0, DTOR(yaw));
+void drive_particle(particle &p, pos_t *pos) {
+  pos->x = cos(p.theta)*SPEED*TIME;
+  pos->y = sin(p.theta)*SPEED*TIME;
+}
+// yaw is radians! 
+void turn(Position2dProxy *pp, double yaw) {
+  pp->SetSpeed(0, yaw);
   sleep(TIME+ACC_TIME);
   pp->SetSpeed(0,0);
-  pos->yaw = yaw;
-
 }
+
+

@@ -9,10 +9,18 @@ void sleep(double seconds) {
 
 
 // drives xx cm and stops 
-void drive_dist(Position2dProxy *pp, pos_t *pos, double dist, double speed) {
-  double acc_time = speed*pow(10, -6);
-  double time = (dist / speed)/100;
-  pp->SetSpeed(speed, DTOR(0));
-  sleep(time+acc_time);
+void drive(Position2dProxy *pp, pos_t *pos) {
+  pp->SetSpeed(SPEED, DTOR(0));
+  sleep(TIME+ACC_TIME);
   pp->SetSpeed(0, DTOR(0));
+  pos->x = cos(pos->yaw)*SPEED*TIME;
+  pos->y = sin(pos->yaw)*SPEED*TIME;
+}
+
+void turn(Position2dProxy *pp, pos_t *pos, double yaw) {
+  pp->SetSpeed(0, DTOR(yaw));
+  sleep(TIME+ACC_TIME);
+  pp->SetSpeed(0,0);
+  pos->yaw = yaw;
+
 }

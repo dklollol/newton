@@ -6,7 +6,7 @@
 #include <stdio.h>
 #include <iostream>
 #include <cmath>
-//#include "robot.h"
+#include "robot.h"
 #include "camera.h"
 #include "particles.h" 
 #include "random_numbers.h"
@@ -111,7 +111,7 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
  *      Main program     *
  \*************************/
 int main_old(char* host, int port, int device_index)
-{
+{ 
   // The GUI
   const char *map = "World map";
   const char *window = "Robot View";
@@ -121,7 +121,7 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 10000;
+  const int num_particles = 100;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
@@ -143,15 +143,16 @@ int main_old(char* host, int port, int device_index)
 
 
   // Initialize player (XXX: You do this)
-  //PlayerClient robot(host, port);
-  //Position2dProxy pp(&robot, device_index);
+  PlayerClient robot(host, port);
+  Position2dProxy pp(&robot, device_index);
 
   // Driving parameters
   double velocity = 15; // cm/sec
   const double acceleration = 12; // cm/sec^2
   double angular_velocity = 0.0; // radians/sec
   const double angular_acceleration = M_PI/2.0; // radians/sec^2
-
+  pos_t pos;
+  
   // Draw map
   draw_world (est_pose, particles, world);
  
@@ -200,9 +201,10 @@ int main_old(char* host, int port, int device_index)
       // Read odometry, see how far we have moved, and update particles.
       // Or use motor controls to update particles (
       //XXX: You do this
-
-
-
+      pos.x = 0;
+      pos.y = 0;
+      pos.yaw = 0;
+      drive(&pp, &pos);
       // Grab image
       cv::Mat im = cam.get_colour ();
 
@@ -240,7 +242,7 @@ int main_old(char* host, int port, int device_index)
           Wavg = 0;
 
           for (int i = 0; i < num_particles; i++) {
-            //move_particle(&particles[i], delta_x, delta_y,  delta_theta);
+            move_particle(particles[i], pos.x, pos.y, pos.yaw);
             
           }
           //Wslow += xxx * (Wavg - Wslow)

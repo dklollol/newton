@@ -10,7 +10,10 @@
 #include "particles.h"
 #include "random_numbers.h"
 
+#include <libplayerc++/playerc++.h>
+
 using namespace cv;
+using namespace PlayerCc;
 
 /*
  * Some colors
@@ -107,7 +110,7 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
 /*************************\
  *      Main program     *
  \*************************/
-int main()
+int main_old(char* host, int port, int device_index)
 {
     // The GUI
     const char *map = "World map";
@@ -130,14 +133,18 @@ int main()
     }
     particle est_pose = estimate_pose (particles); // The estimate of the robots current pose
 
+    double Wslow = 0.0;
+    double Wfast = 0.0;
+    double Wavg = 0.0;
+
     // The camera interface
     camera cam(0, cv::Size(640,480), false);
 
 
 
     // Initialize player (XXX: You do this)
-
-
+    PlayerClient robot(host, port);
+    Position2dProxy pp(&robot, device_index);
 
     // Driving parameters
     double velocity = 15; // cm/sec
@@ -226,7 +233,13 @@ int main()
             // Correction step
             // Compute particle weights
             // XXX: You do this
+            
+            Wavg = 0;
 
+            for (int i = 0; i < num_particles; i++) {
+
+                move_particle(&particles[i], double delta_x, double delta_y, double delta_theta);
+            }
 
             // Resampling step
             // XXX: You do this
@@ -257,6 +270,27 @@ theend:
 
     // Stop the robot
     // XXX: You do this
+    pp.SetSpeed(0.0, DTOR(0));
 
     return 0;
+}
+
+int main(int argc, char* argv[]) {
+  char* host;
+  if (argc > 1) {
+    host = argv[1];
+  }
+  else {
+    host = (char*) "localhost";
+  }
+
+  const int port = 6665;
+  const int device_index = 0;
+  try {
+    main_old(host, port, device_index);
+    return EXIT_SUCCESS;
+  } catch (PlayerCc::PlayerError e) {
+    std::cerr << e << std::endl;
+    return EXIT_FAILURE;
+  }
 }

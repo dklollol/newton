@@ -1,9 +1,9 @@
 # Compile and link flags
 CXX         =  g++
 CXXFLAGS    = -Wall
-OPENCVFLAGS = `pkg-config opencv --cflags`
+OPENCVFLAGS = `pkg-config opencv playerc++ --cflags`
 CXXFLAGS    = $(OPENCVFLAGS) -Wall
-OPENCVLIBS  = `pkg-config opencv --libs`
+OPENCVLIBS  = `pkg-config opencv playerc++ --libs`
 
 # Main executable
 EXECUTABLE = exercise5
@@ -18,7 +18,7 @@ all: $(EXECUTABLE)
 
 # Linking
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) $(OPENCVLIBS) $(OBJECTS) -o $(EXECUTABLE)
+	$(CXX) -o $(EXECUTABLE) $(OBJECTS) $(OPENCVLIBS)
 
 # Compilation.
 %.o : %.cc

@@ -38,12 +38,21 @@ void move_particle (particle &p, double delta_x, double delta_y, double delta_th
 }
 
 double landmark(particle &p, double dist, double angle, int landmark_id) {
+  double landmark_x = 0;
   double landmark_y = landmark_id ? 0 : 300;
-  double dist_diff = std::abs(dist - sqrt(pow(p.x, 2)+ pow(p.y-landmark_y, 2)));
-  double angle_diff = p.theta - angle;
+  double dist_diff = std::abs(dist - sqrt(pow(p.x-landmark_x, 2)+ pow(p.y-landmark_y, 2)));
+  
+  landmark_x -= p.x;
+  landmark_y -= p.y;
+
+  double rotated_landmark_x = landmark_x * cos(p.theta) - landmark_y * sin(p.theta);
+  double rotated_landmark_y = landmark_x * sin(p.theta) + landmark_y * cos(p.theta);
+
+  double angle_diff = atan2(rotated_landmark_y, rotated_landmark_x);
+
   return prob(dist_diff, 0.05) + prob(angle_diff, 0.0015);
-      
-}
+}      
+
 
 void add_uncertainty (std::vector<particle> &particles, double sigma, double sigma_theta)
 {

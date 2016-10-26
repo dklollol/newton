@@ -16,9 +16,13 @@ struct pos_t {
 
 void drive(Position2dProxy *pp);
 
-void drive_particle(particle &p , pos_t *pos);
+void drive_particle(particle &p, pos_t *pos);
 
 void turn(Position2dProxy *pp, double yaw);
+
+void turn_particle(pos_t *pos, double yaw);
+
+void gotoPos(Position2dProxy *pp, particle *p, double x, double y);
 
 
 #endif /* ROBOT_H */

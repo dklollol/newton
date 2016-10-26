@@ -7,8 +7,7 @@
 #include "random_numbers.h"
 #include <libplayerc++/playerc++.h>
 
-double prob(double arg, double sd) {
-  double var = pow(sd, 2); //determine cm or M.
+double prob(double arg, double var) {
   return 1/sqrt(2*M_PI*var)*exp(-(pow(arg, 2))/2*var);
 }
 
@@ -40,18 +39,22 @@ void move_particle (particle &p, double delta_x, double delta_y, double delta_th
 }
 
 double landmark(particle &p, double dist, double angle, int landmark_id) {
-  double landmark_x = 0;
-  double landmark_y = landmark_id ? 0 : 300;
-  double dist_diff = std::abs(dist - sqrt(pow(p.x-landmark_x, 2)+ pow(p.y-landmark_y, 2)));
+  double landmark_y = 0;
+  double landmark_x = landmark_id ? 0 : 300;
+  double disti = sqrt(pow(landmark_x - p.x, 2)+ pow(landmark_y - p.y, 2));
+  double dist_diff = std::abs(dist - disti);
   
   landmark_x -= p.x;
   landmark_y -= p.y;
 
   double rotated_landmark_x = landmark_x * cos(p.theta) - landmark_y * sin(p.theta);
   double rotated_landmark_y = landmark_x * sin(p.theta) + landmark_y * cos(p.theta);
-
+  
   double angle_diff = atan2(rotated_landmark_y, rotated_landmark_x);
-  return prob(dist_diff, 0.05) + prob(angle_diff, 0.0015);
+  
+  /*double anglei = acos((landmark_x - p.x)/disti) - p.theta;
+    double angle_diff = std::abs(angle - anglei); */
+  return prob(dist_diff, 10) * prob(angle_diff, DTOR(2));
 }      
 
 

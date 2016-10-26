@@ -122,7 +122,7 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 1000;
+  const int num_particles = 2000;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
@@ -160,8 +160,8 @@ int main_old(char* host, int port, int device_index)
   // Main loop
   while (true)
     {
-      // Move the robot according to user input
-      int action = cvWaitKey (10);
+      // // Move the robot according to user input
+      int action = cvWaitKey (5);
       switch (action) {
       case KEY_UP:
         velocity += 4.0;
@@ -202,16 +202,17 @@ int main_old(char* host, int port, int device_index)
       // Read odometry, see how far we have moved, and update particles.
       // Or use motor controls to update particles (
       //XXX: You do this
-      drive(&pp);
+      //drive(&pp);
+      turn(&pp, DTOR(5));
       for (int i = 0; i < num_particles; i++) {
-        // pos.x = 0;
-        // pos.y = 0;
-        // pos.yaw = 0;
-        drive_particle(particles[i], &pos);
+        pos.yaw = 0;
+        pos.x = 0;
+        pos.y = 0;
+        turn_particle(&pos, DTOR(5));
         move_particle(particles[i], pos.x, pos.y, pos.yaw);
-            
+
       }
-      add_uncertainty(particles, 0.05, 0.0015);
+      add_uncertainty_von_mises(particles, 35, DTOR(10));
       // Grab image
       cv::Mat im = cam.get_colour ();
       int landmark_id = 0;
@@ -306,7 +307,7 @@ int main_old(char* host, int port, int device_index)
 
       // Estimate pose
       est_pose = estimate_pose (particles);
-
+      printf("est_pose values: x:%f, y:%f, theta:%f\n", est_pose.x, est_pose.y, est_pose.theta);
       // Visualisation
       draw_world (est_pose, particles, world);
       cv::imshow(map, world);

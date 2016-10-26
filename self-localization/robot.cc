@@ -17,8 +17,8 @@ void drive(Position2dProxy *pp) {
 }
 
 void drive_particle(particle &p, pos_t *pos) {
-  pos->x = cos(p.theta)*SPEED*(TIME);
-  pos->y = sin(p.theta)*SPEED*(TIME);
+  pos->x = cos(p.theta)*SPEED*(TIME)*100;
+  pos->y = sin(p.theta)*SPEED*(TIME)*100;
   pos->yaw = 0;
 }
 // yaw is radians! 

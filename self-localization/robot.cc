@@ -12,18 +12,18 @@ void sleep(double seconds) {
 // drives xx cm and stops 
 void drive(Position2dProxy *pp) {
   pp->SetSpeed(SPEED, DTOR(0));
-  sleep(TIME+ACC_TIME);
+  sleep(TIME);
   pp->SetSpeed(0, DTOR(0));
 }
 
 void drive_particle(particle &p, pos_t *pos) {
-  pos->x = cos(p.theta)*SPEED*(TIME+ACC_TIME);
-  pos->y = sin(p.theta)*SPEED*(TIME+ACC_TIME);
+  pos->x = cos(p.theta)*SPEED*(TIME);
+  pos->y = sin(p.theta)*SPEED*(TIME);
 }
 // yaw is radians! 
 void turn(Position2dProxy *pp, double yaw) {
   pp->SetSpeed(0, yaw);
-  sleep(TIME+ACC_TIME);
+  sleep(TIME);
   pp->SetSpeed(0,0);
 }
 

@@ -51,7 +51,6 @@ double landmark(particle &p, double dist, double angle, int landmark_id) {
   double rotated_landmark_y = landmark_x * sin(p.theta) + landmark_y * cos(p.theta);
 
   double angle_diff = atan2(rotated_landmark_y, rotated_landmark_x);
-  printf("angle diff: %f\n", RTOD(angle_diff));
   return prob(dist_diff, 0.05) + prob(angle_diff, 0.0015);
 }      
 

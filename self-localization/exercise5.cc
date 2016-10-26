@@ -5,6 +5,7 @@
 #include <libplayerc++/playerc++.h>
 #include <stdio.h>
 #include <iostream>
+#include <vector>
 #include <cmath>
 #include "robot.h"
 #include "camera.h"
@@ -121,7 +122,7 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 2;
+  const int num_particles = 1000;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
@@ -170,16 +171,16 @@ int main_old(char* host, int port, int device_index)
         break;
       case KEY_LEFT:
         angular_velocity -= 0.2;
-        break;
+        break; 
       case KEY_RIGHT:
         angular_velocity += 0.2;
         break;
       case 'w': // Forward
-        velocity += 4.0;
+        velocity += 4.0; 
         break;
       case 'x': // Backwards
         velocity -= 4.0;
-        break;
+        break; 
       case 's': // Stop
         velocity = 0.0;
         angular_velocity = 0.0;
@@ -262,14 +263,34 @@ int main_old(char* host, int port, int device_index)
           //Wslow += xxx * (Wavg - Wslow)
           //Wfast += xxx * (Wavg - Wfast)
 
-          // Resampling step
+          // Resampling step 
           // XXX: You do this
-          double z = randf();
-          /*
-            code for remove 0 elements
-           */
-          
-          
+          // Vector containing the cummalative sum of particle weights
+          std::vector<double> weightSumGraph;
+          weightSumGraph.reserve(num_particles); // one extra length for 0.0 index at start
+
+          for(int i = 0; i < num_particles; i++)
+            weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
+
+          // update particles!!
+          std::vector<particle> newParticles;
+          newParticles.reserve(num_particles);
+          double z;
+          int j;
+          for (int i = 0; i < num_particles; i++) {
+            z = randf();
+            if (z < weightSumGraph[i]) {
+              j = i;
+              while (weightSumGraph[j] == weightSumGraph[j-1]) {
+                j -= 1;
+              }
+              newParticles.push_back(particles[j]);
+            }
+          }
+          particles = newParticles;
+
+          // removes all weights from vector at resets length 0.
+          weightSumGraph.clear(); 
           // Draw the object in the image (for visualisation)
           cam.draw_object (im);
 

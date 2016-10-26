@@ -3,9 +3,8 @@
 
 #include <libplayerc++/playerc++.h>
 #include "particles.h"
-const double TIME = 0.0;
+const double TIME = 0.3;
 const double SPEED = 0.1;
-const double ACC_TIME = 0*SPEED*pow(10, -6);
 
 
 using namespace PlayerCc;

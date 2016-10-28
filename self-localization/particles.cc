@@ -38,6 +38,10 @@ void move_particle (particle &p, double delta_x, double delta_y, double delta_th
   p.theta += delta_theta;
 }
 
+float clamp(float n, float lower, float upper) {
+  return std::max(lower, std::min(n, upper));
+}
+
 double landmark(particle &p, double dist, double angle, int landmark_id) {
   double landmark_y = 0;
   double landmark_x = landmark_id ? 0 : 300;
@@ -54,7 +58,8 @@ double landmark(particle &p, double dist, double angle, int landmark_id) {
   
   /*double anglei = acos((landmark_x - p.x)/disti) - p.theta;
     double angle_diff = std::abs(angle - anglei); */
-  return prob(dist_diff, 10) * prob(angle_diff, DTOR(2));
+  //return prob(dist_diff, 10) * prob(angle_diff, DTOR(2));
+  return clamp(1 - (dist_diff / 100), 0, 1);
 }      
 
 

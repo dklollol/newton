@@ -254,13 +254,13 @@ int main_old(char* host, int port, int device_index)
         move_particle(particles[i], pos.speed * cos(particles[i].theta + pos.turn), pos.speed * cos(particles[i].theta + pos.turn), pos.turn);
       }
 
-      add_uncertainty_von_mises(particles, pos.speed, pos.turn);
+      add_uncertainty(particles, pos.speed, pos.turn);
 
       pos.speed = 0;
       pos.turn = 0;
 
       // Grab image
-      cv::Mat im = cam.get_colour ();
+      cv::Mat im = cam.get_colour();
       int landmark_id = 0;
       // Do landmark detection
       double measured_distance, measured_angle;
@@ -319,10 +319,10 @@ int main_old(char* host, int port, int device_index)
           double weightSum = 0;
           double weight;
           for (int i = 0; i < num_particles; i++) {
-            weight = landmark(particles[i], measured_distance/10, measured_angle,
+            weight = landmark(particles[i], measured_distance, measured_angle,
                               landmark_id);
             particles[i].weight = weight;
-            Wavg += Wavg + 1/num_particles*weight;
+            //Wavg += Wavg + 1/num_particles*weight;
             weightSum += weight;
           }
           for (int i = 0; i < num_particles; i++) {

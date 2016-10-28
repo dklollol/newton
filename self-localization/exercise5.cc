@@ -346,12 +346,11 @@ int main_old(char* host, int port, int device_index)
           int j;
           for (int i = 0; i < num_particles; i++) {
             z = randf();
-            if (z < weightSumGraph[i]) {
-              j = i;
-              while (weightSumGraph[j] == weightSumGraph[j-1]) {
-                j -= 1;
+            for (int j = 0; j < num_particles; j++) {
+              if (z >= weightSumGraph[j]) {
+                newParticles[i] = particles[j];
+                break;
               }
-              newParticles.push_back(particles[j]);
             }
           }
           particles = newParticles;

@@ -153,7 +153,7 @@ int main_old(char* host, int port, int device_index)
   const double angular_acceleration = M_PI/2.0; // radians/sec^2
   pos_t pos;
 
-  enum state {searching, align, approach, right_angle};
+  enum state {searching, align, approach, right_angle, drive_in_circle};
 
   state robot_state = searching;
 
@@ -206,17 +206,32 @@ int main_old(char* host, int port, int device_index)
 
       switch (robot_state) {
         case searching:
+	  puts("searching\n");
           turn(&pp, &pos, 10.0);
         break;
         case align:
-          turn(&pp, &pos, std::min(turn_diff, 10.0));
+	  puts("align\n");
+          turn(&pp, &pos, turn_diff);
         break;
         case approach:
-          drive(&pp, &pos, std::min(distance_diff, 10.0));
+	  puts("approach\n");
+          drive(&pp, &pos, distance_diff);
         break;
         case right_angle:
-          turn(&pp, &pos, std::min(turn_diff, 10.0));
-          turn_diff -= pos.turn;
+	  puts("right_angle\n");
+          turn(&pp, &pos, turn_diff);
+	  cvWaitKey(1000);
+	  turn(&pp, &pos, 0.0);
+	  robot_state = drive_in_circle;
+	  break;
+        case drive_in_circle:
+	  double circumference = 150 * 2 * M_PI;
+	  double speed = 20.0;
+	  double drive_time = circumference / speed;
+	  double turn_rate = 360.0 / drive_time;
+	  driveturn(&pp, &pos, speed, turn_rate);
+	  cvWaitKey(47000); // fixme: sov kun lidt ad gangen
+	  driveturn(&pp, &pos, 0.0, 0.0);
         break;
       }
 
@@ -248,7 +263,7 @@ int main_old(char* host, int port, int device_index)
           printf ("Measured angle:    %f\n", measured_angle);
           printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
 
-          if (robot_state != right_angle) {
+          if (robot_state != right_angle && robot_state != drive_in_circle) {
             if (std::abs(measured_angle) > DTOR(1)) {
               turn_diff = RTOD(measured_angle);
               robot_state = align;

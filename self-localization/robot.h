@@ -19,6 +19,8 @@ void drive(Position2dProxy *pp, pos_t *pos, double speed);
 
 void turn(Position2dProxy *pp, pos_t *pos, double yaw);
 
+void driveturn(Position2dProxy *pp, pos_t *pos, double speed, double yaw);
+
 /*
 void drive_particle(particle &p, pos_t *pos);
 

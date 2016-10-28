@@ -58,8 +58,9 @@ double landmark(particle &p, double dist, double angle, int landmark_id) {
   
   /*double anglei = acos((landmark_x - p.x)/disti) - p.theta;
     double angle_diff = std::abs(angle - anglei); */
-  //return prob(dist_diff, 10) * prob(angle_diff, DTOR(2));
-  return clamp(1 - (dist_diff / 100), 0, 1);
+  double return_value = prob(dist_diff, 15)* prob(angle_diff, DTOR(10));
+  //printf("probsum: %f\n", return_value);
+  return return_value;
 }      
 
 

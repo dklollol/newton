@@ -11,7 +11,6 @@
 #include "camera.h"
 #include "particles.h" 
 #include "random_numbers.h"
- 
 
 using namespace cv;
 using namespace PlayerCc;
@@ -19,7 +18,7 @@ using namespace PlayerCc;
 /*
  * Some colors
  */
-#define CRED     CV_RGB(255, 0, 0)
+#define CRED     CV_RGB(255	, 0, 0)
 #define CGREEN   CV_RGB(0, 255, 0)
 #define CBLUE    CV_RGB(0, 0, 255)
 #define CCYAN    CV_RGB(0, 255, 255)
@@ -153,7 +152,14 @@ int main_old(char* host, int port, int device_index)
   double angular_velocity = 0.0; // radians/sec
   const double angular_acceleration = M_PI/2.0; // radians/sec^2
   pos_t pos;
-  
+
+  enum state {searching, align, approach, right_angle};
+
+  state robot_state = searching;
+
+  double turn_diff = 0;
+  double distance_diff = 0;
+
   // Draw map
   draw_world (est_pose, particles, world);
  
@@ -195,24 +201,40 @@ int main_old(char* host, int port, int device_index)
         goto theend;
       }
 
-
       //XXX: Make player drive. You do this
+
+
+      switch (robot_state) {
+        case searching:
+          turn(&pp, &pos, 10.0);
+        break;
+        case align:
+          turn(&pp, &pos, std::min(turn_diff, 10.0));
+        break;
+        case approach:
+          drive(&pp, &pos, std::min(distance_diff, 10.0));
+        break;
+        case right_angle:
+          turn(&pp, &pos, std::min(turn_diff, 10.0));
+          turn_diff -= pos.turn;
+        break;
+      }
 
       // Prediction step
       // Read odometry, see how far we have moved, and update particles.
       // Or use motor controls to update particles (
       //XXX: You do this
       //drive(&pp);
-      turn(&pp, DTOR(5));
-      for (int i = 0; i < num_particles; i++) {
-        pos.yaw = 0;
-        pos.x = 0;
-        pos.y = 0;
-        turn_particle(&pos, DTOR(5));
-        move_particle(particles[i], pos.x, pos.y, pos.yaw);
 
+      for (int i = 0; i < num_particles; i++) {
+        move_particle(particles[i], pos.speed * cos(particles[i].theta + pos.turn), pos.speed * cos(particles[i].theta + pos.turn), pos.turn);
       }
-      add_uncertainty_von_mises(particles, 35, DTOR(10));
+
+      add_uncertainty_von_mises(particles, pos.speed, pos.turn);
+
+      pos.speed = 0;
+      pos.turn = 0;
+
       // Grab image
       cv::Mat im = cam.get_colour ();
       int landmark_id = 0;
@@ -225,6 +247,21 @@ int main_old(char* host, int port, int device_index)
           printf ("Measured distance: %f\n", measured_distance);
           printf ("Measured angle:    %f\n", measured_angle);
           printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
+
+          if (robot_state != right_angle) {
+            if (std::abs(measured_angle) > DTOR(1)) {
+              turn_diff = RTOD(measured_angle);
+              robot_state = align;
+            } else {
+              if (std::abs(measured_distance - 150) > 5) {
+                distance_diff = measured_distance - 150;
+                robot_state = approach;
+              } else {
+                turn_diff = 90;
+                robot_state = right_angle;
+              }
+            }
+          }
 
           if (ID == object::horizontal)
             {
@@ -324,6 +361,7 @@ int main_old(char* host, int port, int device_index)
 }
 
 int main(int argc, char* argv[]) {
+
   char* host;
   if (argc > 1) {
     host = argv[1];

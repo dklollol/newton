@@ -153,12 +153,14 @@ int main_old(char* host, int port, int device_index)
   const double angular_acceleration = M_PI/2.0; // radians/sec^2
   pos_t pos;
 
-  enum state {searching, align, approach, right_angle, drive_in_circle};
+  enum state {searching, align, approach, right_angle, drive_in_circle, stopped, drive_to_center};
 
   state robot_state = searching;
 
   double turn_diff = 0;
   double distance_diff = 0;
+
+  object::type first_found = object::none;
 
   // Draw map
   draw_world (est_pose, particles, world);
@@ -225,13 +227,17 @@ int main_old(char* host, int port, int device_index)
 	  robot_state = drive_in_circle;
 	  break;
         case drive_in_circle:
-	  double circumference = 150 * 2 * M_PI;
-	  double speed = 20.0;
-	  double drive_time = circumference / speed;
-	  double turn_rate = 360.0 / drive_time;
-	  driveturn(&pp, &pos, speed, turn_rate);
-	  cvWaitKey(47000); // fixme: sov kun lidt ad gangen
-	  driveturn(&pp, &pos, 0.0, 0.0);
+          puts("drive_in_circle\n");
+          {
+            double circumference = 150 * 2 * M_PI;
+            double speed = 20.0;
+            double drive_time = circumference / speed;
+            double turn_rate = 360.0 / drive_time;
+            driveturn(&pp, &pos, speed, turn_rate);
+          }
+      break;
+      case stopped:
+        driveturn(&pp, &pos, 0, 0);
         break;
       }
 
@@ -263,7 +269,7 @@ int main_old(char* host, int port, int device_index)
           printf ("Measured angle:    %f\n", measured_angle);
           printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
 
-          if (robot_state != right_angle && robot_state != drive_in_circle) {
+          if (robot_state != right_angle && robot_state != drive_in_circle && robot_state != stopped) {
             if (std::abs(measured_angle) > DTOR(1)) {
               turn_diff = RTOD(measured_angle);
               robot_state = align;
@@ -294,6 +300,14 @@ int main_old(char* host, int port, int device_index)
               printf ("Unknown landmark type!\n");
               continue;
             }
+
+          if (first_found == object::none) {
+            first_found = ID;
+          }
+          
+          if (robot_state == drive_in_circle && ID != first_found) {
+            robot_state = stopped;
+          }
 
           // Correction step
           // Compute particle weights

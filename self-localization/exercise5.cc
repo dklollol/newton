@@ -107,10 +107,6 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
   cv::line   (im, a, b, CMAGENTA, 2);
 }
 
-float clamp(float n, float lower, float upper) {
-  return std::max(lower, std::min(n, upper));
-}
-
 /*************************\
  *      Main program     *
  \*************************/
@@ -125,13 +121,13 @@ int main_old(char* host, int port, int device_index)
   cv::moveWindow (window, 500, 20);
 
   // Initialize particles
-  const int num_particles = 2000;
+  const int num_particles = 1000;
   std::vector<particle> particles(num_particles);
   for (int i = 0; i < num_particles; i++)
     {
       // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
-      particles[i].x = (double)num_particles*randf() - num_particles/2;
-      particles[i].y = (double)num_particles*randf() - num_particles/2;
+      particles[i].x = (double)500*randf() - 150;
+      particles[i].y = (double)500*randf() - 150;
       particles[i].theta = 2.0*M_PI*randf() - M_PI;
       particles[i].weight = 1.0/(double)num_particles;
     }
@@ -212,7 +208,7 @@ int main_old(char* host, int port, int device_index)
 
       switch (robot_state) {
         case searching:
-	  puts("searching\n");
+          puts("searching\n");
           turn(&pp, &pos, 10.0);
         break;
         case align:
@@ -321,45 +317,76 @@ int main_old(char* host, int port, int device_index)
           for (int i = 0; i < num_particles; i++) {
             weight = landmark(particles[i], measured_distance, measured_angle,
                               landmark_id);
+            if (std::isnan(weight)) {
+              printf("OHH FUCK NANA FROM weight!!, p.x: %f, p.y:%f, p.theta:%f", particles[i].x,
+                     particles[i].y, particles[i].theta);
+            }
             particles[i].weight = weight;
-            //Wavg += Wavg + 1/num_particles*weight;
             weightSum += weight;
           }
+
+          printf("weight sum! %f\n", weightSum);
           for (int i = 0; i < num_particles; i++) {
-            particles[i].weight /= weightSum;
+             particles[i].weight /= weightSum;
           }
-
-
-          //Wslow += xxx * (Wavg - Wslow)
-          //Wfast += xxx * (Wavg - Wfast)
-
+        
           // Resampling step 
           // XXX: You do this
           // Vector containing the cummalative sum of particle weights
+          
           std::vector<double> weightSumGraph;
-          weightSumGraph.reserve(num_particles); // one extra length for 0.0 index at start
-
-          for(int i = 0; i < num_particles; i++)
+          weightSumGraph.reserve(num_particles);
+          for(int i = 0; i < num_particles; i++) {
+            /*if (std::isnan(weightSumGraph.back())) {
+              std::cerr<<"OOOOHH .back() nana\n";
+            }
+          if (std::isnan(particles[i].weight)) {
+            std::cerr<<"OOOOHH .i.weight nana\n";
+            } */
+            
             weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
-
+          }
+          // printf("SUM GRAPH!\n");
+          // for (int i = 0; i < num_particles; i++) {
+          //   printf("i: %d, %f\n", i, weightSumGraph[i]);
+          // }
+          printf("last ele %f", weightSumGraph[num_particles-1]);
+          
           // update particles!!
-          std::vector<particle> newParticles;
-          newParticles.reserve(num_particles);
+          std::vector<particle> pickedParticles; //(num_particles);
+          pickedParticles.reserve(num_particles);
           double z;
-          int j;
           for (int i = 0; i < num_particles; i++) {
             z = randf();
-            for (int j = 0; j < num_particles; j++) {
-              if (z >= weightSumGraph[j]) {
-                newParticles[i] = particles[j];
+            for (int t = 0; t < num_particles; t++) {
+              /*       if (t == num_particles-1) {
+                pickedParticles.push_back(particles[t]);
                 break;
+                }*/
+              if (z < weightSumGraph[t]) {
+                continue;
               }
+              pickedParticles.push_back(particles[t]);
+              break;
             }
           }
-          particles = newParticles;
+          /*
+          printf("BEFORE UPDATE\n");
+          for (int i = 0; i < num_particles; i++) {
+            printf("p.x %f , p.y %f, p.theta %f\n", particles[i].x, particles[i].y, particles[i].theta);
+          }
 
+          particles = pickedParticles;
+          printf("AFTER UPDAETE\n");
+          for (int i = 0; i < num_particles; i++) {
+            printf("p.x %f , p.y %f, p.theta %f\n", particles[i].x, particles[i].y, particles[i].theta);
+          }
+          */
+          printf("partic size %d \n", particles.size());
+          printf("newpar size %d \n", particles.size());
           // removes all weights from vector at resets length 0.
-          weightSumGraph.clear(); 
+          weightSumGraph.clear();
+          
           // Draw the object in the image (for visualisation)
           cam.draw_object (im);
 

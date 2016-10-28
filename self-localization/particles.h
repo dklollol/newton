@@ -70,4 +70,7 @@ void add_uncertainty_von_mises(std::vector<particle> &particles, double sigma, d
 double landmark(particle &p, double dist, double angle, int landmark_id);
 
 double prob(double arg, double var);
+
+float clamp(float n, float lower, float upper);
+
 #endif

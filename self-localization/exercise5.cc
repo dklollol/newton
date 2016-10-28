@@ -107,10 +107,6 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
   cv::line   (im, a, b, CMAGENTA, 2);
 }
 
-float clamp(float n, float lower, float upper) {
-  return std::max(lower, std::min(n, upper));
-}
-
 /*************************\
  *      Main program     *
  \*************************/
@@ -227,7 +223,9 @@ int main_old(char* host, int port, int device_index)
 	  puts("right_angle\n");
           turn(&pp, &pos, clamp(turn_diff, -10.0, 10.0));
           turn_diff -= pos.turn;
-	  robot_state = drive_in_circle;
+          if (turn_diff < 1.0) {
+            robot_state = drive_in_circle;
+          }
 	  break;
         case drive_in_circle:
           puts("drive_in_circle\n");

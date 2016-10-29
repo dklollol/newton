@@ -13,17 +13,17 @@ SOURCES = particles.cc random_numbers.cc camera.cc robot.cc
 CCFILES = $(EXECUTABLE).cc $(SOURCES)
 OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 
-## Compile everything ##
+# Compile everything
 all: $(EXECUTABLE)
 
 # Linking
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) -o $(EXECUTABLE) $(OBJECTS) $(OPENCVLIBS)
 
-# Compilation.
-%.o : %.cc
+# Compilation
+%.o: %.cc
 	$(CXX) $(CXXFLAGS) -c $^
 
 # Cleaning up
-clean :
+clean:
 	rm -f *.o $(EXECUTABLE)

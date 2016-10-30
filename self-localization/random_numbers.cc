@@ -3,7 +3,8 @@
 
 #include "random_numbers.h"
 
-// Auxil. functions
+
+// Auxiliary functions
 inline double sign (double a)
 {
   if (a < 0)

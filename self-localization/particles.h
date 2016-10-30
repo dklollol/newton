@@ -46,11 +46,6 @@ particle estimate_pose(std::vector<particle> &particles);
 
 
 /**
- * Apply the dynamical model to the particle. You should write this!
- */
-void move_particle(particle &p, double delta_x, double delta_y, double delta_theta);
-
-/**
  * Add random noise to the particles pose (x,y,theta). Noise is drawn from two zero mean Gaussian distributions, one for
  * (x,y) and another for the orientation theta.
  *  \param sigma - standard deviation for Gaussian noise for location (x,y)
@@ -67,10 +62,16 @@ void add_uncertainty(std::vector<particle> &particles, double sigma, double sigm
  */
 void add_uncertainty_von_mises(std::vector<particle> &particles, double sigma, double theta_kappa);
 
-double landmark(particle &p, double dist, double angle, int landmark_id);
-
 double prob(double arg, double var);
 
-float clamp(float n, float lower, float upper);
+////////////////////////////////////////////////////////////
+
+
+/**
+ * Apply the dynamical model to the particle.
+ */
+void move_particle(particle &p, double delta_x, double delta_y, double delta_theta);
+
+double landmark(particle &p, double dist, double angle, int landmark_id);
 
 #endif

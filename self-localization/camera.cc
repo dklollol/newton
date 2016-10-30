@@ -5,8 +5,8 @@
 
 #include "camera.h"
 
-using namespace cv;
 
+using namespace cv;
 
 std::string object::name (object::type t)
 {

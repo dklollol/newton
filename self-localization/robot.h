@@ -1,15 +1,13 @@
-#ifndef ROBOT_H
-#define ROBOT_H
+#ifndef EX5_ROBOT_H
+#define EX5_ROBOT_H
 
 #include <libplayerc++/playerc++.h>
+
 #include "particles.h"
 
-/*
-const double TIME = 0.3;
-const double SPEED = 0.1;
-*/
 
 using namespace PlayerCc;
+
 struct pos_t {
   double speed;
   double turn;
@@ -21,13 +19,7 @@ void turn(Position2dProxy *pp, pos_t *pos, double yaw);
 
 void driveturn(Position2dProxy *pp, pos_t *pos, double speed, double yaw);
 
-/*
-void drive_particle(particle &p, pos_t *pos);
-
-void turn_particle(pos_t *pos,  double yaw);
-*/
-
 void gotoPos(Position2dProxy *pp, particle *p, double x, double y);
 
 
-#endif /* ROBOT_H */
+#endif

@@ -7,6 +7,7 @@
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include "misc.h"
 #include "robot.h"
 #include "camera.h"
 #include "particles.h" 

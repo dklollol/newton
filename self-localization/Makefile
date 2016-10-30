@@ -1,15 +1,15 @@
 # Compile and link flags
-CXX         =  g++
-CXXFLAGS    = -Wall
-OPENCVFLAGS = `pkg-config opencv playerc++ --cflags`
-CXXFLAGS    = $(OPENCVFLAGS) -Wall
-OPENCVLIBS  = `pkg-config opencv playerc++ --libs`
+CXX = g++
+PKGFLAGS = `pkg-config opencv playerc++ --cflags`
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+CXXFLAGS = -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
+PKGLIBS = `pkg-config opencv playerc++ --libs`
 
 # Main executable
 EXECUTABLE = exercise5
 
 # Files
-SOURCES = particles.cc random_numbers.cc camera.cc robot.cc
+SOURCES = particles.cc random_numbers.cc camera.cc robot.cc misc.cc
 CCFILES = $(EXECUTABLE).cc $(SOURCES)
 OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 
@@ -18,7 +18,7 @@ all: $(EXECUTABLE)
 
 # Linking
 $(EXECUTABLE): $(OBJECTS)
-	$(CXX) -o $(EXECUTABLE) $(OBJECTS) $(OPENCVLIBS)
+	$(CXX) -o $(EXECUTABLE) $(OBJECTS) $(PKGLIBS)
 
 # Compilation
 %.o: %.cc

@@ -9,7 +9,7 @@ PKGLIBS = `pkg-config opencv playerc++ --libs`
 EXECUTABLE = exercise5
 
 # Files
-SOURCES = particles.cc random_numbers.cc camera.cc robot.cc misc.cc
+SOURCES = particles.cc random_numbers.cc camera.cc robot.cc draw.cc misc.cc
 CCFILES = $(EXECUTABLE).cc $(SOURCES)
 OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 

@@ -4,12 +4,14 @@
 #include <stdio.h>
 
 #include "particles.h"
+#include "camera.h"
 #include "misc.h"
 #include "random_numbers.h"
 
 
 double prob(double arg, double var) {
-  return 1/sqrt(2*M_PI*var)*exp(-(pow(arg, 2))/2*var);
+  return ((1.0 / sqrt(2.0 * M_PI * var))
+          * exp(-(pow(arg, 2.0)) / (2.0 * var)));
 }
 
 particle estimate_pose (std::vector<particle> &particles) {
@@ -57,22 +59,24 @@ void move_particle(particle &p, double delta_x, double delta_y, double delta_tur
   p.theta += delta_turn;
 }
 
-double landmark(particle &p, double dist, double angle, int landmark_id) {
-  double landmark_y = 0;
-  double landmark_x = landmark_id ? 0 : 300;
-  double disti = sqrt(pow(landmark_x - p.x, 2)+ pow(landmark_y - p.y, 2));
-  double dist_diff = std::abs(dist - disti);
+double landmark(particle &p, double dist, double angle, object::type landmark_id) {
+  double landmark_y = 0.0;
+  double landmark_x = ((landmark_id == object::horizontal) ? 0.0 : 300.0);
 
-  landmark_x -= p.x;
-  landmark_y -= p.y;
+  double dist_p = sqrt(pow(landmark_x - p.x, 2.0)
+                       + pow(landmark_y - p.y, 2.0));
+  double dist_diff = fabs(dist - dist_p);
+  double dist_diff_max = sqrt(2.0 * pow(500.0, 2.0)); // Not really, but easy.
+  double dist_diff_norm = clamp(dist_diff, 0.0, dist_diff_max) / dist_diff_max;
 
-  double rotated_landmark_x = landmark_x * cos(p.theta) - landmark_y * sin(p.theta);
-  double rotated_landmark_y = landmark_x * sin(p.theta) + landmark_y * cos(p.theta);
+  double angle_p = atan2(landmark_y - p.y, landmark_x - p.x) - p.theta;
+  double angle_diff = fabs(angle - angle_p);
+  double angle_diff_norm = angle_diff; // Seems okay.
 
-  double angle_diff = atan2(rotated_landmark_y, rotated_landmark_x);
+  double prob_dist = prob(dist_diff_norm, 0.01);
+  double prob_angle = prob(angle_diff_norm, 0.01);
 
-  /*double anglei = acos((landmark_x - p.x)/disti) - p.theta;
-    double angle_diff = std::abs(angle - anglei); */
-  double prob_final = prob(dist_diff, 15) * prob(angle_diff, degrees_to_radians(10.0));
+  double prob_final = prob_dist * prob_angle;
+
   return prob_final;
 }

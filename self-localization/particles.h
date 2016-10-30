@@ -3,6 +3,9 @@
 
 #include <vector>
 
+#include "camera.h"
+
+
 /**
  * Data structure for storing particle information (state and weight)
  */
@@ -72,6 +75,6 @@ double prob(double arg, double var);
  */
 void move_particle(particle &p, double delta_x, double delta_y, double delta_theta);
 
-double landmark(particle &p, double dist, double angle, int landmark_id);
+double landmark(particle &p, double dist, double angle, object::type landmark_id);
 
 #endif

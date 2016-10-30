@@ -14,7 +14,7 @@ void turn(Position2dProxy *pp, pos_t *pos, double turn_rad) {
 
 void drive(Position2dProxy *pp, pos_t *pos, double dist_cm) {
   const double speed_cm = 20.0;
-  pp->SetSpeed(dist_cm / 100.0, 0.0);
+  pp->SetSpeed(speed_cm / 100.0, 0.0);
   sleep(fabs(dist_cm / speed_cm));
   pp->SetSpeed(0.0, 0.0);
   pos->x = pos->x + dist_cm * cos(pos->turn);

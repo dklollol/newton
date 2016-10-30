@@ -1,5 +1,5 @@
 #include <cstdlib>
-#include <math.h>
+#include <cmath>
 
 #include "random_numbers.h"
 

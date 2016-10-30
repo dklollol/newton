@@ -1,26 +1,22 @@
+#include <cmath>
 #include "robot.h"
 #include "particles.h"
+#include "misc.h"
 
 
-// drives xx cm and stops 
-void drive(Position2dProxy *pp, pos_t *pos, double speed) {
-  pp->SetSpeed(speed / 100, 0.0);
-  pos->speed = speed * (5.0 / 1000.0);
+void turn(Position2dProxy *pp, pos_t *pos, double turn_rad) {
+  const double turn_speed = degrees_to_radians(45);
+  pp->SetSpeed(0.0, turn_speed);
+  sleep(fabs(turn_rad / turn_speed));
+  pp->SetSpeed(0.0, 0.0);
+  pos->turn += turn_rad;
 }
 
-// yaw is radians! 
-void turn(Position2dProxy *pp, pos_t *pos, double yaw) {
-  pp->SetSpeed(0.0, DTOR(yaw));
-  pos->turn = DTOR(yaw) * (5.0 / 1000.0);
-}
-
-// both drive and turn
-void driveturn(Position2dProxy *pp, pos_t *pos, double speed, double yaw) {
-  pp->SetSpeed(speed / 100, DTOR(yaw));
-  pos->speed = speed * (5.0 / 1000.0);
-  pos->turn = DTOR(yaw) * (5.0 / 1000.0);
-}
-
-void gotoPos(Position2dProxy *pp, particle *p, double x, double y) {
-  return;
+void drive(Position2dProxy *pp, pos_t *pos, double dist_cm) {
+  const double speed_cm = 20.0;
+  pp->SetSpeed(dist_cm / 100.0, 0.0);
+  sleep(fabs(dist_cm / speed_cm));
+  pp->SetSpeed(0.0, 0.0);
+  pos->x = pos->x + dist_cm * cos(pos->turn);
+  pos->y = pos->y + dist_cm * sin(pos->turn);
 }

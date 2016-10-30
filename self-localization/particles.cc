@@ -51,10 +51,10 @@ void add_uncertainty_von_mises (std::vector<particle> &particles,
 
 ////////////////////////////////////////////////////////////
 
-void move_particle (particle &p, double delta_x, double delta_y, double delta_theta) {
+void move_particle(particle &p, double delta_x, double delta_y, double delta_turn) {
   p.x += delta_x;
   p.y += delta_y;
-  p.theta += delta_theta;
+  p.theta += delta_turn;
 }
 
 double landmark(particle &p, double dist, double angle, int landmark_id) {

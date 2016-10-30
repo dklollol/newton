@@ -11,336 +11,271 @@
 #include "draw.h"
 #include "robot.h"
 #include "camera.h"
-#include "particles.h" 
+#include "particles.h"
 #include "random_numbers.h"
 
 using namespace cv;
 using namespace PlayerCc;
 
 
-/*
- * Keyboard constants
- */
 #define KEY_UP    65362
 #define KEY_DOWN  65364
 #define KEY_LEFT  65361
 #define KEY_RIGHT 65363
 
-/*************************\
- *      Main program     *
- \*************************/
-int run(char* host, int port, int device_index)
-{ 
+enum state {searching, align, approach,
+            drive_around_landmark,
+            drive_to_center, arrived_at_center};
+
+void set_pull_mode(PlayerClient &robot) {
+  robot.SetDataMode(PLAYER_DATAMODE_PULL);
+  robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
+}
+
+void run(char* host, int port, int device_index) {
+  // Constants
+  double world_width = 500.0;
+  double world_height = 500.0;
+  double stop_dist = 150.0; // The target distance from the first landmark.
+
+
   // The GUI
   const char *map = "World map";
-  const char *window = "Robot View";
-  cv::Mat world(cvSize (500,500), CV_8UC3);
-  cv::namedWindow (map, CV_WINDOW_AUTOSIZE);
-  cv::namedWindow (window, CV_WINDOW_AUTOSIZE);
-  cv::moveWindow (window, 500, 20);
+  const char *window = "Robot view";
+  cv::Mat world(cvSize (world_width, world_height), CV_8UC3);
+  cv::namedWindow(map, CV_WINDOW_AUTOSIZE);
+  cv::namedWindow(window, CV_WINDOW_AUTOSIZE);
+  cv::moveWindow(window, 500.0, 20.0);
 
-  // Initialize particles
+  // Initialize particles.
   const int num_particles = 1000;
   std::vector<particle> particles(num_particles);
-  for (int i = 0; i < num_particles; i++)
-    {
-      // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
-      particles[i].x = (double)500*randf() - 150;
-      particles[i].y = (double)500*randf() - 150;
-      particles[i].theta = 2.0*M_PI*randf() - M_PI;
-      particles[i].weight = 1.0/(double)num_particles;
-    }
-  particle est_pose = estimate_pose (particles); // The estimate of the robots current pose
+  for (int i = 0; i < num_particles; i++) {
+    // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
+    particles[i].x = world_width * randf() - stop_dist;
+    particles[i].y = world_height * randf() - stop_dist;
+    particles[i].theta = 2.0 * M_PI * randf() - M_PI;
+    particles[i].weight = 1.0 / (double) num_particles;
+  }
 
-  double Wslow = 0.0;
-  double Wfast = 0.0;
-  double Wavg = 0.0;
+  // Setup the camera interface.
+  camera cam(0, cv::Size(640, 480), false);
 
-  // The camera interface
-  camera cam(0, cv::Size(640,480), false);
-
-
-
-  // Initialize player (XXX: You do this)
+  // Initialize player.
   PlayerClient robot(host, port);
+  set_pull_mode(robot);
   Position2dProxy pp(&robot, device_index);
 
-  // Driving parameters
-  double velocity = 15; // cm/sec
-  const double acceleration = 12; // cm/sec^2
-  double angular_velocity = 0.0; // radians/sec
-  const double angular_acceleration = M_PI/2.0; // radians/sec^2
+  // Initialize robot state.
+  state robot_state;
   pos_t pos;
+  robot_state = searching;
+  object::type first_landmark_found = object::none;
+  double drive_around_landmark_remaining_dist;
 
-  enum state {searching, align, approach, right_angle, drive_in_circle, stopped, drive_to_center};
-
-  state robot_state = searching;
-
-  double turn_diff = 0;
-  double distance_diff = 0;
-
-  object::type first_found = object::none;
-
-  // Draw map
-  draw_world (est_pose, particles, world);
- 
-  // Main loop
-  while (true)
-    {
-      // // Move the robot according to user input
-      int action = cvWaitKey (5);
-      switch (action) {
-      case KEY_UP:
-        velocity += 4.0;
-        break;
-      case KEY_DOWN:
-        velocity -= 4.0;
-        break;
-      case KEY_LEFT:
-        angular_velocity -= 0.2;
-        break; 
-      case KEY_RIGHT:
-        angular_velocity += 0.2;
-        break;
-      case 'w': // Forward
-        velocity += 4.0; 
-        break;
-      case 'x': // Backwards
-        velocity -= 4.0;
-        break; 
-      case 's': // Stop
-        velocity = 0.0;
-        angular_velocity = 0.0;
-        break;
-      case 'a': // Left
-        angular_velocity -= 0.2;
-        break;
-      case 'd': // Right
-        angular_velocity += 0.2;
-        break;
-      case 'q': // Quit
-        goto theend;
-      }
-
-      //XXX: Make player drive. You do this
-
-
-      switch (robot_state) {
-        case searching:
-          puts("searching\n");
-          turn(&pp, &pos, 10.0);
-        break;
-        case align:
-	  puts("align\n");
-          turn(&pp, &pos, clamp(turn_diff, -10.0, 10.0));
-        break;
-        case approach:
-	  puts("approach\n");
-          drive(&pp, &pos, clamp(distance_diff, -10.0, 10.0));
-        break;
-        case right_angle:
-	  puts("right_angle\n");
-          turn(&pp, &pos, clamp(turn_diff, -10.0, 10.0));
-          turn_diff -= pos.turn;
-          if (turn_diff < 1.0) {
-            robot_state = drive_in_circle;
-          }
-	  break;
-        case drive_in_circle:
-          puts("drive_in_circle\n");
-          {
-            double circumference = 150 * 2 * M_PI;
-            double speed = 20.0;
-            double drive_time = circumference / speed;
-            double turn_rate = 360.0 / drive_time;
-            driveturn(&pp, &pos, speed, turn_rate);
-          }
+  // Main loop.
+  bool do_run = true;
+  while (do_run) {
+    // Wait a little.
+    int action = cvWaitKey(4);
+    char action_char = (char) action;
+    switch (action_char) {
+    case 'q': // Quit
+      do_run = false;
       break;
-      case stopped:
-        driveturn(&pp, &pos, 0, 0);
-        break;
-      }
+    }
 
-      // Prediction step
-      // Read odometry, see how far we have moved, and update particles.
-      // Or use motor controls to update particles (
-      //XXX: You do this
-      //drive(&pp);
+    // Reset iteration-relative values.
+    pos.x = 0.0;
+    pos.y = 0.0;
+    pos.turn = 0.0;
+
+    // Grab image.
+    cv::Mat im = cam.get_colour();
+
+    // Do landmark detection.
+    double measured_distance;
+    double measured_angle;
+    colour_prop cp;
+    // Set the above values.
+    object::type ID = cam.get_object(im, cp, measured_distance, measured_angle);
+
+    printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :
+                                        ((ID == object::vertical) ? "vertical"
+                                         : "horizontal")));
+    if (ID != object::none) {
+      printf("Measured distance: %lf\n", measured_distance);
+      printf("Measured angle: %lf\n", measured_angle);
+    }
+
+    // Correction step: Compute particle weights.
+    if (ID == object::none) {
+      // No observation; reset weights to uniform distribution.
+      for (int i = 0; i < num_particles; i++) {
+        particles[i].weight = 1.0 / (double) num_particles;
+      }
+    }
+    else {
+      // An observation; set the weights.
+      double weight_sum = 0.0;
+      for (int i = 0; i < num_particles; i++) {
+        int landmark_id = ((ID == object::vertical) ? 0 : 1);
+        double weight = landmark(particles[i], measured_distance,
+                                 measured_angle, landmark_id);
+        particles[i].weight = weight;
+        weight_sum += weight;
+      }
 
       for (int i = 0; i < num_particles; i++) {
-        move_particle(particles[i], pos.speed * cos(particles[i].theta + pos.turn), pos.speed * cos(particles[i].theta + pos.turn), pos.turn);
+        particles[i].weight /= weight_sum;
       }
+    }
 
-      add_uncertainty(particles, pos.speed, pos.turn);
-
-      pos.speed = 0;
-      pos.turn = 0;
-
-      // Grab image
-      cv::Mat im = cam.get_colour();
-      int landmark_id = 0;
-      // Do landmark detection
-      double measured_distance, measured_angle;
-      colour_prop cp;
-      object::type ID = cam.get_object (im, cp, measured_distance, measured_angle);
-      if (ID != object::none)
-        {
-          printf ("Measured distance: %f\n", measured_distance);
-          printf ("Measured angle:    %f\n", measured_angle);
-          printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
-
-          if (robot_state != right_angle && robot_state != drive_in_circle && robot_state != stopped) {
-            if (std::abs(measured_angle) > DTOR(1)) {
-              turn_diff = RTOD(measured_angle);
-              robot_state = align;
-            } else {
-              if (std::abs(measured_distance - 150) > 5) {
-                distance_diff = measured_distance - 150;
-                robot_state = approach;
-              } else {
-                turn_diff = 90;
-                robot_state = right_angle;
-              }
-            }
-          }
-
-          if (ID == object::horizontal)
-            {
-              // observed an Landmark!
-              landmark_id = 1;
-              printf ("Landmark is horizontal\n");
-            }
-          else if (ID == object::vertical)
-            {
-              // observed an Landmark!
-              printf ("Landmark is vertical\n");
-            }
-          else
-            {
-              printf ("Unknown landmark type!\n");
-              continue;
-            }
-
-          if (first_found == object::none) {
-            first_found = ID;
-          }
+    // Resampling step.
+    std::vector<double> weightSumGraph;
+    weightSumGraph.reserve(num_particles);
+    for(int i = 0; i < num_particles; i++) {
+      weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
+    }
           
-          if (robot_state == drive_in_circle && ID != first_found) {
-            robot_state = stopped;
-          }
+    std::vector<particle> pickedParticles;
+    pickedParticles.reserve(num_particles);
+    double z;
+    for (int i = 0; i < num_particles; i++) {
+      z = randf();
+      for (int t = 0; t < num_particles; t++) {
+        if (z < weightSumGraph[t]) {
+          continue;
+        }
+        pickedParticles.push_back(particles[t]);
+        break;
+      }
+    }
+    particles = pickedParticles;
+    // removes all weights from vector at resets length 0.
+    weightSumGraph.clear();
 
-          // Correction step
-          // Compute particle weights
-          // XXX: You do this
-          Wavg = 0;
-          double weightSum = 0;
-          double weight;
-          for (int i = 0; i < num_particles; i++) {
-            weight = landmark(particles[i], measured_distance, measured_angle,
-                              landmark_id);
-            if (std::isnan(weight)) {
-              printf("OHH FUCK NANA FROM weight!!, p.x: %f, p.y:%f, p.theta:%f", particles[i].x,
-                     particles[i].y, particles[i].theta);
-            }
-            particles[i].weight = weight;
-            weightSum += weight;
-          }
+    // Add uncertainty.
+    add_uncertainty(particles, 15.0, pos.turn);
+    
+    // Estimate pose.
+    particle est_pose = estimate_pose(particles);
+    printf("est_pose values: x:%f, y:%f, theta:%f\n",
+           est_pose.x, est_pose.y, est_pose.theta);
 
-          printf("weight sum! %f\n", weightSum);
-          for (int i = 0; i < num_particles; i++) {
-             particles[i].weight /= weightSum;
-          }
-        
-          // Resampling step 
-          // XXX: You do this
-          // Vector containing the cummalative sum of particle weights
-          
-          std::vector<double> weightSumGraph;
-          weightSumGraph.reserve(num_particles);
-          for(int i = 0; i < num_particles; i++) {
-            /*if (std::isnan(weightSumGraph.back())) {
-              std::cerr<<"OOOOHH .back() nana\n";
-            }
-          if (std::isnan(particles[i].weight)) {
-            std::cerr<<"OOOOHH .i.weight nana\n";
-            } */
-            
-            weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
-          }
-          // printf("SUM GRAPH!\n");
-          // for (int i = 0; i < num_particles; i++) {
-          //   printf("i: %d, %f\n", i, weightSumGraph[i]);
-          // }
-          printf("last ele %f", weightSumGraph[num_particles-1]);
-          
-          // update particles!!
-          std::vector<particle> pickedParticles; //(num_particles);
-          pickedParticles.reserve(num_particles);
-          double z;
-          for (int i = 0; i < num_particles; i++) {
-            z = randf();
-            for (int t = 0; t < num_particles; t++) {
-              /*       if (t == num_particles-1) {
-                pickedParticles.push_back(particles[t]);
-                break;
-                }*/
-              if (z < weightSumGraph[t]) {
-                continue;
-              }
-              pickedParticles.push_back(particles[t]);
-              break;
-            }
-          }
-          /*
-          printf("BEFORE UPDATE\n");
-          for (int i = 0; i < num_particles; i++) {
-            printf("p.x %f , p.y %f, p.theta %f\n", particles[i].x, particles[i].y, particles[i].theta);
-          }
+    // Draw the object in the image.
+    cam.draw_object(im);
 
-          particles = pickedParticles;
-          printf("AFTER UPDAETE\n");
-          for (int i = 0; i < num_particles; i++) {
-            printf("p.x %f , p.y %f, p.theta %f\n", particles[i].x, particles[i].y, particles[i].theta);
-          }
-          */
-          printf("partic size %d \n", particles.size());
-          printf("newpar size %d \n", particles.size());
-          // removes all weights from vector at resets length 0.
-          weightSumGraph.clear();
-          
-          // Draw the object in the image (for visualisation)
-          cam.draw_object (im);
+    // Draw visualisation.
+    draw_world(est_pose, particles, world);
+    cv::imshow(map, world);
+    cv::imshow(window, im);
 
-        } else { // end: if (found_landmark)
+    // Move the robot according to its current state.
+    switch (robot_state) {
+    case searching: {
+      puts("searching");
+      // The robot is turning to find the first landmark.
 
-        // No observation - reset weights to uniform distribution
-        for (int i = 0; i < num_particles; i++)
-          {
-            particles[i].weight = 1.0/(double)num_particles;
-          }
+      if (ID != object::none) {
+        first_landmark_found = ID;
+        robot_state = align;
+      }
+      else {
+        turn(&pp, &pos, degrees_to_radians(10.0));
+      }
+      break;
+    }
 
-      }  // end: if (not found_landmark)
+    case align: {
+      puts("align");
+      // The robot is aligning itself to be pointing directly at the first
+      // landmark.
 
-      // Estimate pose
-      est_pose = estimate_pose (particles);
-      printf("est_pose values: x:%f, y:%f, theta:%f\n", est_pose.x, est_pose.y, est_pose.theta);
-      // Visualisation
-      draw_world (est_pose, particles, world);
-      cv::imshow(map, world);
-      cv::imshow(window, im);
-    } // End: while (true)
+      if (ID == object::none) {
+        robot_state = searching;
+      }
+      else if (measured_angle < degrees_to_radians(5.0)) {
+        robot_state = approach;
+      }
+      else {
+        turn(&pp, &pos, clamp(measured_angle,
+                              radians_to_degrees(-10.0),
+                              radians_to_degrees(10.0)));
+      }
+      break;
+    }
 
- theend:
+    case approach: {
+      puts("approach");
+      // The robot is approaching the box to within a set distance.
 
-  // Stop the robot
-  // XXX: You do this
-  //pp.SetSpeed(0.0, DTOR(0));
+      if (ID == object::none) {
+        robot_state = searching;
+      }
+      else {
+        double dist_diff = measured_distance - stop_dist;
+        if (fabs(dist_diff) < 10.0) {
+          turn(&pp, &pos, degrees_to_radians(90.0));
+          drive_around_landmark_remaining_dist = stop_dist;
+          robot_state = drive_around_landmark;
+        }
+        else {
+          drive(&pp, &pos, clamp(dist_diff, -10.0, 10.0));
+          robot_state = align; // Make sure it's still aligned.
+        }
+      }
+      break;
+    }
 
-  return 0;
+    case drive_around_landmark: {
+      puts("drive_around_landmark");
+      // The robot is driving around the first landmark in an attempt to locate
+      // the second landmark.
+
+      const double drive_dist = 10.0;
+      if (ID != object::none && ID != first_landmark_found) {
+        robot_state = drive_to_center;
+      }
+      else if (drive_around_landmark_remaining_dist > 0.0) {
+        drive(&pp, &pos, drive_dist);
+        drive_around_landmark_remaining_dist -= drive_dist;
+      }
+      else {
+        turn(&pp, &pos, degrees_to_radians(-90.0));
+        drive_around_landmark_remaining_dist = stop_dist * 2.0;
+      }
+      break;
+    }
+
+    case drive_to_center: {
+      puts("drive_to_center");
+      // The robot is driving towards the center between the two landmarks.
+
+      break;
+    }
+
+    case arrived_at_center: {
+      puts("arrived_at_center");
+      // The robot has arrived at the center between the two landmarks.
+
+      do_run = false;
+      break;
+    }
+    }
+
+    // Prediction step: Update all particles according to how much we have
+    // moved.
+    // for (int i = 0; i < num_particles; i++) {
+    //   move_particle(particles[i], pos.x, pos.y, pos.turn);
+    // }
+  }
+
+  // Stop the robot.
+  pp.SetSpeed(0.0, 0.0);
 }
 
 int main(int argc, char* argv[]) {
-
   char* host;
   if (argc > 1) {
     host = argv[1];

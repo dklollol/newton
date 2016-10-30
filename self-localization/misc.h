@@ -5,6 +5,8 @@ double degrees_to_radians(double degrees);
 
 double radians_to_degrees(double radians);
 
-float clamp(float n, float lower, float upper);
+double clamp(double n, double lower, double upper);
+
+void sleep(double seconds);
 
 #endif

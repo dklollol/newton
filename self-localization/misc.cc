@@ -1,5 +1,6 @@
-#include <math.h>
 #include <algorithm>
+#include <cmath>
+#include <ctime>
 
 #include "misc.h"
 
@@ -12,6 +13,13 @@ double radians_to_degrees(double radians) {
   return radians * 180.0 / M_PI;
 }
 
-float clamp(float n, float lower, float upper) {
+double clamp(double n, double lower, double upper) {
   return std::max(lower, std::min(n, upper));
+}
+
+void sleep(double seconds) {
+  struct timespec spec;
+  spec.tv_sec = (time_t) seconds;
+  spec.tv_nsec = (long) ((seconds - (double) spec.tv_sec) * 10e8);
+  nanosleep(&spec, NULL);
 }

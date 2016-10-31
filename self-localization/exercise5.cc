@@ -30,7 +30,7 @@ enum state {searching, align, approach,
             drive_to_center, arrived_at_center};
 
 void say(string text) {
-  std::system((string("espeak '") + string(text) + string("'")).c_str());
+  std::system((string("espeak '") + string(text) + string("' &")).c_str());
 }
 
 void set_pull_mode(PlayerClient &robot) {
@@ -54,14 +54,14 @@ void run(char* host, int port, int device_index) {
   cv::moveWindow(window, 500.0, 20.0);
 
   // Initialize particles.
-  const int num_particles = 5000;
+  const int num_particles = 2000;
   std::vector<particle> particles(num_particles);
   std::vector<particle> particles_resampled(num_particles);
 
   for (int i = 0; i < num_particles; i++) {
     // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
-    particles[i].x = world_width * randf() - stop_dist;
-    particles[i].y = world_height * randf() - stop_dist;
+    particles[i].x = world_width * randf() - 150;
+    particles[i].y = world_height * randf() - 150;
     particles[i].theta = 2.0 * M_PI * randf() - M_PI;
     particles[i].weight = 1.0 / (double) num_particles;
   }
@@ -240,7 +240,7 @@ void run(char* host, int port, int device_index) {
         robot_state = approach;
       }
       else {
-        puts("Turn in aling");
+        puts("Turn in align");
         turn(&pp, &pos, clamp(measured_angle,
                               degrees_to_radians(-5.0),
                               degrees_to_radians(5.0)));
@@ -276,7 +276,7 @@ void run(char* host, int port, int device_index) {
 
     case drive_around_landmark: {
       puts("drive around landmark");
-      say("Exterminate landmark");
+      say("landmark");
       // The robot is driving around the first landmark in an attempt to locate
       // the second landmark.
 
@@ -289,11 +289,11 @@ void run(char* host, int port, int device_index) {
         drive_around_landmark_remaining_dist -= drive_dist;
       }
       else {
-        turn(&pp, &pos, degrees_to_radians(15.0));
-        turned_angle -= 15;
         if (turned_angle <= 0) {
           turned_angle = 90;
         }
+        turn(&pp, &pos, degrees_to_radians(15.0));
+        turned_angle -= 15;
         drive_around_landmark_remaining_dist = stop_dist * 2.0;
       }
       break;

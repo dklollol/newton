@@ -252,7 +252,7 @@ void run(char* host, int port, int device_index) {
 
     case approach: {
       puts("approach");
-      say("approach");
+      say("Exterminate");
       // The robot is approaching the box to within a set distance.
 
       if (ID == object::none) {
@@ -277,11 +277,11 @@ void run(char* host, int port, int device_index) {
 
     case drive_around_landmark: {
       puts("drive around landmark");
-      say("drive around landmark");
+      say("Exterminate landmark");
       // The robot is driving around the first landmark in an attempt to locate
       // the second landmark.
 
-      const double drive_dist = 10.0;
+      const double drive_dist = 25.0;
       if (ID != object::none && ID != first_landmark_found) {
         robot_state = drive_to_center;
       }
@@ -290,7 +290,9 @@ void run(char* host, int port, int device_index) {
         drive_around_landmark_remaining_dist -= drive_dist;
       }
       else {
-        turn(&pp, &pos, degrees_to_radians(-90.0));
+        for(int i = 0; i < 4; i++)
+          turn(&pp, &pos, degrees_to_radians(15.0));
+        
         drive_around_landmark_remaining_dist = stop_dist * 2.0;
       }
       break;

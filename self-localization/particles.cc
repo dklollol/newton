@@ -66,15 +66,13 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
   double dist_p = sqrt(pow(landmark_x - p.x, 2.0)
                        + pow(landmark_y - p.y, 2.0));
   double dist_diff = fabs(dist - dist_p);
-  double dist_diff_max = sqrt(2.0 * pow(500.0, 2.0)); // Not really, but easy.
-  double dist_diff_norm = clamp(dist_diff, 0.0, dist_diff_max) / dist_diff_max;
 
   double angle_p = atan2(landmark_y - p.y, landmark_x - p.x) - p.theta;
   double angle_diff = fabs(angle - angle_p);
-  double angle_diff_norm = angle_diff; // Seems okay.
 
-  double prob_dist = prob(dist_diff_norm, 0.01);
-  double prob_angle = prob(angle_diff_norm, 0.01);
+  double prob_dist = prob(dist_diff, 50.0);
+  double prob_angle = prob(angle_diff, 0.1);
+  printf("landmark; dist: %lf, angle: %lf\n", prob_dist, prob_angle);
 
   double prob_final = prob_dist * prob_angle;
 

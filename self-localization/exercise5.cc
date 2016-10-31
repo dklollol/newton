@@ -143,8 +143,6 @@ void run(char* host, int port, int device_index) {
     }
     particles = particles_resampled;
 
-
-
     // std::vector<double> weightSumGraph;
     // weightSumGraph.reserve(num_particles);
     // for(int i = 0; i < num_particles; i++) {
@@ -183,8 +181,6 @@ void run(char* host, int port, int device_index) {
     // }
     // particles = pickedParticles;
     // weightSumGraph.clear();
-
-
     
 
     // Add uncertainty.

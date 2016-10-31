@@ -221,7 +221,7 @@ void run(char* host, int port, int device_index) {
         robot_state = align;
       }
       else {
-        turn(&pp, &pos, degrees_to_radians(10.0));
+        turn(&pp, &pos, degrees_to_radians(5.0));
       }
       break;
     }
@@ -233,15 +233,19 @@ void run(char* host, int port, int device_index) {
       // landmark.
 
       if (ID == object::none) {
-        robot_state = searching;
+        //robot_state = searching;
+        puts("SHIT no object?");
+        break;
       }
-      else if (fabs(measured_angle) < degrees_to_radians(2.0)) {
+      else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
+        puts("Angle is good!");
         robot_state = approach;
       }
       else {
+        puts("Turn in aling");
         turn(&pp, &pos, clamp(measured_angle,
-                              radians_to_degrees(-10.0),
-                              radians_to_degrees(10.0)));
+                              degrees_to_radians(5.0),
+                              degrees_to_radians(-5.0)));
       }
       break;
     }
@@ -252,7 +256,8 @@ void run(char* host, int port, int device_index) {
       // The robot is approaching the box to within a set distance.
 
       if (ID == object::none) {
-        robot_state = searching;
+        //robot_state = searching;
+        break;
       }
       else {
         if (measured_distance <= stop_dist) {

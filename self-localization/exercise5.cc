@@ -27,10 +27,11 @@ using namespace PlayerCc;
 
 enum state {searching, align, approach,
             drive_around_landmark,
+            triangulating,
             drive_to_center, arrived_at_center};
 
 void say(string text) {
-  std::system((string("espeak '") + string(text) + string("'")).c_str());
+  std::system((string("espeak '") + string(text) + string("' &")).c_str());
 }
 
 void set_pull_mode(PlayerClient &robot) {
@@ -43,6 +44,8 @@ void run(char* host, int port, int device_index) {
   double world_width = 500.0;
   double world_height = 500.0;
   double stop_dist = 150.0; // The target distance from the first landmark.
+
+  int checks = 50;
 
 
   // The GUI
@@ -283,7 +286,7 @@ void run(char* host, int port, int device_index) {
 
       const double drive_dist = 10.0;
       if (ID != object::none && ID != first_landmark_found) {
-        robot_state = drive_to_center;
+        robot_state = triangulating;
       }
       else if (drive_around_landmark_remaining_dist > 0.0) {
         drive(&pp, &pos, drive_dist);
@@ -294,6 +297,13 @@ void run(char* host, int port, int device_index) {
         drive_around_landmark_remaining_dist = stop_dist * 2.0;
       }
       break;
+    }
+
+    case triangulating: {
+        if (checks <= 0) {
+          robot_state = drive_to_center;      
+        }
+        checks -= 1;
     }
 
     case drive_to_center: {

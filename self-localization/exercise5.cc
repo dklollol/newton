@@ -14,6 +14,8 @@
 #include "particles.h"
 #include "random_numbers.h"
 
+#include <cstdlib>
+
 using namespace cv;
 using namespace PlayerCc;
 
@@ -26,6 +28,10 @@ using namespace PlayerCc;
 enum state {searching, align, approach,
             drive_around_landmark,
             drive_to_center, arrived_at_center};
+
+void say(string text) {
+  std::system((string("espeak ") + string(text)).c_str());
+}
 
 void set_pull_mode(PlayerClient &robot) {
   robot.SetDataMode(PLAYER_DATAMODE_PULL);
@@ -207,6 +213,7 @@ void run(char* host, int port, int device_index) {
     switch (robot_state) {
     case searching: {
       puts("searching");
+      say("searching");
       // The robot is turning to find the first landmark.
 
       if (ID != object::none) {
@@ -221,6 +228,7 @@ void run(char* host, int port, int device_index) {
 
     case align: {
       puts("align");
+      say("align");
       // The robot is aligning itself to be pointing directly at the first
       // landmark.
 
@@ -244,6 +252,7 @@ void run(char* host, int port, int device_index) {
 
     case approach: {
       puts("approach");
+      say("approach");
       // The robot is approaching the box to within a set distance.
 
       if (ID == object::none) {
@@ -267,7 +276,8 @@ void run(char* host, int port, int device_index) {
     }
 
     case drive_around_landmark: {
-      puts("drive_around_landmark");
+      puts("drive around landmark");
+      say("drive around landmark");
       // The robot is driving around the first landmark in an attempt to locate
       // the second landmark.
 
@@ -287,7 +297,8 @@ void run(char* host, int port, int device_index) {
     }
 
     case drive_to_center: {
-      puts("drive_to_center");
+      puts("drive to center");
+      say("drive to center");
       // The robot is driving towards the center between the two landmarks.
 
       // FIXME: I'm not sure this works.
@@ -317,7 +328,8 @@ void run(char* host, int port, int device_index) {
     }
 
     case arrived_at_center: {
-      puts("arrived_at_center");
+      puts("arrived at center");
+      say("arrived at center");
       // The robot has arrived at the center between the two landmarks.
 
       //do_run = false;

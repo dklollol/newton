@@ -132,7 +132,7 @@ void run(char* host, int port, int device_index) {
       }
     }
 
-    // Resampling step.  FIXME: Optimize.
+    // Resampling step.  FIXME: Optimize.  Fix the code below.
     size_t j = 0;
     while (j < num_particles) {
       size_t i = (size_t) (randf() * (num_particles - 1));
@@ -143,8 +143,52 @@ void run(char* host, int port, int device_index) {
     }
     particles = particles_resampled;
 
+
+
+    // std::vector<double> weightSumGraph;
+    // weightSumGraph.reserve(num_particles);
+    // for(int i = 0; i < num_particles; i++) {
+    //   /*if (std::isnan(weightSumGraph.back())) {
+    //     std::cerr<<"OOOOHH .back() nana\n";
+    //     }
+    //     if (std::isnan(particles[i].weight)) {
+    //     std::cerr<<"OOOOHH .i.weight nana\n";
+    //     } */
+            
+    //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
+    // }
+    // // printf("SUM GRAPH!\n");
+    // // for (int i = 0; i < num_particles; i++) {
+    // //   printf("i: %d, %f\n", i, weightSumGraph[i]);
+    // // }
+    // //printf("last ele %f", weightSumGraph[num_particles-1]);
+          
+    // // update particles!!
+    // std::vector<particle> pickedParticles; //(num_particles);
+    // pickedParticles.reserve(num_particles);
+    // double z;
+    // for (int i = 0; i < num_particles; i++) {
+    //   z = randf();
+    //   for (int t = 0; t < num_particles; t++) {
+    //     /*       if (t == num_particles-1) {
+    //              pickedParticles.push_back(particles[t]);
+    //              break;
+    //              }*/
+    //     if (z < weightSumGraph[t]) {
+    //       continue;
+    //     }
+    //     pickedParticles.push_back(particles[t]);
+    //     break;
+    //   }
+    // }
+    // particles = pickedParticles;
+    // weightSumGraph.clear();
+
+
+    
+
     // Add uncertainty.
-    add_uncertainty(particles, 15.0, degrees_to_radians(10.0));
+    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
 
     // Estimate pose.
     particle est_pose = estimate_pose(particles);
@@ -159,128 +203,129 @@ void run(char* host, int port, int device_index) {
     cv::imshow(map, world);
     cv::imshow(window, im);
 
-    // Move the robot according to its current state.
-    switch (robot_state) {
-    case searching: {
-      puts("searching");
-      // The robot is turning to find the first landmark.
+    // FIXME: Enable the moving strategy once the resampling step is okay.
+    // // Move the robot according to its current state.
+    // switch (robot_state) {
+    // case searching: {
+    //   puts("searching");
+    //   // The robot is turning to find the first landmark.
 
-      if (ID != object::none) {
-        first_landmark_found = ID;
-        robot_state = align;
-      }
-      else {
-        turn(&pp, &pos, degrees_to_radians(10.0));
-      }
-      break;
-    }
+    //   if (ID != object::none) {
+    //     first_landmark_found = ID;
+    //     robot_state = align;
+    //   }
+    //   else {
+    //     turn(&pp, &pos, degrees_to_radians(10.0));
+    //   }
+    //   break;
+    // }
 
-    case align: {
-      puts("align");
-      // The robot is aligning itself to be pointing directly at the first
-      // landmark.
+    // case align: {
+    //   puts("align");
+    //   // The robot is aligning itself to be pointing directly at the first
+    //   // landmark.
 
-      if (ID == object::none) {
-        robot_state = searching;
-      }
-      else if (fabs(measured_angle) < degrees_to_radians(2.0)) {
-        robot_state = approach;
-      }
-      else {
-        turn(&pp, &pos, clamp(measured_angle,
-                              radians_to_degrees(-10.0),
-                              radians_to_degrees(10.0)));
-      }
-      break;
-    }
+    //   if (ID == object::none) {
+    //     robot_state = searching;
+    //   }
+    //   else if (fabs(measured_angle) < degrees_to_radians(2.0)) {
+    //     robot_state = approach;
+    //   }
+    //   else {
+    //     turn(&pp, &pos, clamp(measured_angle,
+    //                           radians_to_degrees(-10.0),
+    //                           radians_to_degrees(10.0)));
+    //   }
+    //   break;
+    // }
 
-    case approach: {
-      puts("approach");
-      // The robot is approaching the box to within a set distance.
+    // case approach: {
+    //   puts("approach");
+    //   // The robot is approaching the box to within a set distance.
 
-      if (ID == object::none) {
-        robot_state = searching;
-      }
-      else {
-        if (measured_distance <= stop_dist) {
-          stop_dist = measured_distance;
-          turn(&pp, &pos, degrees_to_radians(90.0));
-          drive_around_landmark_remaining_dist = stop_dist;
-          robot_state = drive_around_landmark;
-        }
-        else {
-          drive(&pp, &pos,
-                clamp(measured_distance - stop_dist, 0.0, 10.0));
-          robot_state = align; // Make sure it's still aligned.
-        }
-      }
-      break;
-    }
+    //   if (ID == object::none) {
+    //     robot_state = searching;
+    //   }
+    //   else {
+    //     if (measured_distance <= stop_dist) {
+    //       stop_dist = measured_distance;
+    //       turn(&pp, &pos, degrees_to_radians(90.0));
+    //       drive_around_landmark_remaining_dist = stop_dist;
+    //       robot_state = drive_around_landmark;
+    //     }
+    //     else {
+    //       drive(&pp, &pos,
+    //             clamp(measured_distance - stop_dist, 0.0, 10.0));
+    //       robot_state = align; // Make sure it's still aligned.
+    //     }
+    //   }
+    //   break;
+    // }
 
-    case drive_around_landmark: {
-      puts("drive_around_landmark");
-      // The robot is driving around the first landmark in an attempt to locate
-      // the second landmark.
+    // case drive_around_landmark: {
+    //   puts("drive_around_landmark");
+    //   // The robot is driving around the first landmark in an attempt to locate
+    //   // the second landmark.
 
-      const double drive_dist = 10.0;
-      if (ID != object::none && ID != first_landmark_found) {
-        robot_state = drive_to_center;
-      }
-      else if (drive_around_landmark_remaining_dist > 0.0) {
-        drive(&pp, &pos, drive_dist);
-        drive_around_landmark_remaining_dist -= drive_dist;
-      }
-      else {
-        turn(&pp, &pos, degrees_to_radians(-90.0));
-        drive_around_landmark_remaining_dist = stop_dist * 2.0;
-      }
-      break;
-    }
+    //   const double drive_dist = 10.0;
+    //   if (ID != object::none && ID != first_landmark_found) {
+    //     robot_state = drive_to_center;
+    //   }
+    //   else if (drive_around_landmark_remaining_dist > 0.0) {
+    //     drive(&pp, &pos, drive_dist);
+    //     drive_around_landmark_remaining_dist -= drive_dist;
+    //   }
+    //   else {
+    //     turn(&pp, &pos, degrees_to_radians(-90.0));
+    //     drive_around_landmark_remaining_dist = stop_dist * 2.0;
+    //   }
+    //   break;
+    // }
 
-    case drive_to_center: {
-      puts("drive_to_center");
-      // The robot is driving towards the center between the two landmarks.
+    // case drive_to_center: {
+    //   puts("drive_to_center");
+    //   // The robot is driving towards the center between the two landmarks.
 
-      // FIXME: I'm not sure this works.
+    //   // FIXME: I'm not sure this works.
 
-      double move_x = est_pose.x - 150.0;
-      if (move_x >= 0) {
-        turn(&pp, &pos, -est_pose.theta);
-        drive(&pp, &pos, move_x);
-      }
-      else {
-        turn(&pp, &pos, -est_pose.theta + degrees_to_radians(180.0));
-        drive(&pp, &pos, -move_x);
-      }
+    //   double move_x = est_pose.x - 150.0;
+    //   if (move_x >= 0) {
+    //     turn(&pp, &pos, -est_pose.theta);
+    //     drive(&pp, &pos, move_x);
+    //   }
+    //   else {
+    //     turn(&pp, &pos, -est_pose.theta + degrees_to_radians(180.0));
+    //     drive(&pp, &pos, -move_x);
+    //   }
 
-      double move_y = -est_pose.y;
-      if (move_y >= 0) {
-        turn(&pp, &pos, degrees_to_radians(90.0));
-        drive(&pp, &pos, move_y);
-      }
-      else {
-        turn(&pp, &pos, degrees_to_radians(-90.0));
-        drive(&pp, &pos, -move_y);
-      }
+    //   double move_y = -est_pose.y;
+    //   if (move_y >= 0) {
+    //     turn(&pp, &pos, degrees_to_radians(90.0));
+    //     drive(&pp, &pos, move_y);
+    //   }
+    //   else {
+    //     turn(&pp, &pos, degrees_to_radians(-90.0));
+    //     drive(&pp, &pos, -move_y);
+    //   }
 
-      robot_state = arrived_at_center;
-      break;
-    }
+    //   robot_state = arrived_at_center;
+    //   break;
+    // }
 
-    case arrived_at_center: {
-      puts("arrived_at_center");
-      // The robot has arrived at the center between the two landmarks.
+    // case arrived_at_center: {
+    //   puts("arrived_at_center");
+    //   // The robot has arrived at the center between the two landmarks.
 
-      //do_run = false;
-      break;
-    }
-    }
+    //   //do_run = false;
+    //   break;
+    // }
+    // }
 
-    // Prediction step: Update all particles according to how much we have
-    // moved.
-    for (int i = 0; i < num_particles; i++) {
-      move_particle(particles[i], pos.x, pos.y, pos.turn);
-    }
+    // // Prediction step: Update all particles according to how much we have
+    // // moved.
+    // for (int i = 0; i < num_particles; i++) {
+    //   move_particle(particles[i], pos.x, pos.y, pos.turn);
+    // }
   }
 
   // Stop the robot.

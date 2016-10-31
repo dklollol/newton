@@ -303,10 +303,13 @@ void run(char* host, int port, int device_index) {
     }
 
     case triangulating: {
-        if (checks <= 0) {
-          robot_state = drive_to_center;      
-        }
-        checks -= 1;
+      puts("triangulating");
+      if (checks <= 0) {
+        robot_state = drive_to_center;      
+        say("triangulation complete");
+      }
+      checks -= 1;
+      break;
     }
 
     case drive_to_center: {
@@ -317,24 +320,13 @@ void run(char* host, int port, int device_index) {
       // FIXME: I'm not sure this works.
 
       double move_x = est_pose.x - 150.0;
-      if (move_x >= 0) {
-        turn(&pp, &pos, -est_pose.theta);
-        drive(&pp, &pos, move_x);
-      }
-      else {
-        turn(&pp, &pos, -est_pose.theta + degrees_to_radians(180.0));
-        drive(&pp, &pos, -move_x);
-      }
-
       double move_y = -est_pose.y;
-      if (move_y >= 0) {
-        turn(&pp, &pos, degrees_to_radians(90.0));
-        drive(&pp, &pos, move_y);
-      }
-      else {
-        turn(&pp, &pos, degrees_to_radians(-90.0));
-        drive(&pp, &pos, -move_y);
-      }
+
+      double angle = atan2(move_y, move_x) - est_pose.theta;
+      double dist = sqrt(pow(move_x, 2.0) + pow(move_y, 2.0));
+      
+      turn(&pp, &pos, -angle);
+      drive(&pp, &pos, dist);
 
       robot_state = arrived_at_center;
       break;
@@ -344,6 +336,8 @@ void run(char* host, int port, int device_index) {
       puts("arrived at center");
       say("arrived at center");
       // The robot has arrived at the center between the two landmarks.
+
+      std::system("firefox 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
 
       //do_run = false;
       break;

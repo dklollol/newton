@@ -57,14 +57,14 @@ void run(char* host, int port, int device_index) {
   cv::moveWindow(window, 500.0, 20.0);
 
   // Initialize particles.
-  const int num_particles = 1000;
+  const int num_particles = 2000;
   std::vector<particle> particles(num_particles);
   std::vector<particle> particles_resampled(num_particles);
 
   for (int i = 0; i < num_particles; i++) {
     // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
-    particles[i].x = world_width * randf() - stop_dist;
-    particles[i].y = world_height * randf() - stop_dist;
+    particles[i].x = world_width * randf() - 150;
+    particles[i].y = world_height * randf() - 150;
     particles[i].theta = 2.0 * M_PI * randf() - M_PI;
     particles[i].weight = 1.0 / (double) num_particles;
   }
@@ -83,7 +83,7 @@ void run(char* host, int port, int device_index) {
   robot_state = searching;
   object::type first_landmark_found = object::none;
   double drive_around_landmark_remaining_dist;
-
+  int turned_angle;
   // Main loop.
   bool do_run = true;
   while (do_run) {
@@ -236,26 +236,24 @@ void run(char* host, int port, int device_index) {
       // landmark.
 
       if (ID == object::none) {
-        //robot_state = searching;
-        puts("SHIT no object?");
-        break;
+        robot_state = searching;
       }
       else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
         puts("Angle is good!");
         robot_state = approach;
       }
       else {
-        puts("Turn in aling");
+        puts("Turn in align");
         turn(&pp, &pos, clamp(measured_angle,
-                              degrees_to_radians(5.0),
-                              degrees_to_radians(-5.0)));
+                              degrees_to_radians(-5.0),
+                              degrees_to_radians(5.0)));
       }
       break;
     }
 
     case approach: {
       puts("approach");
-      say("approach");
+      say("Exterminate");
       // The robot is approaching the box to within a set distance.
 
       if (ID == object::none) {
@@ -268,6 +266,7 @@ void run(char* host, int port, int device_index) {
           turn(&pp, &pos, degrees_to_radians(90.0));
           drive_around_landmark_remaining_dist = stop_dist;
           robot_state = drive_around_landmark;
+          turned_angle = 90;
         }
         else {
           drive(&pp, &pos,
@@ -280,11 +279,11 @@ void run(char* host, int port, int device_index) {
 
     case drive_around_landmark: {
       puts("drive around landmark");
-      say("drive around landmark");
+      say("landmark");
       // The robot is driving around the first landmark in an attempt to locate
       // the second landmark.
 
-      const double drive_dist = 10.0;
+      const double drive_dist = 25.0;
       if (ID != object::none && ID != first_landmark_found) {
         robot_state = triangulating;
       }
@@ -293,7 +292,11 @@ void run(char* host, int port, int device_index) {
         drive_around_landmark_remaining_dist -= drive_dist;
       }
       else {
-        turn(&pp, &pos, degrees_to_radians(-90.0));
+        if (turned_angle <= 0) {
+          turned_angle = 90;
+        }
+        turn(&pp, &pos, degrees_to_radians(15.0));
+        turned_angle -= 15;
         drive_around_landmark_remaining_dist = stop_dist * 2.0;
       }
       break;

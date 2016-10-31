@@ -7,9 +7,7 @@
 void turn(Position2dProxy *pp, pos_t *pos, double turn_rad) {
   const double turn_speed = degrees_to_radians(20);
   pp->SetSpeed(0.0, turn_speed * ((turn_rad >= 0) ? 1 : -1));
-  puts("sleep!");
   sleep(fabs(turn_rad / turn_speed));
-  puts("sleep! done");
   pp->SetSpeed(0.0, 0.0);
   pos->turn += turn_rad;
 }
@@ -21,5 +19,4 @@ void drive(Position2dProxy *pp, pos_t *pos, double dist_cm) {
   pp->SetSpeed(0.0, 0.0);
   pos->x = pos->x + dist_cm * cos(pos->turn);
   pos->y = pos->y + dist_cm * sin(pos->turn);
-  // printf("x: %lf, y: %lf\n", pp->GetXSpeed(), pp->GetYSpeed());
 }

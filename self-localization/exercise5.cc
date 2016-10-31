@@ -210,7 +210,7 @@ void run(char* host, int port, int device_index) {
         robot_state = align;
       }
       else {
-        turn(&pp, &pos, degrees_to_radians(10.0));
+        turn(&pp, &pos, degrees_to_radians(5.0));
       }
       break;
     }
@@ -221,15 +221,16 @@ void run(char* host, int port, int device_index) {
       // landmark.
 
       if (ID == object::none) {
-        robot_state = searching;
+        //robot_state = searching;
+        break;
       }
       else if (fabs(measured_angle) < degrees_to_radians(2.0)) {
         robot_state = approach;
       }
       else {
         turn(&pp, &pos, clamp(measured_angle,
-                              radians_to_degrees(-10.0),
-                              radians_to_degrees(10.0)));
+                              radians_to_degrees(5.0),
+                              radians_to_degrees(-5.0)));
       }
       break;
     }

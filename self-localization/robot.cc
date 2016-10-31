@@ -5,7 +5,7 @@
 
 
 void turn(Position2dProxy *pp, pos_t *pos, double turn_rad) {
-  const double turn_speed = degrees_to_radians(45);
+  const double turn_speed = degrees_to_radians(20);
   pp->SetSpeed(0.0, turn_speed);
   sleep(fabs(turn_rad / turn_speed));
   pp->SetSpeed(0.0, 0.0);

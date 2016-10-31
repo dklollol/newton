@@ -31,7 +31,8 @@ enum state {searching, align, approach,
             drive_to_center, arrived_at_center};
 
 void say(string text) {
-  std::system((string("espeak '") + string(text) + string("' &")).c_str());
+  //std::system((string("espeak '") + string(text) + string("' &")).c_str());
+  return;
 }
 
 void set_pull_mode(PlayerClient &robot) {
@@ -145,7 +146,7 @@ void run(char* host, int port, int device_index) {
       }
     }
 
-    // Resampling step.  FIXME: Optimize.  Fix the code below.
+    // Resampling step.  
     size_t j = 0;
     while (j < num_particles) {
       size_t i = (size_t) (randf() * (num_particles - 1));
@@ -156,25 +157,14 @@ void run(char* host, int port, int device_index) {
     }
     particles = particles_resampled;
 
-    // std::vector<double> weightSumGraph;
+    // FIXME: Optimize.  Fix the code below.
+    // std::vector<double> weightSumGraph;   // calculate weightsumGraph!
     // weightSumGraph.reserve(num_particles);
-    // for(int i = 0; i < num_particles; i++) {
-    //   /*if (std::isnan(weightSumGraph.back())) {
-    //     std::cerr<<"OOOOHH .back() nana\n";
-    //     }
-    //     if (std::isnan(particles[i].weight)) {
-    //     std::cerr<<"OOOOHH .i.weight nana\n";
-    //     } */
-            
+    // for(int i = 0; i < num_particles; i++) {    
     //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
     // }
-    // // printf("SUM GRAPH!\n");
-    // // for (int i = 0; i < num_particles; i++) {
-    // //   printf("i: %d, %f\n", i, weightSumGraph[i]);
-    // // }
-    // //printf("last ele %f", weightSumGraph[num_particles-1]);
           
-    // // update particles!!
+    // // pick random particles!!
     // std::vector<particle> pickedParticles; //(num_particles);
     // pickedParticles.reserve(num_particles);
     // double z;
@@ -195,9 +185,6 @@ void run(char* host, int port, int device_index) {
     // particles = pickedParticles;
     // weightSumGraph.clear();
     
-
-    // Add uncertainty.
-    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
 
     // Estimate pose.
     particle est_pose = estimate_pose(particles);
@@ -316,12 +303,9 @@ void run(char* host, int port, int device_index) {
       puts("drive to center");
       say("drive to center");
       // The robot is driving towards the center between the two landmarks.
-
-      // FIXME: I'm not sure this works.
-
       double move_x = 150.0 - est_pose.x;
       double move_y = 0 - est_pose.y;
-
+      
       double angle = atan2(move_y, move_x) - est_pose.theta;
       double dist = sqrt(pow(move_x, 2.0) + pow(move_y, 2.0));
       
@@ -329,7 +313,7 @@ void run(char* host, int port, int device_index) {
       drive(&pp, &pos, dist);
 
       robot_state = arrived_at_center;
-      std::system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
+      //std::system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
       break;
     }
 
@@ -337,7 +321,7 @@ void run(char* host, int port, int device_index) {
       puts("arrived at center");
       say("arrived at center");
       // The robot has arrived at the center between the two landmarks.
-
+      pp.SetSpeed(0.0, 0.0);
       //do_run = false;
       break;
     }
@@ -348,8 +332,10 @@ void run(char* host, int port, int device_index) {
     for (int i = 0; i < num_particles; i++) {
       move_particle(particles[i], pos.x, pos.y, pos.turn);
     }
-  }
+    // Add uncertainty.
+    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
 
+  }
   // Stop the robot.
   pp.SetSpeed(0.0, 0.0);
 }

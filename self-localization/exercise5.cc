@@ -14,6 +14,8 @@
 #include "particles.h"
 #include "random_numbers.h"
 
+#include <cstdlib>
+
 using namespace cv;
 using namespace PlayerCc;
 
@@ -26,6 +28,10 @@ using namespace PlayerCc;
 enum state {searching, align, approach,
             drive_around_landmark,
             drive_to_center, arrived_at_center};
+
+void say(string text) {
+  std::system((string("espeak ") + string(text)).c_str());
+}
 
 void set_pull_mode(PlayerClient &robot) {
   robot.SetDataMode(PLAYER_DATAMODE_PULL);

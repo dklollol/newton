@@ -23,6 +23,10 @@
 
 \section{Implementation}
 
+To build the code, run \texttt{make}.  It builds the program
+\texttt{exercise5}.  We use OpenCV 2.4.
+
+
 \subsection{Particle Filter}
 
 
@@ -68,6 +72,35 @@ coordinates.  The robot drives towards $(150, 0)$ and then goes to state
 
 \item[arrived_at_center]\hfill\\
 Success!
+\end{description}
+
+
+\section{Discussion}
+
+We have tested the code quite a bit, both in Stage with webcam, and on a
+Scorpion robot.
+
+\subsection{Particle Filter}
+
+todo
+
+
+\subsection{Actual Driving}
+
+While the particle filter appears to work okay, we have not managed to fully
+integrate it with the driving strategy.  The Scorpion has occasionally driven
+close to the center, but sometimes it drives far off.  We have several ideas for
+why this might be:
+
+\begin{description}
+\item[Wrong camera calibration]\hfill\\
+The estimated distance to the landmark is sometimes off by up to 30 cm on an
+actual distance of just over a meter.  This might be due to a bad camera
+calibration, so maybe we should recalibrate.
+
+\item[Weird turning angles]\hfill\\
+Sometimes the robot turns at a planned junction, but apparently in the wrong
+direction.  This is probably a bug in one of the states.
 \end{description}
 
 

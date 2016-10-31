@@ -20,7 +20,7 @@
 \begin{document}
 
 \maketitle
-
+\newpage
 \section{Implementation}
 
 To build the code, run \texttt{make}.  It builds the program
@@ -28,13 +28,12 @@ To build the code, run \texttt{make}.  It builds the program
 
 
 \subsection{Particle Filter}
-\begin{figure}[htp]
+\begin{figure}[!h]
 \centering
 \includegraphics[scale=0.50]{MCL.png}
 \caption{MCL lokalization algorithm}
 \label{MCL}
 \end{figure}
-
 \subsection{Prediction step}
 For the prediction step we use the function move\_particle in particle.cc. It corresponds with the sample\_motion\_model as in algorithm. \\
 The move\_particle is fairly simple, It simply moves the particle position(x,y) with the given $\Delta x $ and $\Delta y$ if the control command were drive. If the robot turned we add $\Delta \theta$ to the particle $\theta$ value. \\

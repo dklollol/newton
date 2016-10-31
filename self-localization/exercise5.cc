@@ -30,7 +30,7 @@ enum state {searching, align, approach,
             drive_to_center, arrived_at_center};
 
 void say(string text) {
-  std::system((string("espeak ") + string(text)).c_str());
+  std::system((string("espeak '") + string(text) + string("'")).c_str());
 }
 
 void set_pull_mode(PlayerClient &robot) {

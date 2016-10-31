@@ -45,7 +45,7 @@ void run(char* host, int port, int device_index) {
   double world_height = 500.0;
   double stop_dist = 150.0; // The target distance from the first landmark.
 
-  int checks = 50;
+  int checks = 5;
 
 
   // The GUI
@@ -319,16 +319,17 @@ void run(char* host, int port, int device_index) {
 
       // FIXME: I'm not sure this works.
 
-      double move_x = est_pose.x - 150.0;
-      double move_y = -est_pose.y;
+      double move_x = 150.0 - est_pose.x;
+      double move_y = 0 - est_pose.y;
 
       double angle = atan2(move_y, move_x) - est_pose.theta;
       double dist = sqrt(pow(move_x, 2.0) + pow(move_y, 2.0));
       
-      turn(&pp, &pos, -angle);
+      turn(&pp, &pos, angle);
       drive(&pp, &pos, dist);
 
       robot_state = arrived_at_center;
+      std::system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
       break;
     }
 
@@ -336,8 +337,6 @@ void run(char* host, int port, int device_index) {
       puts("arrived at center");
       say("arrived at center");
       // The robot has arrived at the center between the two landmarks.
-
-      std::system("firefox 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
 
       //do_run = false;
       break;

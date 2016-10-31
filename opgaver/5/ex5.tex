@@ -52,7 +52,23 @@ When we pick particles we generate a random number z with randf().\\
 Then we run through the sum vector until we get an entry which equal of greater than z. When this occurs we pick that particle with the given index. This is done num\_particles times, so we have consistent number of particles.\\
 Each time we pick a particle we add it to a new vector which is set to be our working set of particles at the end of resampling.\\
 This does unfortunately not work in practice of reasons we do not know. so created a more naive implementation: 
- 
+
+\begin{enumerate}
+\item All particles are in the array \texttt{particles}.
+\item Create an empty array \texttt{particles_resampled}.
+\item While the size of \texttt{particles_resampled} is less than the size of
+\texttt{particles}, do:
+\begin{enumerate}
+\item Pick a random index \texttt{i} in \texttt{particles}.
+\item If the weight of \texttt{particles[i]} is above a random number between
+$0$ and $1$, append \texttt{particles[i]} to \texttt{particles_resampled}.
+\end{enumerate}
+\end{enumerate}
+
+This should still satisfy the requirement that a particle is picked with the
+probability of its weight, but it is not very efficient (and in theory it might
+not terminate).
+
 
 \subsection{Driving Strategy}
 
@@ -104,7 +120,18 @@ Scorpion robot.
 
 \subsection{Particle Filter}
 
-todo
+We have tested the particle filter independently of the driving, and it looks
+okay.  For example, see figure~\ref{fig:particle-test} for the case where the
+first landmark has been detected, and the particle filter has resampled the
+particles to form a circle around the landmark.
+
+\begin{figure}[!h]
+\centering
+\includegraphics[width=.9\textwidth]{partikeltest.png}
+\caption{Test of the particle filter.  The code recognizes the horizontal
+landmark and shows the particles.}
+\label{fig:particle-test}
+\end{figure}
 
 
 \subsection{Actual Driving}

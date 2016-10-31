@@ -41,7 +41,7 @@ camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
   // Set camera parameters
   cam.set(CV_CAP_PROP_FRAME_WIDTH, imsize.width);
   cam.set(CV_CAP_PROP_FRAME_HEIGHT, imsize.height);
-  //cam.set(CV_CAP_PROP_BUFFERSIZE, 1);
+  // cam.set(CV_CAP_PROP_BUFFERSIZE, 1);
 
 
   // std::cout << "Camera.width = " << cam.get(CV_CAP_PROP_FRAME_WIDTH)

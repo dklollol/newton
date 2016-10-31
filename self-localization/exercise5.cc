@@ -93,7 +93,11 @@ void run(char* host, int port, int device_index) {
     pos.turn = 0.0;
 
     // Grab image.
-    cv::Mat im = cam.get_colour();
+    cv::Mat im;
+    // Hack: Empty buffer to get the newest image.
+    for (size_t i = 0; i < 30; i++) {
+      im = cam.get_colour();
+    }
 
     // Do landmark detection.
     double measured_distance;

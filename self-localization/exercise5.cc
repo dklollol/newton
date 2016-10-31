@@ -54,7 +54,7 @@ void run(char* host, int port, int device_index) {
   cv::moveWindow(window, 500.0, 20.0);
 
   // Initialize particles.
-  const int num_particles = 1000;
+  const int num_particles = 5000;
   std::vector<particle> particles(num_particles);
   std::vector<particle> particles_resampled(num_particles);
 
@@ -80,7 +80,7 @@ void run(char* host, int port, int device_index) {
   robot_state = searching;
   object::type first_landmark_found = object::none;
   double drive_around_landmark_remaining_dist;
-
+  int turned_angle;
   // Main loop.
   bool do_run = true;
   while (do_run) {
@@ -233,9 +233,7 @@ void run(char* host, int port, int device_index) {
       // landmark.
 
       if (ID == object::none) {
-        //robot_state = searching;
-        puts("SHIT no object?");
-        break;
+        robot_state = searching;
       }
       else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
         puts("Angle is good!");
@@ -244,8 +242,8 @@ void run(char* host, int port, int device_index) {
       else {
         puts("Turn in aling");
         turn(&pp, &pos, clamp(measured_angle,
-                              degrees_to_radians(5.0),
-                              degrees_to_radians(-5.0)));
+                              degrees_to_radians(-5.0),
+                              degrees_to_radians(5.0)));
       }
       break;
     }
@@ -265,6 +263,7 @@ void run(char* host, int port, int device_index) {
           turn(&pp, &pos, degrees_to_radians(90.0));
           drive_around_landmark_remaining_dist = stop_dist;
           robot_state = drive_around_landmark;
+          turned_angle = 90;
         }
         else {
           drive(&pp, &pos,
@@ -290,9 +289,11 @@ void run(char* host, int port, int device_index) {
         drive_around_landmark_remaining_dist -= drive_dist;
       }
       else {
-        for(int i = 0; i < 4; i++)
-          turn(&pp, &pos, degrees_to_radians(15.0));
-        
+        turn(&pp, &pos, degrees_to_radians(15.0));
+        turned_angle -= 15;
+        if (turned_angle <= 0) {
+          turned_angle = 90;
+        }
         drive_around_landmark_remaining_dist = stop_dist * 2.0;
       }
       break;

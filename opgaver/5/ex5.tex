@@ -23,6 +23,10 @@
 
 \section{Implementation}
 
+To build the code, run \texttt{make}.  It builds the program
+\texttt{exercise5}.  We use OpenCV 2.4.
+
+
 \subsection{Particle Filter}
 \begin{figure}[htp]
 \centering
@@ -53,7 +57,74 @@ This does unfortunately not work in practice of reasons we do not know. so creat
 
 \subsection{Driving Strategy}
 
+We use a state-based approach for our driving strategy: We split the strategy
+into multiple states, and let each state handle a small part.  The driving
+strategy code is part of the main loop.
 
+\begin{description}
+\item[searching]\hfill\\
+This is the start state.  The robot turns counter-clockwise until it recognizes
+a landmark, after which it goes to state \textbf{align}.
+
+\item[align]\hfill\\
+The robot aligns itself to point directly at the recognized landmark (within
+a low threshold).  Once aligned, it goes to state \textbf{approach}.
+
+\item[approach]\hfill\\
+We don't want the robot to be too far away from the landmark.  If the robot is
+more than 150 cm from the landmark, the robot approaches it.  Once it's at most
+150 cm away, it goes to state \textbf{drive_around_landmark}.
+
+If the robot is not directly in front of the landmark, it goes back to the state
+\textbf{align}.
+
+\item[drive_around_landmark]\hfill\\
+At this point the robot has seen the first landmark, and we now want it to find
+the second landmark.  The robot drives around the first landmark in a square and
+keeps checking for the second landmark.  This should explore all angles.  Once
+it finds the second landmark, it goes to state \textbf{triangulating}.
+
+\item[triangulating]\hfill\\
+We run the particle filter a few times.  The robot then goes to state
+\textbf{drive_to_center}.
+
+\item[drive_to_center]\hfill\\
+The robot has now seen both landmarks, and we choose to trust its estimated
+coordinates.  The robot drives towards $(150, 0)$ and then goes to state
+\textbf{arrived_at_center}.
+
+\item[arrived_at_center]\hfill\\
+Success!
+\end{description}
+
+
+\section{Discussion}
+
+We have tested the code quite a bit, both in Stage with webcam, and on a
+Scorpion robot.
+
+\subsection{Particle Filter}
+
+todo
+
+
+\subsection{Actual Driving}
+
+While the particle filter appears to work okay, we have not managed to fully
+integrate it with the driving strategy.  The Scorpion has occasionally driven
+close to the center, but sometimes it drives far off.  We have several ideas for
+why this might be:
+
+\begin{description}
+\item[Wrong camera calibration]\hfill\\
+The estimated distance to the landmark is sometimes off by up to 30 cm on an
+actual distance of just over a meter.  This might be due to a bad camera
+calibration, so maybe we should recalibrate.
+
+\item[Weird turning angles]\hfill\\
+Sometimes the robot turns at a planned junction, but apparently in the wrong
+direction.  This is probably a bug in one of the states.
+\end{description}
 
 
 \end{document}

@@ -19,4 +19,5 @@ void drive(Position2dProxy *pp, pos_t *pos, double dist_cm) {
   pp->SetSpeed(0.0, 0.0);
   pos->x = pos->x + dist_cm * cos(pos->turn);
   pos->y = pos->y + dist_cm * sin(pos->turn);
+  // printf("x: %lf, y: %lf\n", pp->GetXSpeed(), pp->GetYSpeed());
 }

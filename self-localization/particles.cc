@@ -72,7 +72,7 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
 
   double prob_dist = prob(dist_diff, 50.0);
   double prob_angle = prob(angle_diff, 0.1);
-  printf("landmark; dist: %lf, angle: %lf\n", prob_dist, prob_angle);
+  // printf("landmark; dist: %lf, angle: %lf\n", prob_dist, prob_angle);
 
   double prob_final = prob_dist * prob_angle;
 

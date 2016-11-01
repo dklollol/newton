@@ -67,6 +67,7 @@ void run(char* host, int port, int device_index) {
 
   // Initialize robot state.
   state robot_state;
+  // initialize Delta values position
   pos_t pos;
 
   // Main loop.
@@ -81,18 +82,15 @@ void run(char* host, int port, int device_index) {
       break;
     }
 
-    // Reset iteration-relative values.
-    pos.x = 0.0;
-    pos.y = 0.0;
-    pos.turn = 0.0;
 
     // Grab image.
     Mat im;
     // Hack: Empty buffer to get the newest image.
-    for (size_t i = 0; i < 30; i++) {
+    /*for (size_t i = 0; i < 1; i++) {
       im = cam.get_colour();
     }
-
+    */
+    im = cam.get_colour();
     // Do landmark detection.
     double measured_distance;
     double measured_angle;
@@ -104,11 +102,12 @@ void run(char* host, int port, int device_index) {
                                         ((ID == object::vertical) ? "vertical"
                                          : "horizontal")));
     printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
+    
     if (ID != object::none) {
       printf("Measured distance: %lf\n", measured_distance);
       printf("Measured angle: %lf\n", measured_angle);
     }
-
+    
     // Correction step: Compute particle weights.
     if (ID == object::none) {
       // No observation; reset weights to uniform distribution.
@@ -122,7 +121,11 @@ void run(char* host, int port, int device_index) {
 
     resample(&particles);
     
-    
+    // Reset iteration-relative values.
+    pos.x = 0.0;
+    pos.y = 0.0;
+    pos.turn = 0.0;
+
     execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
 
     // Prediction step: Update all particles according to how much we have
@@ -135,9 +138,10 @@ void run(char* host, int port, int device_index) {
       
     // Estimate pose.
     particle est_pose = estimate_pose(particles);
+    
     printf("est_pose values: x:%f, y:%f, theta:%f\n",
            est_pose.x, est_pose.y, est_pose.theta);
-
+    
     
     // Draw the object in the image.
     cam.draw_object(im);

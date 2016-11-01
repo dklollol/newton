@@ -14,14 +14,21 @@ void timing_start(timing_t* timing);
 
 void timing_end(timing_t* t);
 
+// FIXME: The macros below should really be handled with generated dependency
+// files in the Makefile to make dependencies clear.
+
 #define TIMER_START() \
   { \
   timing_t timer; \
+  double timer_dur_ms; \
   timing_start(&timer);
 
 #define TIMER_END(description) \
   timing_end(&timer); \
-  printf("[TIMING] " description ": %zd\n", timer.usecs); \
+  timer_dur_ms = (double) timer.usecs / 1000.0; \
+  if (timer_dur_ms >= 1.0) { \
+    printf("[TIMING] " description ": %lf.3 ms\n", timer_dur_ms); \
+  } \
   }
 
 #endif

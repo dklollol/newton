@@ -74,6 +74,8 @@ void run(char* host, int port, int device_index) {
   // Main loop.
   bool do_run = true;
   while (do_run) {
+    puts("");
+    TIMER_START();
     // Wait a little.
     int action = cvWaitKey(4);
     char action_char = (char) action;
@@ -119,7 +121,8 @@ void run(char* host, int port, int device_index) {
       printf("Measured distance: %lf\n", measured_distance);
       printf("Measured angle: %lf\n", measured_angle);
     }
-    
+
+    TIMER_START();
     // Correction step: Compute particle weights.
     if (ID == object::none) {
       // No observation; reset weights to uniform distribution.
@@ -130,30 +133,43 @@ void run(char* host, int port, int device_index) {
     else {
       calculate_weights(&particles, measured_distance, measured_angle, ID, cp);
     }
+    TIMER_END("Set particle weights");
 
+    TIMER_START();
     resample(&particles);
+    TIMER_END("Resample particles");
     
     // Reset iteration-relative values.
     pos.x = 0.0;
     pos.y = 0.0;
     pos.turn = 0.0;
 
+    TIMER_START();
     execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
+    TIMER_END("Execute strategy");
 
     // Prediction step: Update all particles according to how much we have
     // moved.
+    TIMER_START();
     for (int i = 0; i < num_particles; i++) {
       move_particle(particles[i], pos.x, pos.y, pos.turn);
     }
+    TIMER_END("Move particles");
     double driveVar;
     double turnVar;
+
+    TIMER_START();
     // Add uncertainty.
     tie(driveVar, turnVar) = command_variance(&pos);
     printf("støj vi tilføjer: dist:%f, turn:%f \n", driveVar, turnVar);
     add_uncertainty(particles, driveVar, turnVar);
-      
+    TIMER_END("Add uncertainty");
+
+    particle est_pose;
+    TIMER_START();
     // Estimate pose.
-    particle est_pose = estimate_pose(particles);
+    est_pose = estimate_pose(particles);
+    TIMER_END("Estimate pose");
     
     printf("est_pose values: x:%f, y:%f, theta:%f\n",
            est_pose.x, est_pose.y, est_pose.theta);
@@ -165,7 +181,9 @@ void run(char* host, int port, int device_index) {
     // Draw visualisation.
     draw_world(est_pose, particles, world);
     imshow(map, world);
-    imshow(window, im);    
+    imshow(window, im);
+
+    TIMER_END("Run one iteration");
  }
   // Stop the robot.
   pp.SetSpeed(0.0, 0.0);

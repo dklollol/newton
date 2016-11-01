@@ -1,14 +1,12 @@
-# Compile and link flags
+# Flags
 CXX = g++
 PKGFLAGS = `pkg-config opencv playerc++ --cflags`
-IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing -std=c++11
-CXXFLAGS = -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+CXXFLAGS = -std=c++11 -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
 PKGLIBS = `pkg-config opencv playerc++ --libs`
 
-# Main executable
+# Sources
 EXECUTABLE = main
-
-# Files
 SOURCES = particles.cc random_numbers.cc camera.cc robot.cc draw.cc misc.cc strategy.cc timing.cc
 CCFILES = $(EXECUTABLE).cc $(SOURCES)
 OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
@@ -16,14 +14,14 @@ OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 # Compile everything
 all: $(EXECUTABLE)
 
-# Linking
+# Link
 $(EXECUTABLE): $(OBJECTS)
 	$(CXX) -o $(EXECUTABLE) $(OBJECTS) $(PKGLIBS)
 
-# Compilation
+# Compile
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -c $^
+	$(CXX) $(CXXFLAGS) -c $(patsubst %.o, %.cc, $<)
 
-# Cleaning up
+# Clean
 clean:
 	rm -f *.o $(EXECUTABLE)

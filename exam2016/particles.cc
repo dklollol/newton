@@ -14,7 +14,7 @@ double prob(double arg, double var) {
           * exp(-(pow(arg, 2.0)) / (2.0 * var)));
 }
 
-particle estimate_pose (std::vector<particle> &particles) {
+particle estimate_pose (vector<particle> &particles) {
   double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;
   const int len = particles.size ();
   for (int i = 0; i < len; i++) {
@@ -30,7 +30,7 @@ particle estimate_pose (std::vector<particle> &particles) {
   return particle (x, y, theta);
 }
 
-void add_uncertainty (std::vector<particle> &particles,
+void add_uncertainty (vector<particle> &particles,
                       double sigma, double sigma_theta) {
   const int len = particles.size();
   for (int i = 0; i < len; i++) {
@@ -40,7 +40,7 @@ void add_uncertainty (std::vector<particle> &particles,
   }
 }
 
-void add_uncertainty_von_mises (std::vector<particle> &particles,
+void add_uncertainty_von_mises (vector<particle> &particles,
                                 double sigma, double theta_kappa) {
   const int len = particles.size();
   for (int i = 0; i < len; i++) {
@@ -72,7 +72,6 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
     landmark_y = red ? 0 : 300;
   } 
 
-  printf("Landmark (%f, %f)\n", landmark_x, landmark_y);
   double dist_p = distance(landmark_x, p.x, landmark_y, p.y);
   double dist_diff = fabs(dist - dist_p);
 
@@ -88,7 +87,7 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
   return prob_final;
 }
 
-void calculate_weights(std::vector<particle> *particles, double dist, double angle,
+void calculate_weights(vector<particle> *particles, double dist, double angle,
                        object::type ID, colour_prop cp) {
   // An observation; set the weights.
   int num_particles = particles->size();
@@ -105,9 +104,9 @@ void calculate_weights(std::vector<particle> *particles, double dist, double ang
   }
 }
 
-void resample(std::vector<particle> *particles) {
+void resample(vector<particle> *particles) {
   size_t num_particles = particles->size();
-  std::vector<particle>particles_resampled(num_particles);
+  vector<particle>particles_resampled(num_particles);
   // Resampling step.  
   size_t j = 0;
   while (j < num_particles) {
@@ -119,15 +118,15 @@ void resample(std::vector<particle> *particles) {
   }
   *particles = particles_resampled;
 
-  // FIXME: Optimize.  Fix the code below.
-  // std::vector<double> weightSumGraph;   // calculate weightsumGraph!
+  //  // FIXME: Optimize.  Fix the code below.
+  // vector<double> weightSumGraph;   // calculate weightsumGraph!
   // weightSumGraph.reserve(num_particles);
   // for(int i = 0; i < num_particles; i++) {    
   //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
   // }
           
   // // pick random particles!!
-  // std::vector<particle> pickedParticles; //(num_particles);
+  // vector<particle> pickedParticles; //(num_particles);
   // pickedParticles.reserve(num_particles);
   // double z;
   // for (int i = 0; i < num_particles; i++) {

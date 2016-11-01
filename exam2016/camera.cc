@@ -20,7 +20,7 @@ std::string object::name (object::type t)
 }
 
 // Constructor / Destructor
-camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
+camera::camera (const int idx, const Size &imsize, bool useLensUnDistort)
   : pattern_size (cvSize (3, 4)), patternUnit(50.0f), imsize(imsize), cam(idx), useLensDistortion(useLensUnDistort)
 {
 
@@ -30,9 +30,9 @@ camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
     exit(-1);
   }
 
-  grey = cv::Mat(imsize, CV_8UC1);
-  colour = cv::Mat(imsize, CV_8UC3);
-  mask = cv::Mat(imsize, CV_8UC1);
+  grey = Mat(imsize, CV_8UC1);
+  colour = Mat(imsize, CV_8UC3);
+  mask = Mat(imsize, CV_8UC1);
   //grey = cvCreateImage (imsize, IPL_DEPTH_8U, 1);
   //colour = cvCreateImage (imsize, IPL_DEPTH_8U, 3);
   //mask = cvCreateImage (imsize, IPL_DEPTH_8U, 1);
@@ -49,7 +49,7 @@ camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
   //           << "  Camera.buffersize = " << cam.get(CV_CAP_PROP_BUFFERSIZE) << std::endl;
 
   // Save results in YAML format
-  cv::FileStorage fs("calibration_params.yml", cv::FileStorage::READ );
+  FileStorage fs("calibration_params.yml", FileStorage::READ );
 
   if (!fs.isOpened()) {
     std::cout << "camera::camera: Error - Could not open camera YAML calibration file" << std::endl;
@@ -91,9 +91,9 @@ camera::camera (const int idx, const cv::Size &imsize, bool useLensUnDistort)
 
 
   if (useLensDistortion) {
-    mapx = cv::Mat (imsize, CV_32FC1);
-    mapy = cv::Mat (imsize, CV_32FC1);
-    cv::initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, cv::Mat(), intrinsic_matrix, imsize, CV_32FC1, mapx, mapy);
+    mapx = Mat (imsize, CV_32FC1);
+    mapy = Mat (imsize, CV_32FC1);
+    initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, Mat(), intrinsic_matrix, imsize, CV_32FC1, mapx, mapy);
     std::cout << "camera::camera: Using estimate of lens distortion" << std::endl;
   } else
     std::cout << "camera::camera: Ignoring estimate of lens distortion" << std::endl;
@@ -119,41 +119,41 @@ camera::~camera ()
 }
 
 // Accessor for the OpenCV camera handle
-cv::VideoCapture& camera::get_capture ()
+VideoCapture& camera::get_capture ()
 {
   return cam;
 }
 
 // Image acquisition
-cv::Mat camera::get_colour ()
+Mat camera::get_colour ()
 {
   if (useLensDistortion) {
-    static cv::Mat distorted;
+    static Mat distorted;
     cam >> distorted;
 
-    cv::remap (distorted, colour, mapx, mapy, cv::INTER_NEAREST);
+    remap (distorted, colour, mapx, mapy, INTER_NEAREST);
   } else {
     cam >> colour;
   }
   return colour;
 }
 
-cv::Mat camera::get_grey (const cv::Mat& col)
+Mat camera::get_grey (const Mat& col)
 {
   //if (col == NULL)
   //  col = get_colour ();
-  cv::cvtColor (col, grey, CV_BGR2GRAY);
+  cvtColor (col, grey, CV_BGR2GRAY);
 
   return grey;
 }
 
-inline cv::Point2i round_cvPoint (const cv::Point2f &p)
+inline Point2i round_cvPoint (const Point2f &p)
 {
-  return (cv::Point2i ((int)p.x, (int)p.y));
+  return (Point2i ((int)p.x, (int)p.y));
 }
 
 // Object detection
-object::type camera::get_object (const cv::Mat &im, colour_prop &p, double &distance, double &angle)
+object::type camera::get_object (const Mat &im, colour_prop &p, double &distance, double &angle)
 {
   object::type retval = object::none;
 
@@ -197,7 +197,7 @@ object::type camera::get_object (const cv::Mat &im, colour_prop &p, double &dist
       if (im.channels() == 3)
         {
           // Extract rectangle corners
-          cv::Point2i points [] = {
+          Point2i points [] = {
             round_cvPoint (corners [0]),
             round_cvPoint (corners [2]),
             round_cvPoint (corners [9]),
@@ -207,12 +207,12 @@ object::type camera::get_object (const cv::Mat &im, colour_prop &p, double &dist
           // Compute region of interest
           //cvZero (mask);
           //cvFillConvexPoly (mask, points, 4, CV_RGB (255, 255, 255));
-          mask = cv::Mat::zeros(imsize, CV_8UC1);
-          cv::fillConvexPoly(mask, points, 4, CV_RGB (255, 255, 255));
+          mask = Mat::zeros(imsize, CV_8UC1);
+          fillConvexPoly(mask, points, 4, CV_RGB (255, 255, 255));
 
           // Compute mean colour inside region of interest
           //CvScalar mean_colour = cvAvg (im, mask);
-          cv::Scalar mean_colour = cv::mean (im, mask);
+          Scalar mean_colour = mean (im, mask);
           const double red   = mean_colour.val [2];
           const double green = mean_colour.val [1];
           const double blue  = mean_colour.val [0];
@@ -229,25 +229,25 @@ object::type camera::get_object (const cv::Mat &im, colour_prop &p, double &dist
   return retval;
 }
 
-void camera::draw_object (cv::Mat& im)
+void camera::draw_object (Mat& im)
 {
-  cv::drawChessboardCorners (im, pattern_size, corners, found);
+  drawChessboardCorners (im, pattern_size, corners, found);
 }
 
 // Low-level object detection
-std::vector<cv::Point2f>& camera::get_corners (const cv::Mat &im, bool &found, int &corner_count)
+std::vector<Point2f>& camera::get_corners (const Mat &im, bool &found, int &corner_count)
 {
   if (im.channels() == 3)
     {
-      cv::cvtColor (im, grey, CV_BGR2GRAY);
+      cvtColor (im, grey, CV_BGR2GRAY);
     } else {
     grey = im;
   }
 
-  found = cv::findChessboardCorners (grey, pattern_size, corners,
+  found = findChessboardCorners (grey, pattern_size, corners,
                                      CV_CALIB_CB_NORMALIZE_IMAGE | CV_CALIB_CB_ADAPTIVE_THRESH /*| CV_CALIB_CB_FAST_CHECK*/);
   if (found)
-    cv::cornerSubPix (grey, corners, cvSize (5, 5), cvSize (-1, -1),
+    cornerSubPix (grey, corners, cvSize (5, 5), cvSize (-1, -1),
                       cvTermCriteria (CV_TERMCRIT_ITER, 3, 0.0));
 
   return corners;

@@ -5,6 +5,7 @@
 
 #include "camera.h"
 
+using namespace std;
 
 /**
  * Data structure for storing particle information (state and weight)
@@ -45,7 +46,7 @@ public:
  * Estimate the pose from particles by computing the average position and orientation over all particles.
  * This is not done using the particle weights, but just the sample distribution.
  */
-particle estimate_pose(std::vector<particle> &particles);
+particle estimate_pose(vector<particle> &particles);
 
 
 /**
@@ -54,7 +55,7 @@ particle estimate_pose(std::vector<particle> &particles);
  *  \param sigma - standard deviation for Gaussian noise for location (x,y)
  *  \param sigma_theta - standard deviation for Gaussian noise for orientation theta
  */
-void add_uncertainty(std::vector<particle> &particles, double sigma, double sigma_theta);
+void add_uncertainty(vector<particle> &particles, double sigma, double sigma_theta);
 
 
 /**
@@ -63,7 +64,7 @@ void add_uncertainty(std::vector<particle> &particles, double sigma, double sigm
  *  \param sigma - standard deviation for Gaussian noise for location (x,y)
  *  \param theta_kappa - the kappa parameter for the von Mises noise for orientation theta
  */
-void add_uncertainty_von_mises(std::vector<particle> &particles, double sigma, double theta_kappa);
+void add_uncertainty_von_mises(vector<particle> &particles, double sigma, double theta_kappa);
 
 double prob(double arg, double var);
 
@@ -77,11 +78,11 @@ void move_particle(particle &p, double delta_x, double delta_y, double delta_the
 /**
  * Calculates and normalize weights of particles.
  */
-void calculate_weights(std::vector<particle> *particles, double dist, double angle,
+void calculate_weights(vector<particle> *particles, double dist, double angle,
                        object::type ID, colour_prop cp);
 
 /**
  * Resample particles 
  */
-void resample(std::vector<particle> *particles);
+void resample(vector<particle> *particles);
 #endif

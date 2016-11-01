@@ -8,6 +8,8 @@
 #include <opencv2/core/core.hpp>
 #include <opencv2/highgui/highgui.hpp>
 
+using namespace cv;
+using namespace std;
 
 namespace object
 {
@@ -18,7 +20,7 @@ namespace object
     vertical
   };
 
-  std::string name (type t);
+  string name (type t);
 }
 
 typedef struct _cprop
@@ -30,40 +32,40 @@ class camera
 {
   public:
     // Constructor / Destructor
-    camera (const int idx = -1, const cv::Size &imsize = cv::Size(640,480), bool useLensUnDistort = true);
+    camera (const int idx = -1, const Size &imsize = Size(640,480), bool useLensUnDistort = true);
     ~camera ();
 
     // Accessor for the OpenCV camera handle
-    cv::VideoCapture& get_capture ();
+    VideoCapture& get_capture ();
 
     // Image acquisition
-    cv::Mat get_colour ();
-    cv::Mat get_grey (const cv::Mat& colour);
+    Mat get_colour ();
+    Mat get_grey (const Mat& colour);
 
     // Object detection
-    object::type get_object (const cv::Mat &im, colour_prop &p, double &distance, double &angle);
-    void draw_object (cv::Mat &im);
+    object::type get_object (const Mat &im, colour_prop &p, double &distance, double &angle);
+    void draw_object (Mat &im);
 
     // Low-level object detection
-    std::vector<cv::Point2f>& get_corners (const cv::Mat &im, bool &found, int &corner_count);
+    vector<Point2f>& get_corners (const Mat &im, bool &found, int &corner_count);
 
   private:
     // Object parameters
-    const cv::Size pattern_size; // Size of the checkerboard pattern grid
+    const Size pattern_size; // Size of the checkerboard pattern grid
     const double patternUnit; // Size of one checker square in mm
-    const cv::Size imsize; // Size of the camera image
+    const Size imsize; // Size of the camera image
 
     // Camera handle
-    cv::VideoCapture cam;
+    VideoCapture cam;
 
     // Camera calibration parameters
-    cv::Mat intrinsic_matrix, distortion_coeffs, mapx, mapy;
+    Mat intrinsic_matrix, distortion_coeffs, mapx, mapy;
 
     bool useLensDistortion;
 
     // Buffers
-    cv::Mat grey, colour, mask;
-    std::vector<cv::Point2f> corners;
+    Mat grey, colour, mask;
+    vector<Point2f> corners;
 
     // States for object detection
     bool found;

@@ -31,7 +31,7 @@ enum state {searching, align, approach,
             drive_to_center, arrived_at_center};
 
 void say(string text) {
-  //std::system((string("espeak '") + string(text) + string("' &")).c_str());
+  system((string("espeak '") + string(text) + string("' &")).c_str());
   return;
 }
 
@@ -52,15 +52,15 @@ void run(char* host, int port, int device_index) {
   // The GUI
   const char *map = "World map";
   const char *window = "Robot view";
-  cv::Mat world(cvSize (world_width, world_height), CV_8UC3);
-  cv::namedWindow(map, CV_WINDOW_AUTOSIZE);
-  cv::namedWindow(window, CV_WINDOW_AUTOSIZE);
-  cv::moveWindow(window, 500.0, 20.0);
+  Mat world(cvSize (world_width, world_height), CV_8UC3);
+  namedWindow(map, CV_WINDOW_AUTOSIZE);
+  namedWindow(window, CV_WINDOW_AUTOSIZE);
+  moveWindow(window, 500.0, 20.0);
 
   // Initialize particles.
   const int num_particles = 2000;
-  std::vector<particle> particles(num_particles);
-  std::vector<particle> particles_resampled(num_particles);
+  vector<particle> particles(num_particles);
+  vector<particle> particles_resampled(num_particles);
 
   for (int i = 0; i < num_particles; i++) {
     // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
@@ -71,7 +71,7 @@ void run(char* host, int port, int device_index) {
   }
 
   // Setup the camera interface.
-  camera cam(0, cv::Size(640, 480), false);
+  camera cam(0, Size(640, 480), false);
 
   // Initialize player.
   PlayerClient robot(host, port);
@@ -103,7 +103,7 @@ void run(char* host, int port, int device_index) {
     pos.turn = 0.0;
 
     // Grab image.
-    cv::Mat im;
+    Mat im;
     // Hack: Empty buffer to get the newest image.
     for (size_t i = 0; i < 30; i++) {
       im = cam.get_colour();
@@ -149,8 +149,8 @@ void run(char* host, int port, int device_index) {
 
     // Draw visualisation.
     draw_world(est_pose, particles, world);
-    cv::imshow(map, world);
-    cv::imshow(window, im);
+    imshow(map, world);
+    imshow(window, im);
 
     // Move the robot according to its current state.
     switch (robot_state) {
@@ -266,7 +266,7 @@ void run(char* host, int port, int device_index) {
       drive(&pp, &pos, dist);
 
       robot_state = arrived_at_center;
-      //std::system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
+      //system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
       break;
     }
 
@@ -307,8 +307,8 @@ int main(int argc, char* argv[]) {
   try {
     run(host, port, device_index);
     return EXIT_SUCCESS;
-  } catch (PlayerCc::PlayerError e) {
-    std::cerr << e << std::endl;
+  } catch (PlayerError e) {
+    cerr << e << endl;
     return EXIT_FAILURE;
   }
 }

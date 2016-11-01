@@ -65,7 +65,7 @@ CvScalar jet (const double x)
  * Visualization.
  * This functions draws robots position in the world.
  */
-void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &im)
+void draw_world (particle &est_pose, vector<particle> &particles, Mat &im)
 {
   const int offset = 100;
 
@@ -83,28 +83,28 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
     {
       const int x = (int)particles[i].x + offset;
       const int y = (int)particles[i].y + offset;
-      const cv::Scalar colour = jet (particles[i].weight / max_weight);
-      cv::circle (im, cv::Point2i (x,y), 2, colour, 2);
-      const CvPoint b = cv::Point2i ((int)(particles[i].x + 15.0*cos(particles[i].theta))+offset,
+      const Scalar colour = jet (particles[i].weight / max_weight);
+      circle (im, Point2i (x,y), 2, colour, 2);
+      const CvPoint b = Point2i ((int)(particles[i].x + 15.0*cos(particles[i].theta))+offset,
                                      (int)(particles[i].y + 15.0*sin(particles[i].theta))+offset);
-      cv::line   (im, cv::Point2i (x,y), b, colour, 2);
+      line   (im, Point2i (x,y), b, colour, 2);
     }
 
   // Draw landmarks
-  const cv::Point2i lm0 = cv::Point2i (landmarks[0].x+offset, landmarks[0].y+offset);
-  const cv::Point2i lm1 = cv::Point2i (landmarks[1].x+offset, landmarks[1].y+offset);
-  const cv::Point2i lm2 = cv::Point2i (landmarks[2].x+offset, landmarks[2].y+offset);
-  const cv::Point2i lm3 = cv::Point2i (landmarks[3].x+offset, landmarks[3].y+offset);
-  cv::circle (im, lm0, 5, CRED, 2);
-  cv::circle (im, lm1, 5, CGREEN, 2);
-  cv::circle (im, lm2, 5, CBLUE, 2);
-  cv::circle (im, lm3, 5, CBLACK, 2);
+  const Point2i lm0 = Point2i (landmarks[0].x+offset, landmarks[0].y+offset);
+  const Point2i lm1 = Point2i (landmarks[1].x+offset, landmarks[1].y+offset);
+  const Point2i lm2 = Point2i (landmarks[2].x+offset, landmarks[2].y+offset);
+  const Point2i lm3 = Point2i (landmarks[3].x+offset, landmarks[3].y+offset);
+  circle (im, lm0, 5, CRED, 2);
+  circle (im, lm1, 5, CGREEN, 2);
+  circle (im, lm2, 5, CBLUE, 2);
+  circle (im, lm3, 5, CBLACK, 2);
   
 
   // Draw estimated robot pose
-  const cv::Point2i a = cv::Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);
-  const cv::Point2i b = cv::Point2i ((int)(est_pose.x + 15.0*cos(est_pose.theta))+offset,
+  const Point2i a = Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);
+  const Point2i b = Point2i ((int)(est_pose.x + 15.0*cos(est_pose.theta))+offset,
                                      (int)(est_pose.y + 15.0*sin(est_pose.theta))+offset);
-  cv::circle (im, a, 5, CMAGENTA, 2);
-  cv::line   (im, a, b, CMAGENTA, 2);
+  circle (im, a, 5, CMAGENTA, 2);
+  line   (im, a, b, CMAGENTA, 2);
 }

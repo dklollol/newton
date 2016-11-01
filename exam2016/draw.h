@@ -3,7 +3,9 @@
 
 #include "particles.h"
 
+using namespace cv;
+using namespace std;
 
-void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &im);
+void draw_world (particle &est_pose, vector<particle> &particles, Mat &im);
 
 #endif

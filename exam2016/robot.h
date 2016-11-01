@@ -5,8 +5,8 @@
 
 #include "particles.h"
 
-
 using namespace PlayerCc;
+
 
 struct pos_t {
   double x;
@@ -14,8 +14,8 @@ struct pos_t {
   double turn;
 };
 
-void turn(Position2dProxy *pp, pos_t *pos, double turn_rad);
+void turn(Position2dProxy &pp, pos_t &pos, double turn_rad);
 
-void drive(Position2dProxy *pp, pos_t *pos, double dist_cm);
+void drive(Position2dProxy &pp, pos_t &pos, double dist_cm);
 
 #endif

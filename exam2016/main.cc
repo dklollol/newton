@@ -42,7 +42,7 @@ void run(char* host, int port, int device_index) {
   // Picture matrices
   Mat world(cvSize (world_width, world_height), CV_8UC3);
   Mat im;
-  
+
   // Initialize particles.
   const int num_particles = 2000;
   vector<particle> particles(num_particles);
@@ -67,9 +67,9 @@ void run(char* host, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
 
   // States
-  state robot_state;
+  driving_state_t driving_state;
   pos_t pos;
-  object::type ID;
+  object::type landmark_id;
   double measured_distance;
   double measured_angle;
   colour_prop cp;
@@ -97,24 +97,24 @@ void run(char* host, int port, int device_index) {
 
     // Do landmark detection.
     TIMER_START();
-    ID = cam.get_object(im, cp, measured_distance, measured_angle);
+    landmark_id = cam.get_object(im, cp, measured_distance, measured_angle);
     TIMER_END("Locate landmark");
 
-    if (ID != object::none) {
+    if (landmark_id != object::none) {
       printf("[MEASUREMENTS] Distance: %lf, angle: %lf, rgb: (%lf, %lf, %lf)\n",
              measured_distance, measured_angle, cp.red, cp.green, cp.blue);
     }
 
     // Correction step: Compute particle weights.
     TIMER_START();
-    if (ID == object::none) {
+    if (landmark_id == object::none) {
       // No observation; reset weights to uniform distribution.
       for (int i = 0; i < num_particles; i++) {
         particles[i].weight = 1.0 / (double) num_particles;
       }
     }
     else {
-      calculate_weights(&particles, measured_distance, measured_angle, ID, cp);
+      calculate_weights(&particles, measured_distance, measured_angle, landmark_id, cp);
     }
     TIMER_END("Set particle weights");
 
@@ -128,7 +128,10 @@ void run(char* host, int port, int device_index) {
     pos.x = 0.0;
     pos.y = 0.0;
     pos.turn = 0.0;
-    execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
+    execute_strategy(pp, pos, driving_state, landmark_id,
+                     measured_distance, measured_angle);
+    printf("[ESTIMATE] Relative translation: x: %lf, y: %lf, turn: %lf\n",
+           pos.x, pos.y, radians_to_degrees(pos.turn));
     TIMER_END("Execute strategy");
 
     // Prediction step: Update all particles according to how much we have
@@ -151,7 +154,7 @@ void run(char* host, int port, int device_index) {
     // Estimate pose.
     TIMER_START();
     est_pose = estimate_pose(particles);
-    printf("[ESTIMATES] x: %f, y: %f, theta: %f\n",
+    printf("[ESTIMATE] Current location: x: %f, y: %f, theta: %f\n",
            est_pose.x, est_pose.y, est_pose.theta);
     TIMER_END("Estimate pose");
 

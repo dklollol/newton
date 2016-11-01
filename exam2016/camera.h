@@ -11,29 +11,27 @@
 using namespace cv;
 using namespace std;
 
-namespace object
-{
-  enum type
-  {
+namespace object {
+  enum type {
     none = 0,
     horizontal,
     vertical,
-    Landmark_1,
-    Landmark_2,
-    Landmark_3,
-    Landmark_4
+    landmark1,
+    landmark2,
+    landmark3,
+    landmark4
   };
 
   string name (type t);
 }
 
-typedef struct _cprop
-{
-  double red, green, blue;
-} colour_prop;
+struct colour_prop {
+  double red;
+  double green;
+  double blue;
+};
 
-class camera
-{
+class camera {
   public:
     // Constructor / Destructor
     camera (const int idx = -1, const Size &imsize = Size(640,480), bool useLensUnDistort = true);

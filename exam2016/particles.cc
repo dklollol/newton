@@ -82,13 +82,13 @@ double landmark(particle &p, double dist, double angle, object::type landmark,
 }
 
 void calculate_weights(vector<particle> *particles, double dist, double angle,
-                       object::type ID, colour_prop cp) {
+                       object::type landmark_id, colour_prop cp) {
   // An observation; set the weights.
   int num_particles = particles->size();
   double weight_sum = 0.0;
   for (int i = 0; i < num_particles; i++) {
     double weight = landmark(particles->at(i), dist,
-                             angle, ID, cp);
+                             angle, landmark_id, cp);
     particles->at(i).weight = weight;
     weight_sum += weight;
   }

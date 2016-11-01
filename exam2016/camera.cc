@@ -6,21 +6,21 @@
 #include "camera.h"
 
 
+using namespace std;
 using namespace cv;
 
-std::string object::name (object::type t)
-{
-  static const std::string name_list [] = {
-    "None",
-    "Horizontal",
-    "Vertical",
-    "Landmark_1",
-    "Landmark_2",
-    "Landmark_3",
-    "Landmark_4"
+std::string object::name (object::type t) {
+  static const string name_list[] = {
+    "none",
+    "horizontal",
+    "vertical",
+    "landmark1",
+    "landmark2",
+    "landmark3",
+    "landmark4"
   };
 
-  return name_list [t];
+  return name_list[t];
 }
 
 // Constructor / Destructor
@@ -228,9 +228,9 @@ object::type camera::get_object (const Mat &im, colour_prop &p, double &distance
 
           bool is_red = p.red > p.green;
           if (retval == object::vertical) {
-            retval = is_red ? object::Landmark_1 : object::Landmark_2;
+            retval = is_red ? object::landmark1 : object::landmark2;
           } else {
-            retval = is_red ? object::Landmark_4 : object::Landmark_3;
+            retval = is_red ? object::landmark4 : object::landmark3;
           }
         }
       else

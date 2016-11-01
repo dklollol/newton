@@ -40,27 +40,36 @@ tuple<double, double> command_variance(pos_t *pos) {
   }
   return make_tuple(sqrt(x+y), degrees_to_radians(1));
 }
-void decide_landmark(object::type landmark, double *x, double *y){
-  switch (landmark) {
-  case object::Landmark_1: {
+
+void decide_landmark(object::type landmark_id, double *x, double *y){
+  switch (landmark_id) {
+  case object::landmark1: {
     *x = 0;
     *y = 300;
     break;
   }
-  case object::Landmark_2: {
+  case object::landmark2: {
     *x = 0;
     *y = 0;
     break;
   }
-  case object::Landmark_3: {
+  case object::landmark3: {
     *x = 300;
     *y = 300;
     break;
   }
-  case object::Landmark_4: {
+  case object::landmark4: {
     *x = 300;
     *y = 0;
     break;
   }
+  default: {
+    break;
   }
+  }
+}
+
+void say(string text) {
+  std::system((string("espeak '") + string(text) + string("' &")).c_str());
+  return;
 }

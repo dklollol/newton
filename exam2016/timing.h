@@ -26,7 +26,7 @@ void timing_end(timing_t* t);
 #define TIMER_END(description) \
   timing_end(&timer); \
   timer_dur_ms = (double) timer.usecs / 1000.0; \
-  if (timer_dur_ms >= 1.0) { \
+  if (timer_dur_ms >= 10.0) { \
     printf("[TIMER] " description ": %lf.3 ms\n", timer_dur_ms); \
   } \
   }

@@ -17,7 +17,11 @@ namespace object
   {
     none = 0,
     horizontal,
-    vertical
+    vertical,
+    Landmark_1,
+    Landmark_2,
+    Landmark_3,
+    Landmark_4
   };
 
   string name (type t);

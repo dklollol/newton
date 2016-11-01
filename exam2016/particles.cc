@@ -63,14 +63,29 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
                 colour_prop cp) {
   double landmark_y;
   double landmark_x;
-  bool red = cp.red > cp.green;
-  if (landmark_id == object::vertical) {
-    landmark_x = 0;
-    landmark_y = red ? 300 : 0;
-  } else {
-    landmark_x = 300;
-    landmark_y = red ? 0 : 300;
-  } 
+
+  switch (landmark_id) {
+    case object::Landmark_1: {
+      landmark_x = 0;
+      landmark_y = 300;
+      break;
+    }
+    case object::Landmark_2: {
+      landmark_x = 0;
+      landmark_y = 0;
+      break;
+    }
+    case object::Landmark_3: {
+      landmark_x = 300;
+      landmark_y = 300;
+      break;
+    }
+    case object::Landmark_4: {
+      landmark_x = 300;
+      landmark_y = 0;
+      break;
+    }
+  }
 
   double dist_p = distance(landmark_x, p.x, landmark_y, p.y);
   double dist_diff = fabs(dist - dist_p);

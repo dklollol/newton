@@ -1,5 +1,6 @@
 #include "robot.h"
 #include "misc.h"
+#include "camera.h"
 #include <libplayerc++/playerc++.h>
 
 enum state {searching, align, approach,

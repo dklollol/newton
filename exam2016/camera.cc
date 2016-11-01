@@ -13,7 +13,11 @@ std::string object::name (object::type t)
   static const std::string name_list [] = {
     "None",
     "Horizontal",
-    "Vertical"
+    "Vertical",
+    "Landmark_1",
+    "Landmark_2",
+    "Landmark_3",
+    "Landmark_4"
   };
 
   return name_list [t];
@@ -221,6 +225,13 @@ object::type camera::get_object (const Mat &im, colour_prop &p, double &distance
           p.red = red / sum;
           p.green = green / sum;
           p.blue = blue / sum;
+
+          bool is_red = p.red > p.green;
+          if (retval == object::vertical) {
+            retval = is_red ? object::Landmark_1 : object::Landmark_2;
+          } else {
+            retval = is_red ? object::Landmark_4 : object::Landmark_3;
+          }
         }
       else
         retval = object::none;

@@ -63,8 +63,7 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
   double landmark_y = 0.0;
   double landmark_x = ((landmark_id == object::horizontal) ? 0.0 : 300.0);
 
-  double dist_p = sqrt(pow(landmark_x - p.x, 2.0)
-                       + pow(landmark_y - p.y, 2.0));
+  double dist_p = distance(landmark_x, p.x, landmark_y, p.y);
   double dist_diff = fabs(dist - dist_p);
 
   double angle_p = atan2(landmark_y - p.y, landmark_x - p.x) - p.theta;
@@ -79,18 +78,36 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
   return prob_final;
 }
 
+void calculate_weights(std::vector<particle> *particles, double dist, double angle,
+                       object::type ID) {
+  // An observation; set the weights.
+  int num_particles = particles->size();
+  double weight_sum = 0.0;
+  for (int i = 0; i < num_particles; i++) {
+    double weight = landmark(particles->at(i), dist,
+                             angle, ID);
+    particles->at(i).weight = weight;
+    weight_sum += weight;
+  }
+
+  for (int i = 0; i < num_particles; i++) {
+    particles->at(i).weight /= weight_sum;
+  }
+}
 
 void resample(std::vector<particle> *particles) {
+  size_t num_particles = particles->size();
+  std::vector<particle>particles_resampled(num_particles);
   // Resampling step.  
   size_t j = 0;
   while (j < num_particles) {
     size_t i = (size_t) (randf() * (num_particles - 1));
-    if (particles[i].weight > randf()) {
-      particles_resampled[j] = particles[i];
+    if (particles->at(i).weight > randf()) {
+      particles_resampled[j] = particles->at(i);
       j++;
     }
   }
-  particles = particles_resampled;
+  *particles = particles_resampled;
 
   // FIXME: Optimize.  Fix the code below.
   // std::vector<double> weightSumGraph;   // calculate weightsumGraph!

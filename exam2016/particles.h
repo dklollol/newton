@@ -74,6 +74,10 @@ double prob(double arg, double var);
  * Apply the dynamical model to the particle.
  */
 void move_particle(particle &p, double delta_x, double delta_y, double delta_theta);
+/**
+ * Calculates and normalize weights of particles.
+ */
+void calculate_weights(std::vector<particle> *particles, double dist, double angle, object::type ID);
 
 double landmark(particle &p, double dist, double angle, object::type landmark_id);
 /**

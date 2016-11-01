@@ -132,58 +132,10 @@ void run(char* host, int port, int device_index) {
       }
     }
     else {
-      // An observation; set the weights.
-      double weight_sum = 0.0;
-      for (int i = 0; i < num_particles; i++) {
-        double weight = landmark(particles[i], measured_distance,
-                                 measured_angle, ID);
-        particles[i].weight = weight;
-        weight_sum += weight;
-      }
-
-      for (int i = 0; i < num_particles; i++) {
-        particles[i].weight /= weight_sum;
-      }
+      calculate_weights(&particles, measured_distance, measured_angle, ID);
     }
 
-    // Resampling step.  
-    size_t j = 0;
-    while (j < num_particles) {
-      size_t i = (size_t) (randf() * (num_particles - 1));
-      if (particles[i].weight > randf()) {
-        particles_resampled[j] = particles[i];
-        j++;
-      }
-    }
-    particles = particles_resampled;
-
-    // FIXME: Optimize.  Fix the code below.
-    // std::vector<double> weightSumGraph;   // calculate weightsumGraph!
-    // weightSumGraph.reserve(num_particles);
-    // for(int i = 0; i < num_particles; i++) {    
-    //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
-    // }
-          
-    // // pick random particles!!
-    // std::vector<particle> pickedParticles; //(num_particles);
-    // pickedParticles.reserve(num_particles);
-    // double z;
-    // for (int i = 0; i < num_particles; i++) {
-    //   z = randf();
-    //   for (int t = 0; t < num_particles; t++) {
-    //     /*       if (t == num_particles-1) {
-    //              pickedParticles.push_back(particles[t]);
-    //              break;
-    //              }*/
-    //     if (z < weightSumGraph[t]) {
-    //       continue;
-    //     }
-    //     pickedParticles.push_back(particles[t]);
-    //     break;
-    //   }
-    // }
-    // particles = pickedParticles;
-    // weightSumGraph.clear();
+    resample(&particles);
     
 
     // Estimate pose.

@@ -6,7 +6,7 @@ CXXFLAGS = -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
 PKGLIBS = `pkg-config opencv playerc++ --libs`
 
 # Main executable
-EXECUTABLE = exercise5
+EXECUTABLE = main
 
 # Files
 SOURCES = particles.cc random_numbers.cc camera.cc robot.cc draw.cc misc.cc

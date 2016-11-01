@@ -93,9 +93,9 @@ void run(char* host, int port, int device_index) {
     */
     // timing_t timer;
     // timing_start(&timer);
-    TIMER_START()
+    TIMER_START();
     im = cam.get_colour();
-    TIMER_END("Read from camera")
+    TIMER_END("Read from camera");
     // timing_end(&timer);
     // printf("[PROFILING] Read from camera: %zd\n", timer.usecs);
     // Do landmark detection.
@@ -103,9 +103,10 @@ void run(char* host, int port, int device_index) {
     double measured_angle;
     colour_prop cp;
     // Set the above values.
-    TIMER_START()
-    object::type ID = cam.get_object(im, cp, measured_distance, measured_angle);
-    TIMER_END("Locate object")
+    object::type ID;
+    TIMER_START();
+    ID = cam.get_object(im, cp, measured_distance, measured_angle);
+    TIMER_END("Locate object");
 
     /*
     printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :

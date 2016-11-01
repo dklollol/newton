@@ -11,7 +11,7 @@ void execute_strategy(Position2dProxy *pp, pos_t *pos, state *robot_state, objec
       say("searching");
       // The robot is turning to find the first landmark.
       
-      turn(&pp, &pos, degrees_to_radians(5.0));
+      turn(pp, pos, degrees_to_radians(5.0));
       break;
     }
   }

@@ -1,3 +1,5 @@
+#include <string>
+
 enum state {searching, align, approach,
             drive_around_landmark,
             triangulating,

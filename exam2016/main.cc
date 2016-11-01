@@ -1,12 +1,17 @@
-#include <opencv2/opencv.hpp>
-#include <opencv2/core/core.hpp>
-#include <opencv2/highgui/highgui.hpp>
-
-#include <libplayerc++/playerc++.h>
 #include <stdio.h>
+#include <cstdlib>
 #include <iostream>
 #include <vector>
 #include <cmath>
+#include <thread>
+#include <mutex>
+#include <condition_variable>
+
+#include <opencv2/opencv.hpp>
+#include <opencv2/core/core.hpp>
+#include <opencv2/highgui/highgui.hpp>
+#include <libplayerc++/playerc++.h>
+
 #include "misc.h"
 #include "draw.h"
 #include "robot.h"
@@ -16,11 +21,36 @@
 #include "strategy.h"
 #include "timing.h"
 
-#include <cstdlib>
 
+using namespace std;
 using namespace cv;
 using namespace PlayerCc;
 
+
+// This is all just a hack to get around the problem that
+// `cam.set(CV_CAP_PROP_BUFFERSIZE, 1);` does not work for our webcam.  Instead
+// we continually grab camera frames in a seperate thread, and in that way
+// always read the newest frame.
+mutex camera_mutex;
+condition_variable camera_condition_variable;
+bool camera_is_grabbing;
+Mat camera_current_frame;
+
+void grab_from_camera(camera cam) {
+  unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
+
+  while (true) {
+    camera_lock.lock();
+    if (camera_is_grabbing) {
+      camera_current_frame = cam.get_colour();
+    }
+    else {
+      camera_condition_variable.wait(camera_lock,
+                                     []{ return camera_is_grabbing; });
+    }
+    camera_lock.unlock();
+  }
+}
 
 void set_pull_mode(PlayerClient &robot) {
   robot.SetDataMode(PLAYER_DATAMODE_PULL);
@@ -60,6 +90,10 @@ void run(char* host, int port, int device_index) {
 
   // Setup the camera interface.
   camera cam(0, Size(640, 480), false);
+  camera_is_grabbing = true;
+  camera_current_frame = cam.get_colour();
+  unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
+  thread camera_thread(grab_from_camera, cam);
 
   // Initialize player.
   PlayerClient robot(host, port);
@@ -92,7 +126,12 @@ void run(char* host, int port, int device_index) {
 
     // Grab image.
     TIMER_START();
-    im = cam.get_colour();
+    camera_is_grabbing = false;
+    camera_lock.lock();
+    im = camera_current_frame;
+    camera_lock.unlock();
+    camera_is_grabbing = true;
+    camera_condition_variable.notify_one();
     TIMER_END("Read from camera");
 
     // Do landmark detection.
@@ -180,6 +219,7 @@ void run(char* host, int port, int device_index) {
 
  after_loop:
   // Stop the robot.
+  //camera_thread.join();
   pp.SetSpeed(0.0, 0.0);
 }
 

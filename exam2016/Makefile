@@ -3,7 +3,7 @@ CXX = g++
 PKGFLAGS = `pkg-config opencv playerc++ --cflags`
 IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
 CXXFLAGS = -std=c++11 -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
-PKGLIBS = `pkg-config opencv playerc++ --libs`
+PKGLIBS = -lpthread `pkg-config opencv playerc++ --libs`
 
 # Sources
 EXECUTABLE = main

@@ -138,7 +138,7 @@ void run(char* host, int port, int device_index) {
     double driveVar;
     double turnVar;
     // Add uncertainty.
-    tie(driveVar, turnVar) = commandVariance(&pos);
+    tie(driveVar, turnVar) = command_variance(&pos);
     printf("støj vi tilføjer: dist:%f, turn:%f \n", driveVar, turnVar);
     add_uncertainty(particles, driveVar, turnVar);
       

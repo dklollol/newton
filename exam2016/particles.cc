@@ -59,33 +59,12 @@ void move_particle(particle &p, double delta_x, double delta_y, double delta_tur
   p.theta += delta_turn;
 }
 
-double landmark(particle &p, double dist, double angle, object::type landmark_id,
+double landmark(particle &p, double dist, double angle, object::type landmark,
                 colour_prop cp) {
   double landmark_y;
   double landmark_x;
 
-  switch (landmark_id) {
-    case object::Landmark_1: {
-      landmark_x = 0;
-      landmark_y = 300;
-      break;
-    }
-    case object::Landmark_2: {
-      landmark_x = 0;
-      landmark_y = 0;
-      break;
-    }
-    case object::Landmark_3: {
-      landmark_x = 300;
-      landmark_y = 300;
-      break;
-    }
-    case object::Landmark_4: {
-      landmark_x = 300;
-      landmark_y = 0;
-      break;
-    }
-  }
+  decide_landmark(landmark, &landmark_x, &landmark_y);
 
   double dist_p = distance(landmark_x, p.x, landmark_y, p.y);
   double dist_diff = fabs(dist - dist_p);

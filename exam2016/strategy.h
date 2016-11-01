@@ -1,3 +1,5 @@
+#ifndef EX5_STRATEGY_H
+#define EX5_STRATEGY_H
 #include "robot.h"
 #include "misc.h"
 #include "camera.h"
@@ -13,3 +15,5 @@ void say(string text);
 
 void execute_strategy(Position2dProxy *pp, pos_t *pos, state *robot_state,
                       object::type landmark, double measured_angle, double measured_distance);
+
+#endif

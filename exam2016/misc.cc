@@ -28,7 +28,7 @@ double distance(double x1, double x2, double y1, double y2) {
   return sqrt(pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0));
 }
 
-tuple<double, double> commandVariance(pos_t *pos) {
+tuple<double, double> command_variance(pos_t *pos) {
   double x = pos->x;
   double y = pos->y;
   double theta = pos->turn;
@@ -40,3 +40,27 @@ tuple<double, double> commandVariance(pos_t *pos) {
   }
   return make_tuple(sqrt(x+y), degrees_to_radians(1));
 }
+void decide_landmark(object::type landmark, double *x, double *y){
+  switch (landmark) {
+  case object::Landmark_1: {
+    *x = 0;
+    *y = 300;
+    break;
+  }
+  case object::Landmark_2: {
+    *x = 0;
+    *y = 0;
+    break;
+  }
+  case object::Landmark_3: {
+    *x = 300;
+    *y = 300;
+    break;
+  }
+  case object::Landmark_4: {
+    *x = 300;
+    *y = 0;
+    break; 
+  }
+  } 
+} 

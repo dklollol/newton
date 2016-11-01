@@ -27,6 +27,9 @@ using namespace cv;
 using namespace PlayerCc;
 
 
+// Global main loop info.
+bool is_done = false;
+
 // This is all just a hack to get around the problem that
 // `cam.set(CV_CAP_PROP_BUFFERSIZE, 1);` does not work for our webcam.  Instead
 // we continually grab camera frames in a seperate thread, and in that way
@@ -41,7 +44,10 @@ void grab_from_camera(camera cam) {
 
   while (true) {
     camera_lock.lock();
-    if (camera_is_grabbing) {
+    if (is_done) {
+      break;
+    }
+    else if (camera_is_grabbing) {
       camera_current_frame = cam.get_colour();
     }
     else {
@@ -218,8 +224,8 @@ void run(char* host, int port, int device_index) {
  }
 
  after_loop:
-  // Stop the robot.
-  //camera_thread.join();
+  is_done = true;
+  camera_thread.join();
   pp.SetSpeed(0.0, 0.0);
 }
 

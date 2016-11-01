@@ -14,6 +14,7 @@
 #include "particles.h"
 #include "random_numbers.h"
 #include "strategy.h"
+#include "timing.h"
 
 #include <cstdlib>
 
@@ -90,13 +91,21 @@ void run(char* host, int port, int device_index) {
       im = cam.get_colour();
     }
     */
+    // timing_t timer;
+    // timing_start(&timer);
+    TIMER_START()
     im = cam.get_colour();
+    TIMER_END("Read from camera")
+    // timing_end(&timer);
+    // printf("[PROFILING] Read from camera: %zd\n", timer.usecs);
     // Do landmark detection.
     double measured_distance;
     double measured_angle;
     colour_prop cp;
     // Set the above values.
+    TIMER_START()
     object::type ID = cam.get_object(im, cp, measured_distance, measured_angle);
+    TIMER_END("Locate object")
 
     /*
     printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :

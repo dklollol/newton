@@ -9,14 +9,9 @@
 #include "random_numbers.h"
 
 
-double prob(double arg, double var) {
-  return ((1.0 / sqrt(2.0 * M_PI * var))
-          * exp(-(pow(arg, 2.0)) / (2.0 * var)));
-}
-
 particle estimate_pose (vector<particle> &particles) {
   double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;
-  const int len = particles.size ();
+  const int len = particles.size();
   for (int i = 0; i < len; i++) {
     x_sum += particles[i].x;
     y_sum += particles[i].y;
@@ -26,8 +21,8 @@ particle estimate_pose (vector<particle> &particles) {
   const double flen = (double)len;
   const double x = x_sum/flen;
   const double y = y_sum/flen;
-  const double theta = atan2 (sin_sum/flen, cos_sum/flen);
-  return particle (x, y, theta);
+  const double theta = atan2(sin_sum/flen, cos_sum/flen);
+  return particle(x, y, theta);
 }
 
 void add_uncertainty (vector<particle> &particles,
@@ -53,16 +48,22 @@ void add_uncertainty_von_mises (vector<particle> &particles,
 
 ////////////////////////////////////////////////////////////
 
-void move_particle(particle &p, double delta_x, double delta_y, double delta_turn) {
+double prob(double arg, double var) {
+  return ((1.0 / sqrt(2.0 * M_PI * var))
+          * exp(-(pow(arg, 2.0)) / (2.0 * var)));
+}
+
+void move_particle(particle &p, double delta_x, double delta_y,
+                   double delta_turn) {
   p.x += delta_x;
   p.y += delta_y;
   p.theta += delta_turn;
 }
 
-double landmark(particle &p, double dist, double angle, object::type landmark,
-                colour_prop cp) {
-  double landmark_y;
-  double landmark_x;
+double landmark(particle &p, double dist, double angle,
+                object::type landmark) {
+  double landmark_y = 0.0;
+  double landmark_x = 0.0;
 
   decide_landmark(landmark, &landmark_x, &landmark_y);
 
@@ -74,21 +75,17 @@ double landmark(particle &p, double dist, double angle, object::type landmark,
 
   double prob_dist = prob(dist_diff, 50.0);
   double prob_angle = prob(angle_diff, 0.1);
-  // printf("landmark; dist: %lf, angle: %lf\n", prob_dist, prob_angle);
 
   double prob_final = prob_dist * prob_angle;
-
   return prob_final;
 }
 
 void calculate_weights(vector<particle> *particles, double dist, double angle,
-                       object::type landmark_id, colour_prop cp) {
-  // An observation; set the weights.
+                       object::type landmark_id) {
   int num_particles = particles->size();
   double weight_sum = 0.0;
   for (int i = 0; i < num_particles; i++) {
-    double weight = landmark(particles->at(i), dist,
-                             angle, landmark_id, cp);
+    double weight = landmark(particles->at(i), dist, angle, landmark_id);
     particles->at(i).weight = weight;
     weight_sum += weight;
   }
@@ -101,7 +98,6 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
 void resample(vector<particle> *particles) {
   size_t num_particles = particles->size();
   vector<particle>particles_resampled(num_particles);
-  // Resampling step.
   size_t j = 0;
   while (j < num_particles) {
     size_t i = (size_t) (randf() * (num_particles - 1));

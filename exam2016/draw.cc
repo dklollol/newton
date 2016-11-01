@@ -18,6 +18,7 @@
 using namespace cv;
 using namespace PlayerCc;
 
+
 /*
  * Some colors
  */
@@ -35,19 +36,18 @@ using namespace PlayerCc;
  * The robot knows the position of 2 landmarks. Their coordinates are in cm.
  */
 #define num_landmarks 4
-const Point2i landmarks [num_landmarks] = {
-  Point2i (0, 300),
-  Point2i (0, 0),
-  Point2i (300, 300),
-  Point2i (300, 0)
+const Point2i landmarks[num_landmarks] = {
+  Point2i(0, 300),
+  Point2i(0, 0),
+  Point2i(300, 300),
+  Point2i(300, 0)
 };
 
 /*
  * Colour map for drawing particles. This function determines the colour of a
  * particle from its weight.
  */
-CvScalar jet (const double x)
-{
+CvScalar jet(const double x) {
   const double r = (x >= 3.0/8.0 && x < 5.0/8.0) * (4.0 * x - 3.0/2.0)
     + (x >= 5.0/8.0 && x < 7.0/8.0)
     + (x >= 7.0/8.0) * (-4.0 * x + 9.0/2.0);
@@ -65,8 +65,7 @@ CvScalar jet (const double x)
  * Visualization.
  * This functions draws robots position in the world.
  */
-void draw_world (particle &est_pose, vector<particle> &particles, Mat &im)
-{
+void draw_world (particle &est_pose, vector<particle> &particles, Mat &im) {
   const int offset = 100;
 
   // White background
@@ -99,7 +98,6 @@ void draw_world (particle &est_pose, vector<particle> &particles, Mat &im)
   circle (im, lm1, 5, CGREEN, 2);
   circle (im, lm2, 5, CBLUE, 2);
   circle (im, lm3, 5, CBLACK, 2);
-
 
   // Draw estimated robot pose
   const Point2i a = Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);

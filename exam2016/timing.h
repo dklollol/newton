@@ -3,12 +3,12 @@
 
 #include <sys/time.h>
 
-typedef struct {
+struct timing_t {
   struct timeval time_start;
   struct timeval time_end;
   struct timeval time_diff;
   unsigned long usecs;
-} timing_t;
+};
 
 void timing_start(timing_t* timing);
 

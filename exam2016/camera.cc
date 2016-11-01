@@ -9,7 +9,7 @@
 using namespace std;
 using namespace cv;
 
-std::string object::name (object::type t) {
+std::string object::name(object::type t) {
   static const string name_list[] = {
     "none",
     "horizontal",
@@ -24,9 +24,12 @@ std::string object::name (object::type t) {
 }
 
 // Constructor / Destructor
-camera::camera (const int idx, const Size &imsize, bool useLensUnDistort)
-  : pattern_size (cvSize (3, 4)), patternUnit(50.0f), imsize(imsize), cam(idx), useLensDistortion(useLensUnDistort)
-{
+camera::camera(const int idx, const Size &imsize, bool useLensUnDistort)
+  : pattern_size (cvSize (3, 4)),
+    patternUnit(50.0f),
+    imsize(imsize),
+    cam(idx),
+    useLensDistortion(useLensUnDistort) {
 
   // Check that camera is opened
   if (!cam.isOpened()) {
@@ -52,7 +55,7 @@ camera::camera (const int idx, const Size &imsize, bool useLensUnDistort)
   //           << "  Camera.height = " << cam.get(CV_CAP_PROP_FRAME_HEIGHT)
   //           << "  Camera.buffersize = " << cam.get(CV_CAP_PROP_BUFFERSIZE) << std::endl;
 
-  // Save results in YAML format
+  // Read results in YAML format
   FileStorage fs("data/calibration_params.yml", FileStorage::READ);
 
   if (!fs.isOpened()) {
@@ -62,7 +65,6 @@ camera::camera (const int idx, const Size &imsize, bool useLensUnDistort)
 
   fs["camera_matrix"] >> intrinsic_matrix;
   fs["distortion_coefficients"] >> distortion_coeffs;
-
 
   std::cout << "camera matrix: " << intrinsic_matrix << std::endl
             << "distortion coeffs: " << distortion_coeffs << std::endl;
@@ -92,22 +94,19 @@ camera::camera (const int idx, const Size &imsize, bool useLensUnDistort)
   //mapy = cvCreateMat (imsize.height, imsize.width, CV_32FC1);
   //cvInitUndistortMap (intrinsic_matrix, distortion_coeffs, mapx, mapy);
 
-
-
   if (useLensDistortion) {
     mapx = Mat (imsize, CV_32FC1);
     mapy = Mat (imsize, CV_32FC1);
-    initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, Mat(), intrinsic_matrix, imsize, CV_32FC1, mapx, mapy);
+    initUndistortRectifyMap(intrinsic_matrix, distortion_coeffs, Mat(),
+                            intrinsic_matrix, imsize, CV_32FC1, mapx, mapy);
     std::cout << "camera::camera: Using estimate of lens distortion" << std::endl;
-  } else
+  } else {
     std::cout << "camera::camera: Ignoring estimate of lens distortion" << std::endl;
-
+  }
   std::cout << "camera::camera: Opening and initializing camera" << std::endl;
-
 }
 
-camera::~camera ()
-{
+camera::~camera() {
   // Deallocate buffers
   //delete [] corners;
   //cvReleaseImage (&grey);
@@ -123,14 +122,12 @@ camera::~camera ()
 }
 
 // Accessor for the OpenCV camera handle
-VideoCapture& camera::get_capture ()
-{
+VideoCapture& camera::get_capture() {
   return cam;
 }
 
 // Image acquisition
-Mat camera::get_colour ()
-{
+Mat camera::get_colour() {
   if (useLensDistortion) {
     static Mat distorted;
     cam >> distorted;
@@ -157,109 +154,110 @@ inline Point2i round_cvPoint (const Point2f &p)
 }
 
 // Object detection
-object::type camera::get_object (const Mat &im, colour_prop &p, double &distance, double &angle)
-{
+object::type camera::get_object(const Mat &im, colour_prop &p,
+                                double &distance, double &angle) {
   object::type retval = object::none;
 
   // Detect corners
   get_corners (im, found, corner_count);
 
-  if (found)
-    {
-      // Determine if the object is horizontal or vertical
-      const int delta_x = abs (corners [0].x - corners [2].x);
-      const int delta_y = abs (corners [0].y - corners [2].y);
-      const bool horizontal = (delta_y > delta_x);
-      if (horizontal)
-        retval = object::horizontal;
-      else
-        retval = object::vertical;
+  if (found) {
+    // Determine if the object is horizontal or vertical
+    const int delta_x = abs (corners [0].x - corners [2].x);
+    const int delta_y = abs (corners [0].y - corners [2].y);
+    const bool horizontal = (delta_y > delta_x);
+    if (horizontal)
+      retval = object::horizontal;
+    else
+      retval = object::vertical;
 
-      // Compute distances and angles
-      double height, patternHeight;
-      if (horizontal) {
-        height = ((fabs (corners [0].y - corners [2].y) +
-                   fabs (corners [9].y - corners [11].y)) / 2.0);
-        patternHeight = (pattern_size.width-1.0f) * patternUnit;
-      } else {
-        height = (fabs (corners [0].y - corners [9].y) +
-                  fabs (corners [2].y - corners [11].y)) / 2.0;
-        patternHeight = (pattern_size.height-1.0f) * patternUnit;
-      }
-
-      //distance = CV_MAT_ELEM(*intrinsic_matrix, double, 1, 1) * patternHeight / (height*10.0f); // in cm
-      distance = intrinsic_matrix.at<double>(1, 1) * patternHeight / (height*10.0f); // in cm
-
-      const double center = (corners [0].x + corners [2].x +
-                             corners [9].x + corners [11].x) / 4.0;
-
-      angle = -atan2(center - imsize.width / 2.0f, intrinsic_matrix.at<double>(0, 0));
-
-
-      // Classify object by colour
-      //if (im->nChannels == 3)
-      if (im.channels() == 3)
-        {
-          // Extract rectangle corners
-          Point2i points [] = {
-            round_cvPoint (corners [0]),
-            round_cvPoint (corners [2]),
-            round_cvPoint (corners [9]),
-            round_cvPoint (corners [11])
-          };
-
-          // Compute region of interest
-          //cvZero (mask);
-          //cvFillConvexPoly (mask, points, 4, CV_RGB (255, 255, 255));
-          mask = Mat::zeros(imsize, CV_8UC1);
-          fillConvexPoly(mask, points, 4, CV_RGB (255, 255, 255));
-
-          // Compute mean colour inside region of interest
-          //CvScalar mean_colour = cvAvg (im, mask);
-          Scalar mean_colour = mean (im, mask);
-          const double red   = mean_colour.val [2];
-          const double green = mean_colour.val [1];
-          const double blue  = mean_colour.val [0];
-          const double sum = red + green + blue;
-
-          p.red = red / sum;
-          p.green = green / sum;
-          p.blue = blue / sum;
-
-          bool is_red = p.red > p.green;
-          if (retval == object::vertical) {
-            retval = is_red ? object::landmark1 : object::landmark2;
-          } else {
-            retval = is_red ? object::landmark4 : object::landmark3;
-          }
-        }
-      else
-        retval = object::none;
+    // Compute distances and angles
+    double height, patternHeight;
+    if (horizontal) {
+      height = ((fabs (corners [0].y - corners [2].y) +
+                 fabs (corners [9].y - corners [11].y)) / 2.0);
+      patternHeight = (pattern_size.width-1.0f) * patternUnit;
+    } else {
+      height = (fabs (corners [0].y - corners [9].y) +
+                fabs (corners [2].y - corners [11].y)) / 2.0;
+      patternHeight = (pattern_size.height-1.0f) * patternUnit;
     }
+
+    //distance = CV_MAT_ELEM(*intrinsic_matrix, double, 1, 1) * patternHeight / (height*10.0f); // in cm
+    distance = intrinsic_matrix.at<double>(1, 1) * patternHeight / (height*10.0f); // in cm
+
+    const double center = (corners [0].x + corners [2].x +
+                           corners [9].x + corners [11].x) / 4.0;
+
+    angle = -atan2(center - imsize.width / 2.0f, intrinsic_matrix.at<double>(0, 0));
+
+
+    // Classify object by colour
+    //if (im->nChannels == 3)
+    if (im.channels() == 3) {
+      // Extract rectangle corners
+      Point2i points[] = {
+        round_cvPoint (corners [0]),
+        round_cvPoint (corners [2]),
+        round_cvPoint (corners [9]),
+        round_cvPoint (corners [11])
+      };
+
+      // Compute region of interest
+      //cvZero (mask);
+      //cvFillConvexPoly (mask, points, 4, CV_RGB (255, 255, 255));
+      mask = Mat::zeros(imsize, CV_8UC1);
+      fillConvexPoly(mask, points, 4, CV_RGB (255, 255, 255));
+
+      // Compute mean colour inside region of interest
+      //CvScalar mean_colour = cvAvg (im, mask);
+      Scalar mean_colour = mean (im, mask);
+      const double red   = mean_colour.val [2];
+      const double green = mean_colour.val [1];
+      const double blue  = mean_colour.val [0];
+      const double sum   = red + green + blue;
+
+      p.red = red / sum;
+      p.green = green / sum;
+      p.blue = blue / sum;
+
+      bool is_red = p.red > p.green;
+      if (retval == object::vertical) {
+        retval = is_red ? object::landmark1 : object::landmark2;
+      } else {
+        retval = is_red ? object::landmark4 : object::landmark3;
+      }
+    }
+    else {
+      retval = object::none;
+    }
+  }
 
   return retval;
 }
 
-void camera::draw_object (Mat& im)
-{
+void camera::draw_object (Mat& im) {
   drawChessboardCorners (im, pattern_size, corners, found);
 }
 
 // Low-level object detection
-std::vector<Point2f>& camera::get_corners (const Mat &im, bool &found, int &corner_count)
-{
-  if (im.channels() == 3)
-    {
-      cvtColor (im, grey, CV_BGR2GRAY);
-    } else {
+std::vector<Point2f>& camera::get_corners (const Mat &im, bool &found,
+                                           int &corner_count) {
+  if (im.channels() == 3) {
+    cvtColor (im, grey, CV_BGR2GRAY);
+  }
+  else {
     grey = im;
   }
 
-  found = findChessboardCorners (grey, pattern_size, corners,
-                                     CV_CALIB_CB_NORMALIZE_IMAGE | CV_CALIB_CB_ADAPTIVE_THRESH /*| CV_CALIB_CB_FAST_CHECK*/);
-  if (found)
-    cornerSubPix (grey, corners, cvSize (5, 5), cvSize (-1, -1),
-                      cvTermCriteria (CV_TERMCRIT_ITER, 3, 0.0));
+  found = findChessboardCorners(grey, pattern_size, corners,
+                                CV_CALIB_CB_NORMALIZE_IMAGE
+                                | CV_CALIB_CB_ADAPTIVE_THRESH
+                                /*| CV_CALIB_CB_FAST_CHECK*/);
+  if (found) {
+    cornerSubPix(grey, corners, cvSize (5, 5), cvSize (-1, -1),
+                 cvTermCriteria (CV_TERMCRIT_ITER, 3, 0.0));
+  }
 
   return corners;
 }

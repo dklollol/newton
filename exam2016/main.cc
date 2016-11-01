@@ -114,7 +114,8 @@ void run(char* host, int port, int device_index) {
       }
     }
     else {
-      calculate_weights(&particles, measured_distance, measured_angle, landmark_id, cp);
+      calculate_weights(&particles, measured_distance, measured_angle,
+                        landmark_id);
     }
     TIMER_END("Set particle weights");
 

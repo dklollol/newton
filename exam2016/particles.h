@@ -1,5 +1,5 @@
-#ifndef EX5_PARTICLES_H
-#define EX5_PARTICLES_H
+#ifndef EXAM2016_PARTICLES_H
+#define EXAM2016_PARTICLES_H
 
 #include <vector>
 
@@ -82,7 +82,7 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
                        object::type ID, colour_prop cp);
 
 /**
- * Resample particles 
+ * Resample particles
  */
 void resample(vector<particle> *particles);
 #endif

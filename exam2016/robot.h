@@ -1,5 +1,5 @@
-#ifndef EX5_ROBOT_H
-#define EX5_ROBOT_H
+#ifndef EXAM2016_ROBOT_H
+#define EXAM2016_ROBOT_H
 
 #include <libplayerc++/playerc++.h>
 

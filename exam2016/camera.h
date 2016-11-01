@@ -1,5 +1,5 @@
-#ifndef EX5_CAMERA_H
-#define EX5_CAMERA_H
+#ifndef EXAM2016_CAMERA_H
+#define EXAM2016_CAMERA_H
 
 #include <string>
 #include <vector>

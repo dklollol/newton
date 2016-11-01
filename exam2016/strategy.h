@@ -1,5 +1,5 @@
-#ifndef EX5_STRATEGY_H
-#define EX5_STRATEGY_H
+#ifndef EXAM2016_STRATEGY_H
+#define EXAM2016_STRATEGY_H
 #include "robot.h"
 #include "misc.h"
 #include "camera.h"
@@ -9,7 +9,7 @@ enum state {searching, align, approach,
             drive_around_landmark,
             triangulating,
             drive_to_center, arrived_at_center};
-            
+
 void say(string text);
 
 

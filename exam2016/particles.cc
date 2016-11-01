@@ -101,7 +101,7 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
 void resample(vector<particle> *particles) {
   size_t num_particles = particles->size();
   vector<particle>particles_resampled(num_particles);
-  // Resampling step.  
+  // Resampling step.
   size_t j = 0;
   while (j < num_particles) {
     size_t i = (size_t) (randf() * (num_particles - 1));
@@ -115,10 +115,10 @@ void resample(vector<particle> *particles) {
   //  // FIXME: Optimize.  Fix the code below.
   // vector<double> weightSumGraph;   // calculate weightsumGraph!
   // weightSumGraph.reserve(num_particles);
-  // for(int i = 0; i < num_particles; i++) {    
+  // for(int i = 0; i < num_particles; i++) {
   //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
   // }
-          
+
   // // pick random particles!!
   // vector<particle> pickedParticles; //(num_particles);
   // pickedParticles.reserve(num_particles);
@@ -139,6 +139,6 @@ void resample(vector<particle> *particles) {
   // }
   // particles = pickedParticles;
   // weightSumGraph.clear();
-    
+
 
 }

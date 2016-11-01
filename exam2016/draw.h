@@ -1,5 +1,5 @@
-#ifndef EX5_DRAW_H
-#define EX5_DRAW_H
+#ifndef EXAM2016_DRAW_H
+#define EXAM2016_DRAW_H
 
 #include "particles.h"
 

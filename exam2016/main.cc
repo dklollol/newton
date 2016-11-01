@@ -74,7 +74,8 @@ void run(char* host, int port, int device_index) {
   // Main loop.
   bool do_run = true;
   while (do_run) {
-    puts("");
+    puts(""); // Empty line.
+
     TIMER_START();
     // Wait a little.
     int action = cvWaitKey(4);
@@ -108,14 +109,14 @@ void run(char* host, int port, int device_index) {
     object::type ID;
     TIMER_START();
     ID = cam.get_object(im, cp, measured_distance, measured_angle);
-    TIMER_END("Locate object");
+    TIMER_END("Locate landmark");
 
     /*
     printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :
                                         ((ID == object::vertical) ? "vertical"
                                          : "horizontal")));
     printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
-    */    
+    */
 
     if (ID != object::none) {
       printf("Measured distance: %lf\n", measured_distance);
@@ -138,7 +139,7 @@ void run(char* host, int port, int device_index) {
     TIMER_START();
     resample(&particles);
     TIMER_END("Resample particles");
-    
+
     // Reset iteration-relative values.
     pos.x = 0.0;
     pos.y = 0.0;
@@ -170,11 +171,11 @@ void run(char* host, int port, int device_index) {
     // Estimate pose.
     est_pose = estimate_pose(particles);
     TIMER_END("Estimate pose");
-    
+
     printf("est_pose values: x:%f, y:%f, theta:%f\n",
            est_pose.x, est_pose.y, est_pose.theta);
-    
-    
+
+
     // Draw the object in the image.
     cam.draw_object(im);
 

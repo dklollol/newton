@@ -1,5 +1,5 @@
-#ifndef EX5_TIMING_H
-#define EX5_TIMING_H
+#ifndef EXAM2016_TIMING_H
+#define EXAM2016_TIMING_H
 
 #include <sys/time.h>
 
@@ -27,7 +27,7 @@ void timing_end(timing_t* t);
   timing_end(&timer); \
   timer_dur_ms = (double) timer.usecs / 1000.0; \
   if (timer_dur_ms >= 1.0) { \
-    printf("[TIMING] " description ": %lf.3 ms\n", timer_dur_ms); \
+    printf("[TIMER] " description ": %lf.3 ms\n", timer_dur_ms); \
   } \
   }
 

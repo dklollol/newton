@@ -1,5 +1,5 @@
-#ifndef EX5_MISC_H
-#define EX5_MISC_H
+#ifndef EXAM2016_MISC_H
+#define EXAM2016_MISC_H
 #include <tuple>
 #include "robot.h"
 using namespace std;

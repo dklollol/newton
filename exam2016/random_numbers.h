@@ -1,5 +1,5 @@
-#ifndef EX5_RANDOM_NUMBERS_H
-#define EX5_RANDOM_NUMBERS_H
+#ifndef EXAM2016_RANDOM_NUMBERS_H
+#define EXAM2016_RANDOM_NUMBERS_H
 
 /**
  * Random number between 0 and 1 (uniform distribution)

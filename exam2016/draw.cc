@@ -99,7 +99,7 @@ void draw_world (particle &est_pose, vector<particle> &particles, Mat &im)
   circle (im, lm1, 5, CGREEN, 2);
   circle (im, lm2, 5, CBLUE, 2);
   circle (im, lm3, 5, CBLACK, 2);
-  
+
 
   // Draw estimated robot pose
   const Point2i a = Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);

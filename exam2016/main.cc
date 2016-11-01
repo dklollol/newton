@@ -98,11 +98,13 @@ void run(char* host, int port, int device_index) {
     // Set the above values.
     object::type ID = cam.get_object(im, cp, measured_distance, measured_angle);
 
+    /*
     printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :
                                         ((ID == object::vertical) ? "vertical"
                                          : "horizontal")));
     printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
-    
+    */    
+
     if (ID != object::none) {
       printf("Measured distance: %lf\n", measured_distance);
       printf("Measured angle: %lf\n", measured_angle);

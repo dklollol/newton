@@ -119,6 +119,7 @@ void run(char* host, int port, int device_index) {
     printf("Landmark detection: %s\n", ((ID == object::none) ? "none" :
                                         ((ID == object::vertical) ? "vertical"
                                          : "horizontal")));
+    printf ("Colour probabilities: %.3f %.3f %.3f\n", cp.red, cp.green, cp.blue);
     if (ID != object::none) {
       printf("Measured distance: %lf\n", measured_distance);
       printf("Measured angle: %lf\n", measured_angle);
@@ -132,7 +133,7 @@ void run(char* host, int port, int device_index) {
       }
     }
     else {
-      calculate_weights(&particles, measured_distance, measured_angle, ID);
+      calculate_weights(&particles, measured_distance, measured_angle, ID, cp);
     }
 
     resample(&particles);

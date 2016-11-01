@@ -59,10 +59,20 @@ void move_particle(particle &p, double delta_x, double delta_y, double delta_tur
   p.theta += delta_turn;
 }
 
-double landmark(particle &p, double dist, double angle, object::type landmark_id) {
-  double landmark_y = 0.0;
-  double landmark_x = ((landmark_id == object::horizontal) ? 0.0 : 300.0);
+double landmark(particle &p, double dist, double angle, object::type landmark_id,
+                colour_prop cp) {
+  double landmark_y;
+  double landmark_x;
+  bool red = cp.red > cp.green;
+  if (landmark_id == object::vertical) {
+    landmark_x = 0;
+    landmark_y = red ? 300 : 0;
+  } else {
+    landmark_x = 300;
+    landmark_y = red ? 0 : 300;
+  } 
 
+  printf("Landmark (%f, %f)\n", landmark_x, landmark_y);
   double dist_p = distance(landmark_x, p.x, landmark_y, p.y);
   double dist_diff = fabs(dist - dist_p);
 
@@ -79,13 +89,13 @@ double landmark(particle &p, double dist, double angle, object::type landmark_id
 }
 
 void calculate_weights(std::vector<particle> *particles, double dist, double angle,
-                       object::type ID) {
+                       object::type ID, colour_prop cp) {
   // An observation; set the weights.
   int num_particles = particles->size();
   double weight_sum = 0.0;
   for (int i = 0; i < num_particles; i++) {
     double weight = landmark(particles->at(i), dist,
-                             angle, ID);
+                             angle, ID, cp);
     particles->at(i).weight = weight;
     weight_sum += weight;
   }

@@ -34,10 +34,12 @@ using namespace PlayerCc;
  * Landmarks.
  * The robot knows the position of 2 landmarks. Their coordinates are in cm.
  */
-#define num_landmarks 2
-const cv::Point2i landmarks [num_landmarks] = {
-  cv::Point2i (0, 0),
-  cv::Point2i (300, 0),
+#define num_landmarks 4
+const Point2i landmarks [num_landmarks] = {
+  Point2i (0, 300),
+  Point2i (0, 0),
+  Point2i (300, 300),
+  Point2i (300, 0)
 };
 
 /*
@@ -91,8 +93,13 @@ void draw_world (particle &est_pose, std::vector<particle> &particles, cv::Mat &
   // Draw landmarks
   const cv::Point2i lm0 = cv::Point2i (landmarks[0].x+offset, landmarks[0].y+offset);
   const cv::Point2i lm1 = cv::Point2i (landmarks[1].x+offset, landmarks[1].y+offset);
+  const cv::Point2i lm2 = cv::Point2i (landmarks[2].x+offset, landmarks[2].y+offset);
+  const cv::Point2i lm3 = cv::Point2i (landmarks[3].x+offset, landmarks[3].y+offset);
   cv::circle (im, lm0, 5, CRED, 2);
   cv::circle (im, lm1, 5, CGREEN, 2);
+  cv::circle (im, lm2, 5, CBLUE, 2);
+  cv::circle (im, lm3, 5, CBLACK, 2);
+  
 
   // Draw estimated robot pose
   const cv::Point2i a = cv::Point2i ((int)est_pose.x+offset, (int)est_pose.y+offset);

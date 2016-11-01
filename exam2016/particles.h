@@ -77,9 +77,9 @@ void move_particle(particle &p, double delta_x, double delta_y, double delta_the
 /**
  * Calculates and normalize weights of particles.
  */
-void calculate_weights(std::vector<particle> *particles, double dist, double angle, object::type ID);
+void calculate_weights(std::vector<particle> *particles, double dist, double angle,
+                       object::type ID, colour_prop cp);
 
-double landmark(particle &p, double dist, double angle, object::type landmark_id);
 /**
  * Resample particles 
  */

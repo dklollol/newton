@@ -1,6 +1,6 @@
 #include "strategy.h"
 
-char* driving_state_name[] = {"searching"};
+string driving_state_name[] = {"searching"};
 
 void execute_strategy(Position2dProxy &pp, pos_t &pos,
                       driving_state_t &driving_state, object::type landmark,
@@ -9,9 +9,9 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   double landmark_x;
   decide_landmark(landmark, &landmark_x, &landmark_y);
 
-  char* state_name = driving_state_name[driving_state];
-  printf("[STATE] %s\n", state_name);
-  say(state_name);
+  string state_name = driving_state_name[driving_state];
+  printf("[STATE] %s\n", state_name.c_str());
+  say_async(state_name);
   
   // Move the robot according to its current state.
   switch (driving_state) {

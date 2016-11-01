@@ -69,7 +69,14 @@ void decide_landmark(object::type landmark_id, double *x, double *y){
   }
 }
 
-void say(string text) {
-  std::system((string("espeak '") + string(text) + string("' &")).c_str());
-  return;
+void say_sync(string text) {
+  std::system((string("espeak '")
+               + string(text)
+               + string("'")).c_str());
+}
+
+void say_async(string text) {
+  std::system((string("espeak '")
+               + string(text)
+               + string("' &")).c_str());
 }

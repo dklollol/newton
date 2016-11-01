@@ -17,7 +17,9 @@ double distance(double x1, double x2, double y1, double y2);
 
 tuple<double, double> command_variance(pos_t *pos);
 
-void say(string text);
+void say_sync(string text);
+
+void say_async(string text);
 
 
 #endif

@@ -1,7 +1,7 @@
 # Compile and link flags
 CXX = g++
 PKGFLAGS = `pkg-config opencv playerc++ --cflags`
-IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing
+IGNORE_LIBPLAYER_JUNK_FLAGS = -Wno-cpp -Wno-unused-parameter -Wno-narrowing -std=c++11
 CXXFLAGS = -Wall $(PKGFLAGS) $(IGNORE_LIBPLAYER_JUNK_FLAGS)
 PKGLIBS = `pkg-config opencv playerc++ --libs`
 

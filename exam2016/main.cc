@@ -133,11 +133,12 @@ void run(char* host, int port, int device_index) {
     for (int i = 0; i < num_particles; i++) {
       move_particle(particles[i], pos.x, pos.y, pos.turn);
     }
+    double driveVar;
+    double turnVar;
     // Add uncertainty.
-    double drivevar = driveVariance(pos.x, pos.y);
-    double turnvar = turnVariance(pos.turn);
-    //printf("støj vi tilføjer: dist:%f, turn:%f \n", drivevar, turnvar);
-    add_uncertainty(particles, drivevar, turnvar);
+    tie(driveVar, turnVar) = commandVariance(&pos);
+    printf("støj vi tilføjer: dist:%f, turn:%f \n", driveVar, turnVar);
+    add_uncertainty(particles, driveVar, turnVar);
       
     // Estimate pose.
     particle est_pose = estimate_pose(particles);

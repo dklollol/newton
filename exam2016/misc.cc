@@ -28,13 +28,15 @@ double distance(double x1, double x2, double y1, double y2) {
   return sqrt(pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0));
 }
 
-double driveVariance(double x, double y) {
-  if (x+y == 0 ) {
-    return 0;
+tuple<double, double> commandVariance(pos_t *pos) {
+  double x = pos->x;
+  double y = pos->y;
+  double theta = pos->turn;
+  if (x == 0 && y == 0 && theta == 0) {
+    return make_tuple(3, degrees_to_radians(2)); 
   }
-  return sqrt((x*x + y*y)/(x+y));
-}
-
-double turnVariance(double theta) {
-  return theta/10;
+  if (x+y == 0) {
+    return make_tuple(1, theta/10);
+  }
+  return make_tuple(sqrt(x+y), degrees_to_radians(1));
 }

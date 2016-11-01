@@ -19,6 +19,8 @@ void run_square(char* host, int port, int device_index) {
   set_pull_mode(robot);
   Position2dProxy pp(&robot, device_index);
 
+  pp.SetOdometry(0, 0, 0);
+  
   printf("START; x: %lf, y: %lf\n", pp.GetXPos(), pp.GetYPos());
   pp.SetSpeed(0.2, 0.0);
   sleep(5.0);

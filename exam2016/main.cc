@@ -13,7 +13,7 @@
 #include "camera.h"
 #include "particles.h"
 #include "random_numbers.h"
-
+#include "strategy.h"
 #include <cstdlib>
 
 using namespace cv;
@@ -24,16 +24,6 @@ using namespace PlayerCc;
 #define KEY_DOWN  65364
 #define KEY_LEFT  65361
 #define KEY_RIGHT 65363
-
-enum state {searching, align, approach,
-            drive_around_landmark,
-            triangulating,
-            drive_to_center, arrived_at_center};
-
-void say(string text) {
-  system((string("espeak '") + string(text) + string("' &")).c_str());
-  return;
-}
 
 void set_pull_mode(PlayerClient &robot) {
   robot.SetDataMode(PLAYER_DATAMODE_PULL);
@@ -138,147 +128,8 @@ void run(char* host, int port, int device_index) {
 
     resample(&particles);
     
-
-    // Estimate pose.
-    particle est_pose = estimate_pose(particles);
-    printf("est_pose values: x:%f, y:%f, theta:%f\n",
-           est_pose.x, est_pose.y, est_pose.theta);
-
-    // Draw the object in the image.
-    cam.draw_object(im);
-
-    // Draw visualisation.
-    draw_world(est_pose, particles, world);
-    imshow(map, world);
-    imshow(window, im);
-
-    // Move the robot according to its current state.
-    switch (robot_state) {
-    case searching: {
-      puts("searching");
-      say("searching");
-      // The robot is turning to find the first landmark.
-
-      if (ID != object::none) {
-        first_landmark_found = ID;
-        robot_state = align;
-      }
-      else {
-        turn(&pp, &pos, degrees_to_radians(5.0));
-      }
-      break;
-    }
-
-    case align: {
-      puts("align");
-      say("align");
-      // The robot is aligning itself to be pointing directly at the first
-      // landmark.
-
-      if (ID == object::none) {
-        robot_state = searching;
-      }
-      else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
-        puts("Angle is good!");
-        robot_state = approach;
-      }
-      else {
-        puts("Turn in align");
-        turn(&pp, &pos, clamp(measured_angle,
-                              degrees_to_radians(-5.0),
-                              degrees_to_radians(5.0)));
-      }
-      break;
-    }
-
-    case approach: {
-      puts("approach");
-      say("Exterminate");
-      // The robot is approaching the box to within a set distance.
-
-      if (ID == object::none) {
-        //robot_state = searching;
-        break;
-      }
-      else {
-        if (measured_distance <= stop_dist) {
-          stop_dist = measured_distance;
-          turn(&pp, &pos, degrees_to_radians(90.0));
-          drive_around_landmark_remaining_dist = stop_dist;
-          robot_state = drive_around_landmark;
-          turned_angle = 90;
-        }
-        else {
-          drive(&pp, &pos,
-                clamp(measured_distance - stop_dist, 0.0, 10.0));
-          robot_state = align; // Make sure it's still aligned.
-        }
-      }
-      break;
-    }
-
-    case drive_around_landmark: {
-      puts("drive around landmark");
-      say("landmark");
-      // The robot is driving around the first landmark in an attempt to locate
-      // the second landmark.
-
-      const double drive_dist = 25.0;
-      if (ID != object::none && ID != first_landmark_found) {
-        robot_state = triangulating;
-      }
-      else if (drive_around_landmark_remaining_dist > 0.0) {
-        drive(&pp, &pos, drive_dist);
-        drive_around_landmark_remaining_dist -= drive_dist;
-      }
-      else {
-        if (turned_angle <= 0) {
-          turned_angle = 90;
-        }
-        turn(&pp, &pos, degrees_to_radians(15.0));
-        turned_angle -= 15;
-        drive_around_landmark_remaining_dist = stop_dist * 2.0;
-      }
-      break;
-    }
-
-    case triangulating: {
-      puts("triangulating");
-      if (checks <= 0) {
-        robot_state = drive_to_center;      
-        say("triangulation complete");
-      }
-      checks -= 1;
-      break;
-    }
-
-    case drive_to_center: {
-      puts("drive to center");
-      say("drive to center");
-      // The robot is driving towards the center between the two landmarks.
-      double move_x = 150.0 - est_pose.x;
-      double move_y = 0 - est_pose.y;
-      
-      double angle = atan2(move_y, move_x) - est_pose.theta;
-      double dist = sqrt(pow(move_x, 2.0) + pow(move_y, 2.0));
-      
-      turn(&pp, &pos, angle);
-      drive(&pp, &pos, dist);
-
-      robot_state = arrived_at_center;
-      //system("google-chrome 'https://www.youtube.com/watch?v=QDUv_8Dw-Mw' &");
-      break;
-    }
-
-    case arrived_at_center: {
-      puts("arrived at center");
-      say("arrived at center");
-      // The robot has arrived at the center between the two landmarks.
-      pp.SetSpeed(0.0, 0.0);
-      //do_run = false;
-      break;
-    }
-    }
+    
+    execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
 
     // Prediction step: Update all particles according to how much we have
     // moved.
@@ -287,6 +138,20 @@ void run(char* host, int port, int device_index) {
     }
     // Add uncertainty.
     add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
+      
+    // Estimate pose.
+    particle est_pose = estimate_pose(particles);
+    printf("est_pose values: x:%f, y:%f, theta:%f\n",
+           est_pose.x, est_pose.y, est_pose.theta);
+
+    
+    // Draw the object in the image.
+    cam.draw_object(im);
+
+    // Draw visualisation.
+    draw_world(est_pose, particles, world);
+    imshow(map, world);
+    imshow(window, im);
 
   }
   // Stop the robot.

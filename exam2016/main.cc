@@ -134,7 +134,10 @@ void run(char* host, int port, int device_index) {
       move_particle(particles[i], pos.x, pos.y, pos.turn);
     }
     // Add uncertainty.
-    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
+    double drivevar = driveVariance(pos.x, pos.y);
+    double turnvar = turnVariance(pos.turn);
+    //printf("støj vi tilføjer: dist:%f, turn:%f \n", drivevar, turnvar);
+    add_uncertainty(particles, drivevar, turnvar);
       
     // Estimate pose.
     particle est_pose = estimate_pose(particles);
@@ -149,17 +152,7 @@ void run(char* host, int port, int device_index) {
     // Draw visualisation.
     draw_world(est_pose, particles, world);
     imshow(map, world);
-    imshow(window, im);
-   
-    execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
-
-    // Prediction step: Update all particles according to how much we have
-    // moved.
-    for (int i = 0; i < num_particles; i++) {
-      move_particle(particles[i], pos.x, pos.y, pos.turn);
-    }
-    // Add uncertainty.
-    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
+    imshow(window, im);    
  }
   // Stop the robot.
   pp.SetSpeed(0.0, 0.0);

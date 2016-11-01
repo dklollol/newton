@@ -11,4 +11,8 @@ void sleep(double seconds);
 
 double distance(double x1, double x2, double y1, double y2);
 
+double driveVariance(double x, double y);
+
+double turnVariance(double theta);
+
 #endif

@@ -27,3 +27,14 @@ void sleep(double seconds) {
 double distance(double x1, double x2, double y1, double y2) {
   return sqrt(pow(x1 - x2, 2.0) + pow(y1 - y2, 2.0));
 }
+
+double driveVariance(double x, double y) {
+  if (x+y == 0 ) {
+    return 0;
+  }
+  return sqrt((x*x + y*y)/(x+y));
+}
+
+double turnVariance(double theta) {
+  return theta/10;
+}

@@ -14,6 +14,7 @@
 #include "particles.h"
 #include "random_numbers.h"
 #include "strategy.h"
+
 #include <cstdlib>
 
 using namespace cv;
@@ -34,10 +35,6 @@ void run(char* host, int port, int device_index) {
   // Constants
   double world_width = 500.0;
   double world_height = 500.0;
-  double stop_dist = 150.0; // The target distance from the first landmark.
-
-  int checks = 5;
-
 
   // The GUI
   const char *map = "World map";
@@ -71,10 +68,7 @@ void run(char* host, int port, int device_index) {
   // Initialize robot state.
   state robot_state;
   pos_t pos;
-  robot_state = searching;
-  object::type first_landmark_found = object::none;
-  double drive_around_landmark_remaining_dist;
-  int turned_angle;
+
   // Main loop.
   bool do_run = true;
   while (do_run) {
@@ -152,8 +146,17 @@ void run(char* host, int port, int device_index) {
     draw_world(est_pose, particles, world);
     imshow(map, world);
     imshow(window, im);
+   
+    execute_strategy(&pp, &pos, &robot_state, ID, measured_angle, measured_distance);
 
-  }
+    // Prediction step: Update all particles according to how much we have
+    // moved.
+    for (int i = 0; i < num_particles; i++) {
+      move_particle(particles[i], pos.x, pos.y, pos.turn);
+    }
+    // Add uncertainty.
+    add_uncertainty(particles, 5.0, degrees_to_radians(5.0));
+ }
   // Stop the robot.
   pp.SetSpeed(0.0, 0.0);
 }

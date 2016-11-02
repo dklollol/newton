@@ -58,6 +58,19 @@ void grab_from_camera(camera cam) {
   }
 }
 
+Mat get_newest_camera_frame() {
+  unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
+  Mat frame;
+
+  camera_is_grabbing = false;
+  camera_lock.lock();
+  frame = camera_current_frame;
+  camera_lock.unlock();
+  camera_is_grabbing = true;
+  camera_condition_variable.notify_one();
+  return frame;
+}
+
 void set_pull_mode(PlayerClient &robot) {
   robot.SetDataMode(PLAYER_DATAMODE_PULL);
   robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
@@ -98,7 +111,6 @@ void run(char* host, int port, int device_index) {
   camera cam(0, Size(640, 480), false);
   camera_is_grabbing = true;
   camera_current_frame = cam.get_colour();
-  unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
   thread camera_thread(grab_from_camera, cam);
 
   // Initialize player.
@@ -132,12 +144,7 @@ void run(char* host, int port, int device_index) {
 
     // Grab image.
     TIMER_START();
-    camera_is_grabbing = false;
-    camera_lock.lock();
-    im = camera_current_frame;
-    camera_lock.unlock();
-    camera_is_grabbing = true;
-    camera_condition_variable.notify_one();
+    im = get_newest_camera_frame();
     TIMER_END("Read from camera");
 
     // Do landmark detection.
@@ -146,7 +153,7 @@ void run(char* host, int port, int device_index) {
     TIMER_END("Locate landmark");
 
     if (landmark_id != object::none) {
-      printf("[MEASUREMENTS] Distance: %lf, angle: %lf, rgb: (%lf, %lf, %lf)\n",
+      printf("[MEASUREMENTS] Distance: %.3lf, angle: %.3lf, rgb: (%.3lf, %.3lf, %.3lf)\n",
              measured_distance, measured_angle, cp.red, cp.green, cp.blue);
     }
 
@@ -176,7 +183,7 @@ void run(char* host, int port, int device_index) {
     pos.turn = 0.0;
     execute_strategy(pp, pos, driving_state, landmark_id,
                      measured_distance, measured_angle);
-    printf("[ESTIMATE] Relative translation: x: %lf, y: %lf, turn: %lf\n",
+    printf("[ESTIMATE] Relative change: x: %.3lf, y: %.3lf, turn: %.3lf\n",
            pos.x, pos.y, radians_to_degrees(pos.turn));
     TIMER_END("Execute strategy");
 
@@ -193,14 +200,14 @@ void run(char* host, int port, int device_index) {
     double driveVar;
     double turnVar;
     tie(driveVar, turnVar) = command_variance(&pos);
-    printf("[NOISE ADDITION] dist: %lf, turn: %lf\n", driveVar, turnVar);
+    printf("[NOISE ADDITION] dist: %.3lf, turn: %.3lf\n", driveVar, turnVar);
     add_uncertainty(particles, driveVar, turnVar);
     TIMER_END("Add uncertainty");
 
     // Estimate pose.
     TIMER_START();
     est_pose = estimate_pose(particles);
-    printf("[ESTIMATE] Current location: x: %f, y: %f, theta: %f\n",
+    printf("[ESTIMATE] Current location: x: %lf., y: %.3lf, theta: %.3lf\n",
            est_pose.x, est_pose.y, est_pose.theta);
     TIMER_END("Estimate pose");
 

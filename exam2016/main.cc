@@ -144,7 +144,7 @@ void run(char* host, int port, int device_index) {
 
     // Grab image.
     TIMER_START();
-    im = get_newest_camera_frame();
+    get_newest_camera_frame().copyTo(im);
     TIMER_END("Read from camera");
 
     // Do landmark detection.

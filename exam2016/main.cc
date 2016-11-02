@@ -208,7 +208,7 @@ void run(char* host, int port, int device_index) {
     // Estimate pose.
     TIMER_START();
     est_pose = estimate_pose(particles);
-    printf("[ESTIMATE] Current location: x: %lf., y: %.3lf, theta: %.3lf\n",
+    printf("[ESTIMATE] Current location: x: %.3lf, y: %.3lf, theta: %.3lf\n",
            est_pose.x, est_pose.y, est_pose.theta);
     TIMER_END("Estimate pose");
 

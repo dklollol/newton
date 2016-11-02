@@ -150,6 +150,7 @@ void run(char* host, int port, int device_index) {
     // Do landmark detection.
     TIMER_START();
     landmark_id = cam.get_object(im, cp, measured_distance, measured_angle);
+    printf("[LANDMARK DETECTION] %s\n", object::name(landmark_id).c_str());
     TIMER_END("Locate landmark");
 
     if (landmark_id != object::none) {

@@ -119,7 +119,7 @@ void run(char* host, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
 
   // States
-  driving_state_t driving_state;
+  driving_state_t driving_state = search_turn;
   pos_t pos;
   object::type landmark_id;
   double measured_distance;

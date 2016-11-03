@@ -8,6 +8,7 @@ void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
   const double turn_speed = degrees_to_radians(20);
   pp.SetSpeed(0.0, turn_speed * ((turn_rad >= 0) ? 1 : -1));
   sleep(fabs(turn_rad / turn_speed));
+  //sleep(0.3);
   pp.SetSpeed(0.0, 0.0);
   pos.turn += turn_rad;
 }

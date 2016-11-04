@@ -65,8 +65,6 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     decide_landmark(n_landmark, &x, &y);
     printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
            x , y);
-    double atan = atan2(x-p.x, y-p.y);
-    printf("atan before -p.theta in degrees: %f\n", radians_to_degrees(atan));
     double angle = atan2(x-p.x, y-p.y) - p.theta;
     double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0));
     printf("We should turn : %f degress\n", radians_to_degrees(angle));

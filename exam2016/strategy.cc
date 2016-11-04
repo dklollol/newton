@@ -90,13 +90,13 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     break;
   }
   case approach: {
-    printf("Can i use particle filter? %d\n", particle_filter_usable());
+    // printf("Can i use particle filter? %d\n", particle_filter_usable());
     if (particle_filter_usable()) {
       GOTO(goto_landmark);
       break;
     }
     // arrived at landmark! 
-    if (measured_distance <= stop_dist && landmark != object::none) {
+    if (measured_distance <= stop_dist && landmark == next_landmark()) {
       printf("Measured distance: %f\n", measured_distance);
       turn(pp, pos, degrees_to_radians(100.0));
       drive_around_landmark_remaining_dist = 50;
@@ -173,6 +173,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     if (square_turns == 4) {
       GOTO(searching_random);
       angles_to_turn = 0;
+      driven = true;
     }
     break;
   }

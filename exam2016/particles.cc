@@ -97,44 +97,18 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
 
 void resample(vector<particle> *particles) {
   size_t num_particles = particles->size();
-  vector<particle>particles_resampled(num_particles);
-  size_t j = 0;
-  while (j < num_particles) {
-    size_t i = (size_t) (randf() * (num_particles - 1));
-    if (particles->at(i).weight > randf()) {
-      particles_resampled[j] = particles->at(i);
-      j++;
+
+  vector<particle> particles_resampled(num_particles);
+  double r = randf() / num_particles;
+  double c = particles->at(0).weight;
+  size_t i = 0;
+  for (size_t m = 0; m < num_particles; m++) {
+    double U = r + m * (1.0 / (double) num_particles);
+    while (U > c) {
+      i++;
+      c += particles->at(i).weight;
     }
+    particles_resampled[m] = particles->at(i);
   }
   *particles = particles_resampled;
-
-  //  // FIXME: Optimize.  Fix the code below.
-  // vector<double> weightSumGraph;   // calculate weightsumGraph!
-  // weightSumGraph.reserve(num_particles);
-  // for(int i = 0; i < num_particles; i++) {
-  //   weightSumGraph.push_back(weightSumGraph.back() + particles[i].weight);
-  // }
-
-  // // pick random particles!!
-  // vector<particle> pickedParticles; //(num_particles);
-  // pickedParticles.reserve(num_particles);
-  // double z;
-  // for (int i = 0; i < num_particles; i++) {
-  //   z = randf();
-  //   for (int t = 0; t < num_particles; t++) {
-  //     /*       if (t == num_particles-1) {
-  //              pickedParticles.push_back(particles[t]);
-  //              break;
-  //              }*/
-  //     if (z < weightSumGraph[t]) {
-  //       continue;
-  //     }
-  //     pickedParticles.push_back(particles[t]);
-  //     break;
-  //   }
-  // }
-  // particles = pickedParticles;
-  // weightSumGraph.clear();
-
-
 }

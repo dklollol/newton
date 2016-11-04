@@ -33,7 +33,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     turn(pp, pos, degrees_to_radians(5));
     break;
   }
-  case align: {
+  case driving_state_t::align: {
     if (landmark == object::none) {
       driving_state = search_turn;
       break;
@@ -61,7 +61,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     } else {
       drive(pp, pos,
             clamp(measured_distance - stop_dist, 0.0, 15.0));
-      driving_state = align; // Make sure it's still aligned.
+      driving_state = driving_state_t::align; // Make sure it's still aligned.
     }
     break;
   }

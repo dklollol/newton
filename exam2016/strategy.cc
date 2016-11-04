@@ -2,6 +2,11 @@
 
 //string driving_state_name[] = {"searching"};
 
+#define GOTO(driving_state_new) \
+  printf("[STATE CHANGE] %s -> %s\n", stateMap[driving_state].c_str(), stateMap[driving_state_new].c_str()); \
+  driving_state = driving_state_new;
+
+
 bool driven = false;
 double stop_dist = 80;
 int angles_to_turn = 0;
@@ -47,7 +52,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
       printf("Measured distance: %f\n", measured_distance);
       turn(pp, pos, degrees_to_radians(100.0));
       drive_around_landmark_remaining_dist = 50;
-      driving_state = searching_sqaure;
+      GOTO(searching_sqaure);
       square_turns = 0;
       angles_to_turn = 90;
       visited_landmarks[landmark] = true;
@@ -55,13 +60,13 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     } else {
       drive(pp, pos,
             clamp(measured_distance - stop_dist, 0.0, 15.0));
-      driving_state = driving_state_t::align; // Make sure it's still aligned.
+      GOTO(driving_state_t::align); // Make sure it's still aligned.
     }
     break;
   }
   case searching_random: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
-      driving_state = approach;
+      GOTO(approach);
       driven = false;
       angles_to_turn = 0;
       break;
@@ -89,7 +94,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   }
   case searching_sqaure: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
-      driving_state = approach;
+      GOTO(approach);
       driven = false;
       angles_to_turn = 0;
       break;
@@ -109,7 +114,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     angles_to_turn -= 5;
     turn(pp, pos, degrees_to_radians(-5));
     if (square_turns == 4) {
-      driving_state = searching_random;
+      GOTO(searching_random);
       angles_to_turn = 0;
     }
     break;

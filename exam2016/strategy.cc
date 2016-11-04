@@ -13,16 +13,24 @@ int angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
 void print_visited() {
-  printf("landmark 1: %d\n",visited_landmarks[object::landmark1]);
-  printf("landmark 2: %d\n",visited_landmarks[object::landmark2]);
-  printf("landmark 3: %d\n",visited_landmarks[object::landmark3]);
-  printf("landmark 4: %d\n",visited_landmarks[object::landmark4]);
+  printf("landmark 1: %d\n", visited_landmarks[object::landmark1]);
+  printf("landmark 2: %d\n", visited_landmarks[object::landmark2]);
+  printf("landmark 3: %d\n", visited_landmarks[object::landmark3]);
+  printf("landmark 4: %d\n", visited_landmarks[object::landmark4]);
+}
+void print_seen() {
+  printf("landmark 1: %d\n", seen_landmarks[object::landmark1]);
+  printf("landmark 2: %d\n", seen_landmarks[object::landmark2]);
+  printf("landmark 3: %d\n", seen_landmarks[object::landmark3]);
+  printf("landmark 4: %d\n", seen_landmarks[object::landmark4]);
 }
 
 object::type next_landmark() {
-  for (auto& landmark : visited_landmarks) {
-    if (!landmark.second)
-      return landmark.first;
+  for (auto lm : visited_landmarks) {
+    if (!lm.second) {
+      printf("whuhu found next landmark");
+      return lm.first;
+    }
   }
   // should not happen but never knows!
   return object::none;
@@ -55,8 +63,17 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     double y;
     object::type n_landmark = next_landmark();
     decide_landmark(n_landmark, &x, &y);
-    printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(landmark).c_str(),
+    printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
            x , y);
+    double atan = atan2(x-p.x, y-p.y);
+    printf("atan before -p.theta in degrees: %f\n", radians_to_degrees(atan));
+    double angle = atan2(x-p.x, y-p.y) - p.theta;
+    double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0));
+    printf("We should turn : %f degress\n", radians_to_degrees(angle));
+    printf("we should drive : %f cm\n", dist);
+    turn(pp, pos, angle);
+    drive(pp, pos, dist);
+    GOTO(finished)
     break;
   }
   case driving_state_t::align: {
@@ -75,7 +92,8 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     break;
   }
   case approach: {
-    if (particle_filter_usable) {
+    printf("Can i use particle filter? %d\n", particle_filter_usable());
+    if (particle_filter_usable()) {
       GOTO(goto_landmark);
       break;
     }
@@ -97,12 +115,15 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     break;
   }
   case searching_random: {
-    if (landmark != object::none && !visited_landmarks[landmark]) {
+    if (landmark != object::none) {
       seen_landmarks[landmark] = true;
-      GOTO(approach);
-      driven = false;
-      angles_to_turn = 0;
-      break;
+      //print_seen();
+      if (landmark == next_landmark()) {
+        GOTO(approach);
+        driven = false;
+        angles_to_turn = 0;
+        break;
+      }
     }
     if (!driven) {
       drive(pp, pos, 50);
@@ -126,12 +147,15 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     break;
   }
   case searching_sqaure: {
-    if (landmark != object::none && !visited_landmarks[landmark]) {
+    if (landmark != object::none) {
       seen_landmarks[landmark] = true;
-      GOTO(approach);
-      driven = false;
-      angles_to_turn = 0;
-      break;
+      //print_seen();
+      if (landmark == next_landmark()) {
+        GOTO(approach);
+        driven = false;
+        angles_to_turn = 0;
+        break;
+      }
     }
     if (!driven) {
       driven = true;

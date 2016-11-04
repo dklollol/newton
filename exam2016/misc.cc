@@ -38,7 +38,7 @@ tuple<double, double> command_variance(pos_t *pos) {
   if (x+y == 0) {
     return make_tuple(1, theta/10);
   }
-  return make_tuple(sqrt(x+y), degrees_to_radians(1));
+  return make_tuple(sqrt(fabs(x)+fabs(y)), degrees_to_radians(1));
 }
 
 void decide_landmark(object::type landmark_id, double *x, double *y){

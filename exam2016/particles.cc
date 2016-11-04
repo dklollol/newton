@@ -58,6 +58,13 @@ void move_particle(particle &p, double delta_x, double delta_y,
   p.x += delta_x;
   p.y += delta_y;
   p.theta += delta_turn;
+  if (p.theta > 2*M_PI) {
+    p.theta -= 2*M_PI;
+    return;
+  }
+  if (p.theta < 2*M_PI) {
+    p.theta += 2*M_PI;
+  }
 }
 
 double landmark(particle &p, double dist, double angle,

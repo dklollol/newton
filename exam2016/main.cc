@@ -136,12 +136,14 @@ void run(char* host, int port, int device_index) {
     // Wait a little.
     int action = cvWaitKey(4);
     char action_char = (char) action;
-    switch (action_char) {
-    case 'q': // Quit
+    // switch (action_char) {
+    // case 'q': // Quit
+    //   goto after_loop;
+    //   break;
+    // }
+    if (driving_state == finished) {
       goto after_loop;
-      break;
     }
-
     // Grab image.
     TIMER_START();
     get_newest_camera_frame().copyTo(im);
@@ -175,7 +177,8 @@ void run(char* host, int port, int device_index) {
     pos.x = 0.0;
     pos.y = 0.0;
     pos.turn = 0.0;
-    execute_strategy(pp, pos, driving_state, landmark_id,
+    printf("State before execute: %s\n", stateMap[driving_state].c_str());
+    execute_strategy(pp, pos, est_pose, driving_state, landmark_id,
                      measured_distance, measured_angle);
     printf("[ESTIMATE] Relative change: x: %.3lf, y: %.3lf, turn: %.3lf\n",
            pos.x, pos.y, radians_to_degrees(pos.turn));
@@ -202,7 +205,7 @@ void run(char* host, int port, int device_index) {
     TIMER_START();
     est_pose = estimate_pose(particles);
     printf("[ESTIMATE] Current location: x: %.3lf, y: %.3lf, theta: %.3lf\n",
-           est_pose.x, est_pose.y, est_pose.theta);
+           est_pose.x, est_pose.y, radians_to_degrees(est_pose.theta));
     TIMER_END("Estimate pose");
 
     // Draw the landmark in the image if found.

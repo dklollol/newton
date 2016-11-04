@@ -3,9 +3,10 @@
 //string driving_state_name[] = {"searching"};
 
 bool driven = false;
-double stop_dist = 100;
-int turned_angle = 0;
+double stop_dist = 80;
+int angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
+int square_turns = 0;
 void print_visited() {
   printf("landmark 1: %d\n",visited_landmarks[object::landmark1]);
   printf("landmark 2: %d\n",visited_landmarks[object::landmark2]);
@@ -25,17 +26,9 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   
   // Move the robot according to its current state.
   switch (driving_state) {
-  case search_turn: {
-    if (landmark != object::none) {
-      driving_state = approach;
-      break;
-    }
-    turn(pp, pos, degrees_to_radians(5));
-    break;
-  }
   case driving_state_t::align: {
     if (landmark == object::none) {
-      driving_state = search_turn;
+      //   driving_state = searching_random;
       break;
     }
     else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
@@ -51,11 +44,12 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   case approach: {
     // arrived at landmark! 
     if (measured_distance <= stop_dist && landmark != object::none) {
-      stop_dist = measured_distance;
-      turn(pp, pos, degrees_to_radians(90.0));
+      printf("Measured distance: %f\n", measured_distance);
+      turn(pp, pos, degrees_to_radians(100.0));
       drive_around_landmark_remaining_dist = 50;
       driving_state = searching_sqaure;
-      turned_angle = 90;
+      square_turns = 0;
+      angles_to_turn = 90;
       visited_landmarks[landmark] = true;
       print_visited();
     } else {
@@ -65,45 +59,61 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     }
     break;
   }
-  case searching_random: { // redo! 
+  case searching_random: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
       driving_state = approach;
       driven = false;
+      angles_to_turn = 0;
       break;
     }
-    // The robot is turning to find the first landmark.
     if (!driven) {
-      drive(pp, pos, 100);
+      drive(pp, pos, 50);
       driven = true;
       break;
     }
-    turned_angle -= 15;
-    if (turned_angle == 0) {
-      turned_angle = 90;
+    if (angles_to_turn == 0) {
+      angles_to_turn = randf() > 0.5 ? randf()*180 : -1*randf()*180;
     }
-    turn(pp, pos, degrees_to_radians(15.0));
+    if (angles_to_turn < 0) {
+      turn(pp, pos, degrees_to_radians(-5));
+      angles_to_turn += 5;
+    } else {
+      turn(pp, pos, degrees_to_radians(5));
+      angles_to_turn -=5;
+    }
+    if (abs(angles_to_turn) < 5) {
+      driven = false;
+      angles_to_turn = 0;
+    }
     break;
   }
   case searching_sqaure: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
       driving_state = approach;
       driven = false;
+      angles_to_turn = 0;
       break;
     }
     if (!driven) {
       driven = true;
       drive(pp, pos, drive_around_landmark_remaining_dist);
-      drive_around_landmark_remaining_dist = 130;
+      drive_around_landmark_remaining_dist = 110;
       break;
     }
-    turned_angle -= 5;
-    if (turned_angle == 0) {
-      turned_angle = 90;
+    if (angles_to_turn == 0) {
+      angles_to_turn = 90;
       // done turned and should drive next time
       driven = false;
+      square_turns++;
     }
-      turn(pp, pos, degrees_to_radians(-5));
-
+    angles_to_turn -= 5;
+    turn(pp, pos, degrees_to_radians(-5));
+    if (square_turns == 4) {
+      driving_state = searching_random;
+      angles_to_turn = 0;
+    }
+    break;
   }
   }
+   
 }

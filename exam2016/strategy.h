@@ -6,16 +6,18 @@
 #include "robot.h"
 #include "misc.h"
 #include "camera.h"
+#include "random_numbers.h"
 
 
 enum driving_state_t {search_turn, searching_sqaure, searching_random, approach, align};
-//static bool seenlandmarks= []
+//static bool visitedlandmarks= []
 static map<object::type, bool> visited_landmarks = {
   {object::landmark1, false},
   {object::landmark2, false},
   {object::landmark3, false},
   {object::landmark4, false},
 };
+
 static std::map<driving_state_t, string> stateMap = {
   {search_turn, "search_turn"},
   {searching_random, "searching_random"},

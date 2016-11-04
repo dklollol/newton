@@ -33,7 +33,7 @@ tuple<double, double> command_variance(pos_t *pos) {
   double y = pos->y;
   double theta = pos->turn;
   if (x == 0 && y == 0 && theta == 0) {
-    return make_tuple(3, degrees_to_radians(2));
+    return make_tuple(2, degrees_to_radians(2));
   }
   if (x+y == 0) {
     return make_tuple(1, theta/10);

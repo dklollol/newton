@@ -119,7 +119,7 @@ void run(char* host, int port, int device_index) {
   Position2dProxy pp(&robot, device_index);
 
   // States
-  driving_state_t driving_state = search_turn;
+  driving_state_t driving_state = searching_random;
   pos_t pos;
   object::type landmark_id;
   double measured_distance;
@@ -153,23 +153,16 @@ void run(char* host, int port, int device_index) {
     printf("[LANDMARK DETECTION] %s\n", object::name(landmark_id).c_str());
     TIMER_END("Locate landmark");
 
-    if (landmark_id != object::none) {
+    // if (landmark_id != object::none) {
       printf("[MEASUREMENTS] Distance: %.3lf, angle: %.3lf, rgb: (%.3lf, %.3lf, %.3lf)\n",
              measured_distance, measured_angle, cp.red, cp.green, cp.blue);
-    }
+      //}
 
     // Correction step: Compute particle weights.
     TIMER_START();
-    if (landmark_id == object::none) {
-      // No observation; reset weights to uniform distribution.
-      for (int i = 0; i < num_particles; i++) {
-        particles[i].weight = 1.0 / (double) num_particles;
-      }
-    }
-    else {
-      calculate_weights(&particles, measured_distance, measured_angle,
+    calculate_weights(&particles, measured_distance, measured_angle,
                         landmark_id);
-    }
+
     TIMER_END("Set particle weights");
 
     // Resampling step.

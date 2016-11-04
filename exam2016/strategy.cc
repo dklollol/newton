@@ -13,7 +13,26 @@ void print_visited() {
   printf("landmark 3: %d\n",visited_landmarks[object::landmark3]);
   printf("landmark 4: %d\n",visited_landmarks[object::landmark4]);
 }
-void execute_strategy(Position2dProxy &pp, pos_t &pos,
+
+object::type next_landmark() {
+  for (auto& landmark : visited_landmarks) {
+    if (!landmark.second)
+      return landmark.first;
+  }
+  // should not happen but never knows!
+  return object::none;
+}
+
+bool particle_filter_usable() {
+  int i = 0;
+  for (auto& landmark : seen_landmarks) {
+    if (landmark.second) {
+      i++;
+    }
+  }
+  return i >= 2;
+}
+void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
                       double measured_distance, double measured_angle) {
   double landmark_y;
@@ -26,6 +45,15 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   
   // Move the robot according to its current state.
   switch (driving_state) {
+  case goto_landmark: {
+    double x;
+    double y;
+    object::type n_landmark = next_landmark();
+    decide_landmark(n_landmark, &x, &y);
+    printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(landmark).c_str(),
+           x , y);
+    break;
+  }
   case driving_state_t::align: {
     if (landmark == object::none) {
       //   driving_state = searching_random;
@@ -42,6 +70,10 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
     break;
   }
   case approach: {
+    if (particle_filter_usable) {
+      GOTO(goto_landmark);
+      break;
+    }
     // arrived at landmark! 
     if (measured_distance <= stop_dist && landmark != object::none) {
       printf("Measured distance: %f\n", measured_distance);
@@ -61,6 +93,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   }
   case searching_random: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
+      seen_landmarks[landmark] = true;
       driving_state = approach;
       driven = false;
       angles_to_turn = 0;
@@ -90,6 +123,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
   case searching_sqaure: {
     if (landmark != object::none && !visited_landmarks[landmark]) {
       driving_state = approach;
+      seen_landmarks[landmark] = true;
       driven = false;
       angles_to_turn = 0;
       break;
@@ -100,6 +134,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos,
       drive_around_landmark_remaining_dist = 110;
       break;
     }
+    
     if (angles_to_turn == 0) {
       angles_to_turn = 90;
       // done turned and should drive next time

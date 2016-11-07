@@ -20,7 +20,7 @@ $(EXECUTABLE): $(OBJECTS)
 
 # Compile
 %.o: %.cc
-	$(CXX) $(CXXFLAGS) -c $(patsubst %.o, %.cc, $<)
+	$(CXX) $(CXXFLAGS) -o $@ -c $(patsubst %.o, %.cc, $<)
 
 # Clean
 clean:

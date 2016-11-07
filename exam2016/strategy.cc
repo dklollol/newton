@@ -8,7 +8,7 @@
 
 bool driven = false;
 double stop_dist = 80;
-int angles_to_turn = 0;
+double angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
 void print_landmark_status() {
@@ -128,6 +128,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     if (angles_to_turn == 0) {
       angles_to_turn = randf() > 0.5 ? randf()*180 : -1*randf()*180;
     }
+    /*
     if (angles_to_turn < 0) {
       turn(pp, pos, degrees_to_radians(-5));
       angles_to_turn += 5;
@@ -135,9 +136,15 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
       turn(pp, pos, degrees_to_radians(5));
       angles_to_turn -=5;
     }
+
     if (abs(angles_to_turn) < 5) {
       driven = false;
       angles_to_turn = 0;
+    }
+    */
+
+    if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {
+      driven = false;
     }
     break;
   }
@@ -165,8 +172,13 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
       driven = false;
       square_turns++;
     }
+    /*
     angles_to_turn -= 5;
     turn(pp, pos, degrees_to_radians(-5));
+    */
+
+    handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5));
+
     if (square_turns == 4) {
       GOTO(searching_random);
       angles_to_turn = 0;

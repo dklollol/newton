@@ -18,4 +18,6 @@ void turn(Position2dProxy &pp, pos_t &pos, double turn_rad);
 
 void drive(Position2dProxy &pp, pos_t &pos, double dist_cm);
 
+bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad);
+
 #endif

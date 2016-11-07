@@ -21,3 +21,19 @@ void drive(Position2dProxy &pp, pos_t &pos, double dist_cm) {
   pos.x = pos.x + dist_cm * cos(pos.turn);
   pos.y = pos.y + dist_cm * sin(pos.turn);
 }
+
+bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad) {
+  if (angle_var < 0) {
+    turn(pp, pos, -turn_rad);
+    angle_var += radians_to_degrees(turn_rad);
+    } else {
+    turn(pp, pos, turn_rad);
+    angle_var -= radians_to_degrees(turn_rad);
+  }
+  if (abs(angle_var) < radians_to_degrees(turn_rad)) {
+    angle_var = 0;
+    return true;
+    } else {
+    return false;
+  }
+}

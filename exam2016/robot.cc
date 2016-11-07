@@ -37,7 +37,7 @@ double check_left(IrProxy &ir) {
 
 void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t &pos) {
   robot.Read();
-  double threshold = 4.5;
+  double threshold = 1.5;
   double angle_turned = 0;
   double right = check_right(ir);
   double left = check_left(ir);
@@ -53,7 +53,7 @@ void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t
     left = check_left(ir);
     robot.Read();
   }
-  drive(robot, pp, ir, pos, 40);
+  drive(robot, pp, ir, pos, 40, false);
   turn(pp, pos, -angle_turned);
 }
 
@@ -67,7 +67,7 @@ void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
 }
 
 void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
-           pos_t &pos, double dist_cm) {
+           pos_t &pos, double dist_cm, bool avoid_obstacles) {
   const double speed_cm = 20.0;
   const size_t n_time_slots = 10;
   const double ir_threshold = 0.5;
@@ -80,7 +80,7 @@ void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
   bool found_obstacle = false;
   pp.SetSpeed(speed_cm / 100.0, 0.0);
   for (size_t i = 0; i < n_time_slots; i++) {
-    if (check_sensors(robot, pp, ir, ir_threshold)) {
+    if (avoid_obstacles && check_sensors(robot, pp, ir, ir_threshold)) {
       found_obstacle = true;
       break;
     }
@@ -107,10 +107,11 @@ bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double t
     turn(pp, pos, turn_rad);
     angle_var -= radians_to_degrees(turn_rad);
   }
-  if (abs(angle_var) < radians_to_degrees(turn_rad)) {
-    angle_var = 0;
-    return true;
-    } else {
-    return false;
-  }
+  return abs(angle_var < radians_to_degrees(turn_rad));
+  // if (abs(angle_var) < radians_to_degrees(turn_rad)) {
+  //   angle_var = 0;
+  //   return true;
+  //   } else {
+  //   return false;
+  // }
 }

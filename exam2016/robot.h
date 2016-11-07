@@ -17,7 +17,7 @@ struct pos_t {
 void turn(Position2dProxy &pp, pos_t &pos, double turn_rad);
 
 void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
-           pos_t &pos, double dist_cm);
+           pos_t &pos, double dist_cm, bool avoid_obstaclesx);
 
 bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad);
 

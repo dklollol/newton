@@ -1,6 +1,5 @@
 #include "strategy.h"
 
-//string driving_state_name[] = {"searching"};
 
 #define GOTO(driving_state_new) \
   printf("[STATE CHANGE] %s -> %s\n", stateMap[driving_state].c_str(), stateMap[driving_state_new].c_str()); \
@@ -12,17 +11,15 @@ double stop_dist = 80;
 int angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
-void print_visited() {
-  printf("landmark 1: %d\n", visited_landmarks[object::landmark1]);
-  printf("landmark 2: %d\n", visited_landmarks[object::landmark2]);
-  printf("landmark 3: %d\n", visited_landmarks[object::landmark3]);
-  printf("landmark 4: %d\n", visited_landmarks[object::landmark4]);
-}
-void print_seen() {
-  printf("landmark 1: %d\n", seen_landmarks[object::landmark1]);
-  printf("landmark 2: %d\n", seen_landmarks[object::landmark2]);
-  printf("landmark 3: %d\n", seen_landmarks[object::landmark3]);
-  printf("landmark 4: %d\n", seen_landmarks[object::landmark4]);
+void print_landmark_status() {
+  printf("Seen landmark 1? %d and visited?: %d\n", seen_landmarks[object::landmark1],
+         visited_landmarks[object::landmark1]);
+  printf("Seen landmark 2? %d and visited?: %d\n", seen_landmarks[object::landmark2],
+         visited_landmarks[object::landmark2]);
+  printf("Seen landmark 3? %d and visited?: %d\n", seen_landmarks[object::landmark3],
+         visited_landmarks[object::landmark3]);
+  printf("Seen landmark 4? %d and visited?: %d\n", seen_landmarks[object::landmark4],
+         visited_landmarks[object::landmark4]);
 }
 
 object::type next_landmark() {
@@ -104,7 +101,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
       square_turns = 0;
       angles_to_turn = 90;
       visited_landmarks[landmark] = true;
-      print_visited();
+      print_landmark_status();
     } else {
       drive(pp, pos,
             clamp(measured_distance - stop_dist, 0.0, 15.0));

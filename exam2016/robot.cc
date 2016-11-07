@@ -3,6 +3,37 @@
 #include "particles.h"
 #include "misc.h"
 
+// //tba return type
+// double check_right(IrProxy &ir) {
+//   return ir.GetRange()()()
+// }
+
+float ir_correction(int index, IrProxy &ir) {
+  return ir.GetRange(index) * 0.93569 - 0.103488;
+}
+
+bool check_sensor(int index, float threshold, IrProxy &ir) {	
+  return (ir_correction(index, ir) < threshold);
+}
+
+bool check_sensors(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, double threshold) {
+  robot.Read();
+  for (int i = 2; i < 9; i++) {
+    if (check_sensor(i, threshold, ir)) {
+      pp.SetSpeed(0, 0);
+      return true;
+    }
+  }
+  return false;
+}
+
+double check_right(IrProxy &ir) {
+  return ir_correction(3, ir) + ir_correction(5, ir) + ir_correction(6, ir);
+}
+
+double check_left(IrProxy &ir) {
+  return ir_correction(4, ir) + ir_correction(7, ir) + ir_correction(8, ir);
+}
 
 void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
   const double turn_speed = degrees_to_radians(20);
@@ -13,13 +44,32 @@ void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
   pos.turn += turn_rad;
 }
 
-void drive(Position2dProxy &pp, pos_t &pos, double dist_cm) {
+void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
+           pos_t &pos, double dist_cm) {
   const double speed_cm = 20.0;
+  const size_t n_time_slots = 10;
+  const double ir_threshold = 0.5;
+  
+  double sleep_dur = fabs(dist_cm / speed_cm);
+  double sleep_slot_dur = sleep_dur / n_time_slots;
+
+  double time_start = current_time();
+  double time_end = time_start + sleep_dur;
+  
   pp.SetSpeed(speed_cm / 100.0, 0.0);
-  sleep(fabs(dist_cm / speed_cm));
+  for (size_t i = 0; i < n_time_slots; i++) {
+    if (check_sensors(robot, pp, ir, ir_threshold)) {
+      break;
+    }
+    double time_target = time_start + (i + 1) * sleep_slot_dur; 
+    sleep(time_target - current_time());
+  }
+  double time_diff = current_time() - time_start;
   pp.SetSpeed(0.0, 0.0);
-  pos.x = pos.x + dist_cm * cos(pos.turn);
-  pos.y = pos.y + dist_cm * sin(pos.turn);
+  double dur_ratio = time_diff / sleep_dur;
+  double dist_cm_actual = dist_cm * dur_ratio;
+  pos.x = pos.x + dist_cm_actual * cos(pos.turn);
+  pos.y = pos.y + dist_cm_actual * sin(pos.turn);
 }
 
 bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad) {

@@ -1,4 +1,5 @@
 #include "strategy.h"
+#include "robot.h"
 
 
 #define GOTO(driving_state_new) \
@@ -32,14 +33,6 @@ object::type next_landmark() {
   return object::none;
 }
 
-float ir_correction(int index, IrProxy &ir) {
-  return ir.GetRange(index) * 0.93569 - 0.103488;
-}
-
-bool check_sensor(int index, float threshold, IrProxy &ir) {	
-  return (ir_correction(index, ir) < threshold);
-}
-
 bool particle_filter_usable() {
   int i = 0;
   for (auto& landmark : seen_landmarks) {
@@ -48,31 +41,6 @@ bool particle_filter_usable() {
     }
   }
   return i >= 2;
-}
-
-
-// //tba return type
-// double check_right(IrProxy &ir) {
-//   return ir.GetRange()()()
-// }
-
-bool check_sensors(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, double threshold) {
-  robot.Read();
-  for (int i = 2; i < 9; i++) {
-    if (check_sensor(i, threshold, ir)) {
-      pp.SetSpeed(0, 0);
-      return true;
-    }
-  }
-  return false;
-}
-
-double check_right(IrProxy &ir) {
-  return ir_correction(3, ir) + ir_correction(5, ir) + ir_correction(6, ir);
-}
-
-double check_left(IrProxy &ir) {
-  return ir_correction(4, ir) + ir_correction(7, ir) + ir_correction(8, ir);
 }
 
 void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t &pos) {
@@ -93,9 +61,10 @@ void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t
     left = check_left(ir);
     robot.Read();
   }
-  drive(pp, pos, 40);
+  drive(robot, pp, ir, pos, 40);
   turn(pp, pos, -angle_turned);
 }
+
 void execute_strategy(PlayerClient &robot,
                       Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
@@ -121,7 +90,7 @@ void execute_strategy(PlayerClient &robot,
     printf("We should turn : %f degress\n", radians_to_degrees(angle));
     printf("we should drive : %f cm\n", dist);
     turn(pp, pos, angle);
-    drive(pp, pos, dist);
+    drive(robot, pp, ir, pos, dist);
     
     visited_landmarks[landmark] = true;
     if (n_landmark == object::landmark4) {
@@ -163,7 +132,7 @@ void execute_strategy(PlayerClient &robot,
       visited_landmarks[landmark] = true;
       print_landmark_status();
     } else {
-      drive(pp, pos,
+      drive(robot, pp, ir, pos,
             clamp(measured_distance - stop_dist, 0.0, 15.0));
       GOTO(driving_state_t::align); // Make sure it's still aligned.
     }
@@ -180,7 +149,7 @@ void execute_strategy(PlayerClient &robot,
       }
     }
     if (!driven) {
-      drive(pp, pos, 50);
+      drive(robot, pp, ir, pos, 50);
       driven = true;
       break;
     }
@@ -219,7 +188,7 @@ void execute_strategy(PlayerClient &robot,
     }
     if (!driven) {
       driven = true;
-      drive(pp, pos, drive_around_landmark_remaining_dist);
+      drive(robot, pp, ir, pos, drive_around_landmark_remaining_dist);
       drive_around_landmark_remaining_dist = 110;
       break;
     }

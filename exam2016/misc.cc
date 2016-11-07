@@ -84,3 +84,12 @@ void say_async(string text) {
                + string(text)
                + string("' &")).c_str());
 }
+
+double current_time() {
+  struct timeval val;
+  double time;
+  gettimeofday(&val, NULL);
+  time = ((double) val.tv_sec
+          + (double) val.tv_usec / 1000000.0);
+  return time;
+}

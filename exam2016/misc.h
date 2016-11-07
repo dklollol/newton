@@ -2,6 +2,7 @@
 #define EXAM2016_MISC_H
 #include <tuple>
 #include "robot.h"
+#include <sys/time.h>
 
 #include <libplayerc++/playerc++.h>
 using namespace PlayerCc;
@@ -26,5 +27,6 @@ void say_sync(string text);
 
 void say_async(string text);
 
+double current_time();
 
 #endif

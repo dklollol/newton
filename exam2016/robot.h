@@ -16,8 +16,19 @@ struct pos_t {
 
 void turn(Position2dProxy &pp, pos_t &pos, double turn_rad);
 
-void drive(Position2dProxy &pp, pos_t &pos, double dist_cm);
+void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
+           pos_t &pos, double dist_cm);
 
 bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad);
+
+float ir_correction(int index, IrProxy &ir);
+
+bool check_sensor(int index, float threshold, IrProxy &ir);
+
+bool check_sensors(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, double threshold);
+
+double check_right(IrProxy &ir);
+
+double check_left(IrProxy &ir);
 
 #endif

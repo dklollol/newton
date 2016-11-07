@@ -7,7 +7,7 @@ PKGLIBS = -lpthread `pkg-config opencv playerc++ --libs`
 
 # Sources
 EXECUTABLE = main
-SOURCES = particles.cc random_numbers.cc camera.cc robot.cc draw.cc misc.cc strategy.cc timing.cc
+SOURCES = particles.cc random_numbers.cc camera.cc robot.cc draw.cc misc.cc strategy.cc timing.cc green-partition/cam.cc
 CCFILES = $(EXECUTABLE).cc $(SOURCES)
 OBJECTS = $(patsubst %.cc, %.o, $(CCFILES))
 

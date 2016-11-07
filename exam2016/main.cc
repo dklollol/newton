@@ -20,7 +20,7 @@
 #include "random_numbers.h"
 #include "strategy.h"
 #include "timing.h"
-
+#include "green-partition/cam.h"
 
 using namespace std;
 using namespace cv;
@@ -38,6 +38,7 @@ mutex camera_mutex;
 condition_variable camera_condition_variable;
 bool camera_is_grabbing;
 Mat camera_current_frame;
+std::vector<Box> boxes;
 
 void grab_from_camera(camera cam) {
   unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
@@ -117,6 +118,7 @@ void run(char* host, int port, int device_index) {
   PlayerClient robot(host, port);
   set_pull_mode(robot);
   Position2dProxy pp(&robot, device_index);
+  IrProxy ir(&robot, device_index);
 
   // States
   driving_state_t driving_state = searching_random;
@@ -149,6 +151,11 @@ void run(char* host, int port, int device_index) {
     get_newest_camera_frame().copyTo(im);
     TIMER_END("Read from camera");
 
+    // Get green boxes.
+    TIMER_START();
+    boxes = process_vertical_lines(im);
+    TIMER_END("Found green boxes");
+
     // Do landmark detection.
     TIMER_START();
     landmark_id = cam.get_object(im, cp, measured_distance, measured_angle);
@@ -178,7 +185,7 @@ void run(char* host, int port, int device_index) {
     pos.y = 0.0;
     pos.turn = 0.0;
     printf("State before execute: %s\n", stateMap[driving_state].c_str());
-    execute_strategy(pp, pos, est_pose, driving_state, landmark_id,
+    execute_strategy(pp, ir, pos, est_pose, driving_state, landmark_id,
                      measured_distance, measured_angle);
     printf("[ESTIMATE] Relative change: x: %.3lf, y: %.3lf, turn: %.3lf\n",
            pos.x, pos.y, radians_to_degrees(pos.turn));

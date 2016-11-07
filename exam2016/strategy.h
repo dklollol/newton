@@ -36,7 +36,7 @@ static std::map<driving_state_t, string> stateMap = {
   {finished, "finished"}
 };
 
-void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
+void execute_strategy(Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
                       double measured_distance, double measured_angle);
 

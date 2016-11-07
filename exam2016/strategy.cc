@@ -7,7 +7,7 @@
 
 
 bool driven = false;
-double stop_dist = 80;
+double stop_dist = 90;
 double angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
@@ -49,15 +49,14 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
   // double landmark_x;
   // decide_landmark(landmark, &landmark_x, &landmark_y);
 
-  // string state_name = stateMap[driving_state];
-  // printf("[STATE] %s\n", state_name.c_str());
+  string state_name = stateMap[driving_state];
+  printf("[STATE] %s\n", state_name.c_str());
   // say_async(state_name);
   
   // Move the robot according to its current state.
   switch (driving_state) {
   case goto_landmark: {
-    double x;
-    double y;
+    double x; double y;
     object::type n_landmark = next_landmark();
     decide_landmark(n_landmark, &x, &y);
     printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
@@ -68,6 +67,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     printf("we should drive : %f cm\n", dist);
     turn(pp, pos, angle);
     drive(pp, pos, dist);
+    
     visited_landmarks[landmark] = true;
     if (n_landmark == object::landmark4) {
       GOTO(finished);
@@ -100,7 +100,7 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     // arrived at landmark! 
     if (measured_distance <= stop_dist && landmark == next_landmark()) {
       printf("Measured distance: %f\n", measured_distance);
-      turn(pp, pos, degrees_to_radians(100.0));
+      turn(pp, pos, degrees_to_radians(95.0));
       drive_around_landmark_remaining_dist = 50;
       GOTO(searching_sqaure);
       square_turns = 0;

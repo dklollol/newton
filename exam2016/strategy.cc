@@ -33,6 +33,14 @@ object::type next_landmark() {
   return object::none;
 }
 
+float ir_correction(float range) {
+  return range * 0.93569 - 0.103488;
+}
+
+bool check_sensor(int index, float threshold, IrProxy &ir) {	
+  return (ir_correction(ir.GetRange(index)) < threshold);
+}
+
 bool particle_filter_usable() {
   int i = 0;
   for (auto& landmark : seen_landmarks) {
@@ -42,7 +50,7 @@ bool particle_filter_usable() {
   }
   return i >= 2;
 }
-void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
+void execute_strategy(Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
                       double measured_distance, double measured_angle) {
   // double landmark_y;

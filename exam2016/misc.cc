@@ -4,6 +4,10 @@
 
 #include "misc.h"
 
+void set_pull_mode(PlayerClient &robot) {
+  robot.SetDataMode(PLAYER_DATAMODE_PULL);
+  robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
+}
 
 double degrees_to_radians(double degrees) {
   return degrees * M_PI / 180.0;

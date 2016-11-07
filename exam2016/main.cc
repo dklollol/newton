@@ -72,11 +72,6 @@ Mat get_newest_camera_frame() {
   return frame;
 }
 
-void set_pull_mode(PlayerClient &robot) {
-  robot.SetDataMode(PLAYER_DATAMODE_PULL);
-  robot.SetReplaceRule(true, PLAYER_MSGTYPE_DATA, -1, -1);
-}
-
 void run(char* host, int port, int device_index) {
   // Constants
   double world_width = 500.0;
@@ -96,12 +91,12 @@ void run(char* host, int port, int device_index) {
   // Initialize particles.
   const int num_particles = 2000;
   vector<particle> particles(num_particles);
-  vector<particle> particles_resampled(num_particles);
+ 
 
   // Set initial particle values.
   const double offset = 100.0;
   for (int i = 0; i < num_particles; i++) {
-    // Random starting points. (x,y) \in [-1000, 1000]^2, theta \in [-pi, pi].
+    // Random starting points. (x,y) \in [-400, 400]^2, theta \in [-pi, pi].
     particles[i].x = world_width * randf() - offset;
     particles[i].y = world_height * randf() - offset;
     particles[i].theta = 2.0 * M_PI * randf() - M_PI;
@@ -185,7 +180,7 @@ void run(char* host, int port, int device_index) {
     pos.y = 0.0;
     pos.turn = 0.0;
     printf("State before execute: %s\n", stateMap[driving_state].c_str());
-    execute_strategy(pp, ir, pos, est_pose, driving_state, landmark_id,
+    execute_strategy(robot, pp, ir, pos, est_pose, driving_state, landmark_id,
                      measured_distance, measured_angle);
     printf("[ESTIMATE] Relative change: x: %.3lf, y: %.3lf, turn: %.3lf\n",
            pos.x, pos.y, radians_to_degrees(pos.turn));

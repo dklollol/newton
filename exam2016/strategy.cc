@@ -25,7 +25,6 @@ void print_landmark_status() {
 object::type next_landmark() {
   for (auto lm : visited_landmarks) {
     if (!lm.second) {
-      printf("whuhu found next landmark");
       return lm.first;
     }
   }
@@ -33,12 +32,12 @@ object::type next_landmark() {
   return object::none;
 }
 
-float ir_correction(float range) {
-  return range * 0.93569 - 0.103488;
+float ir_correction(int index, IrProxy &ir) {
+  return ir.GetRange(index) * 0.93569 - 0.103488;
 }
 
 bool check_sensor(int index, float threshold, IrProxy &ir) {	
-  return (ir_correction(ir.GetRange(index)) < threshold);
+  return (ir_correction(index, ir) < threshold);
 }
 
 bool particle_filter_usable() {
@@ -50,7 +49,55 @@ bool particle_filter_usable() {
   }
   return i >= 2;
 }
-void execute_strategy(Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
+
+
+// //tba return type
+// double check_right(IrProxy &ir) {
+//   return ir.GetRange()()()
+// }
+
+bool check_sensors(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, double threshold) {
+  robot.Read();
+  for (int i = 2; i < 9; i++) {
+    if (check_sensor(i, threshold, ir)) {
+      pp.SetSpeed(0, 0);
+      return true;
+    }
+  }
+  return false;
+}
+
+double check_right(IrProxy &ir) {
+  return ir_correction(3, ir) + ir_correction(5, ir) + ir_correction(6, ir);
+}
+
+double check_left(IrProxy &ir) {
+  return ir_correction(4, ir) + ir_correction(7, ir) + ir_correction(8, ir);
+}
+
+void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t &pos) {
+  robot.Read();
+  double threshold = 4.5;
+  double angle_turned = 0;
+  double right = check_right(ir);
+  double left = check_left(ir);
+  while(right < threshold || left < threshold) {
+    if (right > left) {
+    turn(pp, pos, degrees_to_radians(5));
+    angle_turned += 5;
+    } else {
+    turn(pp, pos, degrees_to_radians(-5));
+    angle_turned -= 5;
+    }
+    right = check_right(ir);
+    left = check_left(ir);
+    robot.Read();
+  }
+  drive(pp, pos, 40);
+  turn(pp, pos, -angle_turned);
+}
+void execute_strategy(PlayerClient &robot,
+                      Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
                       double measured_distance, double measured_angle) {
   // double landmark_y;

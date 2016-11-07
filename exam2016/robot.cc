@@ -43,11 +43,11 @@ void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t
   double left = check_left(ir);
   while(right < threshold || left < threshold) {
     if (right > left) {
-    turn(pp, pos, degrees_to_radians(5));
-    angle_turned += 5;
+      turn(pp, pos, degrees_to_radians(5));
+      angle_turned += 5;
     } else {
-    turn(pp, pos, degrees_to_radians(-5));
-    angle_turned -= 5;
+      turn(pp, pos, degrees_to_radians(-5));
+      angle_turned -= 5;
     }
     right = check_right(ir);
     left = check_left(ir);

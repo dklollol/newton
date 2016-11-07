@@ -20,7 +20,7 @@
 #include "random_numbers.h"
 #include "strategy.h"
 #include "timing.h"
-
+#include "green-partition/cam.h"
 
 using namespace std;
 using namespace cv;
@@ -38,6 +38,7 @@ mutex camera_mutex;
 condition_variable camera_condition_variable;
 bool camera_is_grabbing;
 Mat camera_current_frame;
+std::vector<Box> boxes;
 
 void grab_from_camera(camera cam) {
   unique_lock<mutex> camera_lock(camera_mutex, defer_lock);
@@ -148,6 +149,11 @@ void run(char* host, int port, int device_index) {
     TIMER_START();
     get_newest_camera_frame().copyTo(im);
     TIMER_END("Read from camera");
+
+    // Get green boxes.
+    TIMER_START();
+    boxes = process_vertical_lines(im);
+    TIMER_END("Found green boxes");
 
     // Do landmark detection.
     TIMER_START();

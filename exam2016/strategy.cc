@@ -45,13 +45,13 @@ bool particle_filter_usable() {
 void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,
                       double measured_distance, double measured_angle) {
-  double landmark_y;
-  double landmark_x;
-  decide_landmark(landmark, &landmark_x, &landmark_y);
+  // double landmark_y;
+  // double landmark_x;
+  // decide_landmark(landmark, &landmark_x, &landmark_y);
 
-  string state_name = stateMap[driving_state];
-  printf("[STATE] %s\n", state_name.c_str());
-  say_async(state_name);
+  // string state_name = stateMap[driving_state];
+  // printf("[STATE] %s\n", state_name.c_str());
+  // say_async(state_name);
   
   // Move the robot according to its current state.
   switch (driving_state) {
@@ -63,12 +63,18 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
            x , y);
     double angle = atan2(x-p.x, y-p.y) - p.theta;
-    double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0));
+    double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0)) - stop_dist;
     printf("We should turn : %f degress\n", radians_to_degrees(angle));
     printf("we should drive : %f cm\n", dist);
     turn(pp, pos, angle);
     drive(pp, pos, dist);
-    GOTO(finished)
+    visited_landmarks[landmark] = true;
+    if (n_landmark == object::landmark4) {
+      GOTO(finished);
+    }
+    else {
+      GOTO(searching_sqaure);
+    }
     break;
   }
   case driving_state_t::align: {
@@ -87,7 +93,6 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     break;
   }
   case approach: {
-    // printf("Can i use particle filter? %d\n", particle_filter_usable());
     if (particle_filter_usable()) {
       GOTO(goto_landmark);
       break;
@@ -112,7 +117,6 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
   case searching_random: {
     if (landmark != object::none) {
       seen_landmarks[landmark] = true;
-      //print_seen();
       if (landmark == next_landmark()) {
         GOTO(approach);
         driven = false;
@@ -151,7 +155,6 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
   case searching_sqaure: {
     if (landmark != object::none) {
       seen_landmarks[landmark] = true;
-      //print_seen();
       if (landmark == next_landmark()) {
         GOTO(approach);
         driven = false;
@@ -184,6 +187,10 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
       angles_to_turn = 0;
       driven = true;
     }
+    break;
+  }
+  case finished: {
+    puts("Nothing to find here.");
     break;
   }
   }

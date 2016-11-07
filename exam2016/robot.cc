@@ -35,6 +35,28 @@ double check_left(IrProxy &ir) {
   return ir_correction(4, ir) + ir_correction(7, ir) + ir_correction(8, ir);
 }
 
+void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t &pos) {
+  robot.Read();
+  double threshold = 4.5;
+  double angle_turned = 0;
+  double right = check_right(ir);
+  double left = check_left(ir);
+  while(right < threshold || left < threshold) {
+    if (right > left) {
+    turn(pp, pos, degrees_to_radians(5));
+    angle_turned += 5;
+    } else {
+    turn(pp, pos, degrees_to_radians(-5));
+    angle_turned -= 5;
+    }
+    right = check_right(ir);
+    left = check_left(ir);
+    robot.Read();
+  }
+  drive(robot, pp, ir, pos, 40);
+  turn(pp, pos, -angle_turned);
+}
+
 void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
   const double turn_speed = degrees_to_radians(20);
   pp.SetSpeed(0.0, turn_speed * ((turn_rad >= 0) ? 1 : -1));
@@ -54,11 +76,12 @@ void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
   double sleep_slot_dur = sleep_dur / n_time_slots;
 
   double time_start = current_time();
-  double time_end = time_start + sleep_dur;
-  
+
+  bool found_obstacle = false;
   pp.SetSpeed(speed_cm / 100.0, 0.0);
   for (size_t i = 0; i < n_time_slots; i++) {
     if (check_sensors(robot, pp, ir, ir_threshold)) {
+      found_obstacle = true;
       break;
     }
     double time_target = time_start + (i + 1) * sleep_slot_dur; 
@@ -70,6 +93,10 @@ void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
   double dist_cm_actual = dist_cm * dur_ratio;
   pos.x = pos.x + dist_cm_actual * cos(pos.turn);
   pos.y = pos.y + dist_cm_actual * sin(pos.turn);
+
+  if (found_obstacle) {
+    avoid_obstacle(robot, pp, ir, pos);
+  }
 }
 
 bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double turn_rad) {

@@ -43,28 +43,6 @@ bool particle_filter_usable() {
   return i >= 2;
 }
 
-void avoid_obstacle(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir, pos_t &pos) {
-  robot.Read();
-  double threshold = 4.5;
-  double angle_turned = 0;
-  double right = check_right(ir);
-  double left = check_left(ir);
-  while(right < threshold || left < threshold) {
-    if (right > left) {
-    turn(pp, pos, degrees_to_radians(5));
-    angle_turned += 5;
-    } else {
-    turn(pp, pos, degrees_to_radians(-5));
-    angle_turned -= 5;
-    }
-    right = check_right(ir);
-    left = check_left(ir);
-    robot.Read();
-  }
-  drive(robot, pp, ir, pos, 40);
-  turn(pp, pos, -angle_turned);
-}
-
 void execute_strategy(PlayerClient &robot,
                       Position2dProxy &pp, IrProxy &ir, pos_t &pos, particle &p,
                       driving_state_t &driving_state, object::type landmark,

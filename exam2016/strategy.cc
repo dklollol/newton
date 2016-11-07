@@ -68,7 +68,13 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
     printf("we should drive : %f cm\n", dist);
     turn(pp, pos, angle);
     drive(pp, pos, dist);
-    GOTO(finished)
+    visited_landmarks[landmark] = true;
+    if (n_landmark == object::landmark4) {
+      GOTO(finished);
+    }
+    else {
+      GOTO(searching_sqaure);
+    }
     break;
   }
   case driving_state_t::align: {
@@ -169,6 +175,10 @@ void execute_strategy(Position2dProxy &pp, pos_t &pos, particle &p,
       angles_to_turn = 0;
       driven = true;
     }
+    break;
+  }
+  case finished: {
+    puts("Nothing to find here.");
     break;
   }
   }

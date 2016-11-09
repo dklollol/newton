@@ -12,7 +12,7 @@ float ir_correction(int index, IrProxy &ir) {
   return ir.GetRange(index) * 0.93569 - 0.103488;
 }
 
-bool check_sensor(int index, float threshold, IrProxy &ir) {	
+bool check_sensor(int index, float threshold, IrProxy &ir) {
   return (ir_correction(index, ir) < threshold);
 }
 
@@ -71,7 +71,7 @@ void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
   const double speed_cm = 20.0;
   const size_t n_time_slots = 10;
   const double ir_threshold = 0.5;
-  
+
   double sleep_dur = fabs(dist_cm / speed_cm);
   double sleep_slot_dur = sleep_dur / n_time_slots;
 
@@ -84,7 +84,7 @@ void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
       found_obstacle = true;
       break;
     }
-    double time_target = time_start + (i + 1) * sleep_slot_dur; 
+    double time_target = time_start + (i + 1) * sleep_slot_dur;
     sleep(time_target - current_time());
   }
   double time_diff = current_time() - time_start;

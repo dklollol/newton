@@ -51,7 +51,7 @@ void execute_strategy(PlayerClient &robot,
   string state_name = stateMap[driving_state];
   printf("[STATE] %s\n", state_name.c_str());
   // say_async(state_name);
-  
+
   // Move the robot according to its current state.
   switch (driving_state) {
   case goto_landmark: {
@@ -66,7 +66,7 @@ void execute_strategy(PlayerClient &robot,
     printf("we should drive : %f cm\n", dist);
     turn(pp, pos, angle);
     drive(robot, pp, ir, pos, dist, true);
-    
+
     visited_landmarks[landmark] = true;
     if (n_landmark == object::landmark4) {
       GOTO(finished);
@@ -96,7 +96,7 @@ void execute_strategy(PlayerClient &robot,
       GOTO(goto_landmark);
       break;
     }
-    // arrived at landmark! 
+    // arrived at landmark!
     if (measured_distance <= stop_dist && landmark == next_landmark()) {
       printf("Measured distance: %f\n", measured_distance);
       turn(pp, pos, degrees_to_radians(95.0));
@@ -153,17 +153,17 @@ void execute_strategy(PlayerClient &robot,
       drive_around_landmark_remaining_dist = 110;
       break;
     }
-    
+
     // if (angles_to_turn == 0) {
     //   angles_to_turn = -90;
     //   // done turned and should drive next time
     //   driven = false;
     //   square_turns++;
     // }
-    
+
     // angles_to_turn -= 5;
     // turn(pp, pos, degrees_to_radians(-5));
-    
+
 
     if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {
       angles_to_turn = -90;
@@ -184,5 +184,5 @@ void execute_strategy(PlayerClient &robot,
     break;
   }
   }
-   
+
 }

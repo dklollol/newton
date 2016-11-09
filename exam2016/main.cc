@@ -91,7 +91,7 @@ void run(char* host, int port, int device_index) {
   // Initialize particles.
   const int num_particles = 2000;
   vector<particle> particles(num_particles);
- 
+
 
   // Set initial particle values.
   const double offset = 100.0;

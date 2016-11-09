@@ -85,9 +85,26 @@ We use the same particle filter as in our exercise 5, with a few additions:
 
 \subsection{Adjustable Variance}
 
-FIXME
+When adding noise to the particles, we vary the noise based on the actions of
+the robot:
 
-Andet nyt?
+\begin{itemize}
+\item If the robot has not moved, we add a small, constant amount of noise.
+\item If the robot has driven forward, but not turned, we add a small angle
+noise, and a larger position noise dependent on how much it has moved.
+\item If the robot has turned, but not driven anywhere, we add a small position
+noise, and a larger angle noise dependent on how much it has turned.
+\end{itemize}
+
+We belive this might improve the precision of our particle filter.  See the
+function \texttt{command_variance} in \texttt{misc.cc} for the implementation.
+
+
+\subsection{Better Landmark Weighting}
+
+We have extended the \texttt{object} type to also have \texttt{landmarkN}
+entries, where $\texttt{N} \in [1..4]$, which are then used when assigning
+weights to the particles.
 
 
 \section{Driving Strategy}

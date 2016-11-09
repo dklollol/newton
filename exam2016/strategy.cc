@@ -8,7 +8,7 @@ driving_state = driving_state_new;
 
 
 bool driven = false;
-double stop_dist = 90;
+double stop_dist = 75;
 double angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
@@ -68,7 +68,7 @@ double measured_distance, double measured_angle) {
       turn(pp, pos, angle);
       drive(robot, pp, ir, pos, dist, true);
       
-      visited_landmarks[n_landmark] = true;
+      //visited_landmarks[n_landmark] = true;
       if (n_landmark == object::landmark4) {
         GOTO(finished);
       }
@@ -81,7 +81,6 @@ double measured_distance, double measured_angle) {
     
     /* APPROACH AND ALIGN */
     case approach: {
-
       // arrived at landmark!
       if (measured_distance <= stop_dist && landmark == next_landmark()) {
         printf("Measured distance: %f\n", measured_distance);
@@ -89,12 +88,12 @@ double measured_distance, double measured_angle) {
         drive_around_landmark_remaining_dist = 50;
         GOTO(searching_sqaure);
         square_turns = 0;
-        angles_to_turn = -90;
+        angles_to_turn = -85;
         visited_landmarks[landmark] = true;
         print_landmark_status();
         break;
         }
-      if (particle_filter_usable()) {
+      if (landmark == object::none && particle_filter_usable()) {
         GOTO(goto_landmark);
         break;
       }
@@ -165,7 +164,7 @@ double measured_distance, double measured_angle) {
       }
       if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {
         printf("I've turned %f degrees\n", 90 + angles_to_turn);
-        angles_to_turn = -90;
+        angles_to_turn = -85;
         // done turned and should drive next time
         driven = false;
         square_turns++;

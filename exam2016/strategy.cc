@@ -83,7 +83,6 @@ double measured_distance, double measured_angle) {
     case approach: {
       // arrived at landmark!
       if (measured_distance <= stop_dist && landmark == next_landmark()) {
-        printf("Measured distance: %f\n", measured_distance);
         turn(pp, pos, degrees_to_radians(92.0));
         drive_around_landmark_remaining_dist = 50;
         GOTO(searching_sqaure);
@@ -93,25 +92,26 @@ double measured_distance, double measured_angle) {
         print_landmark_status();
         break;
         }
-      if (landmark == object::none && particle_filter_usable()) {
+      if (landmark != next_landmark() && particle_filter_usable()) {
         GOTO(goto_landmark);
         break;
       }
         drive(robot, pp, ir, pos,
-        clamp(measured_distance - stop_dist, 0.0, 15.0), false);
+        clamp(measured_distance - stop_dist, 0.0, 15.0), true);
         GOTO(driving_state_t::align); // Make sure it's still aligned.
         break;
     }
     
     case driving_state_t::align: {
-      if (landmark == object::none) {
-        //   driving_state = searching_random;
+      if (landmark != next_landmark()) {
+        if (particle_filter_usable()) {
+          GOTO(goto_landmark);
+        }
         break;
       }
-      else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
+      if (fabs(measured_angle) < degrees_to_radians(5.0)) {
         driving_state = approach;
-      }
-      else {
+      } else {
         turn(pp, pos, clamp(measured_angle,
         degrees_to_radians(-5.0),
         degrees_to_radians(5.0)));

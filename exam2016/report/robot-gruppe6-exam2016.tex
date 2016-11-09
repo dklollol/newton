@@ -26,6 +26,58 @@
 To build the code, run \texttt{make}.  It builds the program \texttt{main}.  We
 use OpenCV 2.4.
 
+Our main loop works like this:
+
+\begin{enumerate}
+\item Get a frame from the webcam.
+\item Detect landmarks by calling \texttt{cam.get_object}.
+\item Compute particle weights.
+\item Resample particles.
+\item Move the robot according to our strategy.
+\item Update particles according to how much the robot has moved.
+\item Add uncertainty.
+\item Estimate pose.
+\item Draw and render for debugging purposes.
+\end{enumerate}
+
+We set the Scorpion robot to always drive with 20 cm per second, and always turn
+with 20 degrees per second.
+
+
+\subsection{Code Profiling}
+
+We would like our solution to be as fast as possible, so we have timed the parts
+of the main loop to see what might be improved.
+
+Most of the steps complete in less than 20 milliseconds.  Only landmark
+detection and robot moving are really time-consuming steps.  We do not dare to
+change the handed out landmark detection code, and we cannot reliably make the
+robot move any faster, so we are stuck with a main loop that spends at least 300
+milliseconds in each iteration.
+
+
+\subsection{Webcam Hack}
+
+Since each iteration of the main loop is pretty slow, and since the webcam
+updates pretty often, we don't use \emph{all} webcam frames, but only the newest
+one whenever the code starts a new loop iteration.
+
+However, OpenCV uses a FIFO buffer for grabbing webcam frames, so that you get
+the first frame in the buffer and not necessarily the \emph{newest} frame.  The
+solution, which is in the handed out code, is to set the property
+\texttt{CV_CAP_PROP_BUFFERSIZE} to $1$, but this property does not work with all
+webcams\footnote{\url{http://docs.opencv.org/2.4/modules/highgui/doc/reading_and_writing_images_and_video.html}},
+including ours.
+
+We had to comment out the \texttt{CV_CAP_PROP_BUFFERSIZE} fix, which resulted in
+us getting outdated frames from our webcam, meaning we had to find another fix.
+
+Our current fix works by starting a thread which continually grabs frames from
+the camera and always stores the newest frame in a global variable, which the
+main loop can then access.  We use a couple of synchronization primitives to
+avoid race conditions.  It appears to work, although it would have been nicer
+had our webcam supported the OpenCV property.
+
 
 \section{Particle Filter}
 
@@ -47,9 +99,6 @@ strategy code is part of the main loop.
 \begin{description}
 \item[searching_random]\hfill\\
 prut\end{description}
-
-
-\section{Webcam Hack}
 
 
 

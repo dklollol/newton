@@ -54,6 +54,7 @@ void execute_strategy(PlayerClient &robot,
 
   // Move the robot according to its current state.
   switch (driving_state) {
+
   case goto_landmark: {
     double x; double y;
     object::type n_landmark = next_landmark();
@@ -76,21 +77,9 @@ void execute_strategy(PlayerClient &robot,
     }
     break;
   }
-  case driving_state_t::align: {
-    if (landmark == object::none) {
-      //   driving_state = searching_random;
-      break;
-    }
-    else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
-      driving_state = approach;
-    }
-    else {
-      turn(pp, pos, clamp(measured_angle,
-                            degrees_to_radians(-5.0),
-                            degrees_to_radians(5.0)));
-    }
-    break;
-  }
+
+
+    /* APPROACH AND ALIGN */
   case approach: {
     if (particle_filter_usable()) {
       GOTO(goto_landmark);
@@ -113,6 +102,25 @@ void execute_strategy(PlayerClient &robot,
     }
     break;
   }
+
+  case driving_state_t::align: {
+    if (landmark == object::none) {
+      //   driving_state = searching_random;
+      break;
+    }
+    else if (fabs(measured_angle) < degrees_to_radians(5.0)) {
+      driving_state = approach;
+    }
+    else {
+      turn(pp, pos, clamp(measured_angle,
+                            degrees_to_radians(-5.0),
+                            degrees_to_radians(5.0)));
+    }
+    break;
+  }
+
+
+    /* SEARCHING STATES */
   case searching_random: {
     if (landmark != object::none) {
       seen_landmarks[landmark] = true;
@@ -137,6 +145,7 @@ void execute_strategy(PlayerClient &robot,
     }
     break;
   }
+
   case searching_sqaure: {
     if (landmark != object::none) {
       seen_landmarks[landmark] = true;
@@ -179,8 +188,11 @@ void execute_strategy(PlayerClient &robot,
     }
     break;
   }
+
+
+    /* THE END */
   case finished: {
-    puts("Nothing to find here.");
+    puts("Finish (but this will not be printed).");
     break;
   }
   }

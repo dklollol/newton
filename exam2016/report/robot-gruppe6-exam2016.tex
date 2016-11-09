@@ -41,6 +41,8 @@ Our main loop works like this:
 \item Draw and render for debugging purposes.
 \end{enumerate}
 
+See \texttt{run} in \texttt{main.cc} for the implementation.
+
 We set the Scorpion robot to always drive with 20 cm per second, and always turn
 with 20 degrees per second.
 
@@ -112,13 +114,61 @@ weights to the particles.
 \newpage
 \section{Driving Strategy}
 
+When driving the distance is split into 10 moves.  After each move the IR
+sensors are checked for obstacles.  If an obstacle is found, the robot turns
+around it.
+
 We use a state-based approach for our driving strategy: We split the strategy
-into multiple states, and let each state handle a small part.  The driving
-strategy code is part of the main loop.
+into multiple states, and let each state handle a small part.
 
 \begin{description}
 \item[searching_random]\hfill\\
-prut\end{description}
+This is the starting state (on the odd chance that the robot cannot initially
+see the first landmark).
+
+In this state the robot drives and turns randomly until it detects a landmark,
+after which it goes into state \textbf{approach}.
+
+
+\item[searching_square]\hfill\\
+This state is activated whenever the robot has arrived at a landmark.  In this
+state the robot drives around the landmark while it tries to detect the next
+landmark to visit.  This is necessary in at least the beginning, since we cannot
+trust our particle filter until we have detected at least two landmarks (after
+which a single cluster should be forming).
+
+If a landmark is detected, it goes into state \textbf{approach}.  If no landmark
+is detected after driving a full square, it goes into state
+\textbf{searching_random}, after which it will hopefully go into state
+\textbf{approach} at some point.
+
+
+\item[approach]\hfill\\
+In this state the robot approaches a detected landmark, either using just the
+webcam -- if we have only seen a single landmark -- or the particle filter.  It
+goes to either state \textbf{align} or state \textbf{goto_landmark}.
+
+
+\item[align]\hfill\\
+The robot aligns itself to look directly at the current landmark.  When done, it
+goes back to state \textbf{approach}.
+
+
+\item[goto_landmark]\hfill\\
+This state uses the particle filter to determine what robot moves are necessary
+for driving to the next landmark, after which it executes these actions.  When
+it has arrived at the landmark, it goes to state \textbf{searching_square} if
+there are more landmarks left, or state \textbf{finished} if the visited
+landmark was L4.
+
+
+\item[finished]\hfill\\
+Success!
+
+\end{description}
+
+See \texttt{execute_strategy} in \texttt{strategy.cc}, and \texttt{drive} and
+\texttt{turn} in \texttt{robot.cc} for the implementation.
 
 
 \newpage

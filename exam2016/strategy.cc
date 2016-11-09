@@ -50,7 +50,7 @@ void execute_strategy(PlayerClient &robot,
                       double measured_distance, double measured_angle) {
   string state_name = stateMap[driving_state];
   printf("[STATE] %s\n", state_name.c_str());
-  // say_async(state_name);
+  say_async(state_name);
 
   // Move the robot according to its current state.
   switch (driving_state) {

@@ -1,0 +1,61 @@
+\documentclass[a4paper,12pt]{article}
+
+\title{REX Exam 2016}
+\author{Group 6:\\Niels\\Troels\\Mark\\Kristian}
+
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage[utf8]{inputenc}
+\usepackage[british]{babel}
+\usepackage{microtype}
+\usepackage{underscore}
+\usepackage{amsmath}
+\usepackage{graphicx}
+\usepackage[hidelinks]{hyperref}
+
+\setlength{\parskip}{1ex}
+\setlength{\parindent}{0pt}
+\setlength{\parfillskip}{30pt plus 1 fil}
+
+\begin{document}
+
+\maketitle
+\newpage
+\section{Implementation}
+
+To build the code, run \texttt{make}.  It builds the program \texttt{main}.  We
+use OpenCV 2.4.
+
+
+\section{Particle Filter}
+
+We use the same particle filter as in our exercise 5, with a few additions:
+
+\subsection{Adjustable Variance}
+
+FIXME
+
+Andet nyt?
+
+
+\section{Driving Strategy}
+
+We use a state-based approach for our driving strategy: We split the strategy
+into multiple states, and let each state handle a small part.  The driving
+strategy code is part of the main loop.
+
+\begin{description}
+\item[searching_random]\hfill\\
+prut\end{description}
+
+
+\section{Webcam Hack}
+
+
+
+\section{Discussion}
+
+testing, conclusion
+
+
+\end{document}

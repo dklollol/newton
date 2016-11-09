@@ -8,7 +8,7 @@ driving_state = driving_state_new;
 
 
 bool driven = false;
-double stop_dist = 70;
+double stop_dist = 90;
 double angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
@@ -73,8 +73,7 @@ double measured_distance, double measured_angle) {
         GOTO(finished);
       }
       else {
-        GOTO(searching_sqaure);
-        angles_to_turn = -90;
+        GOTO(approach);
       }
       break;
     }
@@ -161,7 +160,7 @@ double measured_distance, double measured_angle) {
       if (!driven) {
         driven = true;
         drive(robot, pp, ir, pos, drive_around_landmark_remaining_dist, false);
-        drive_around_landmark_remaining_dist = 100;
+        drive_around_landmark_remaining_dist = 110;
         break;
       }
       if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {

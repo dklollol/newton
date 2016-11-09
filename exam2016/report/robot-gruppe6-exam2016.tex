@@ -43,7 +43,7 @@ Our main loop works like this:
 
 See \texttt{run} in \texttt{main.cc} for the implementation.
 
-We set the Scorpion robot to always drive with 20 cm per second, and always turn
+We set the Scorpion robot to always drive with 10 cm per second, and always turn
 with 20 degrees per second.
 
 
@@ -82,6 +82,13 @@ avoid race conditions.  It appears to work, although it would have been nicer
 had our webcam supported the OpenCV property.
 
 
+\subsection{Unused features}
+
+We also wrote an algorithm for detecting green boxes.  We intended to use this
+to avoid the green obstacle boxes, but we ended up using just the IR sensors.
+The code is still present in case you are curious.
+
+
 \newpage
 \section{Particle Filter}
 
@@ -111,12 +118,18 @@ entries, where $\texttt{N} \in [1..4]$, which are then used when assigning
 weights to the particles.
 
 
+\subsection{Random Particles}
+
+To make the particle filter more secure against e.g. teleportations, we add a
+few random particles after assigning weights.
+
+
 \newpage
 \section{Driving Strategy}
 
-When driving the distance is split into 10 moves.  After each move the IR
-sensors are checked for obstacles.  If an obstacle is found, the robot turns
-around it.
+When driving, the distance is split into 10 moves.  After each move the code
+might choose to check the IR sensors for obstacles.  If an obstacle is found,
+the robot turns and drives around it.
 
 We use a state-based approach for our driving strategy: We split the strategy
 into multiple states, and let each state handle a small part.
@@ -142,6 +155,8 @@ is detected after driving a full square, it goes into state
 \textbf{searching_random}, after which it will hopefully go into state
 \textbf{approach} at some point.
 
+This state enables IR sensor obstacle avoidance.
+
 
 \item[approach]\hfill\\
 In this state the robot approaches a detected landmark, either using just the
@@ -161,6 +176,8 @@ it has arrived at the landmark, it goes to state \textbf{searching_square} if
 there are more landmarks left, or state \textbf{finished} if the visited
 landmark was L4.
 
+This state enables IR sensor obstacle avoidance.
+
 
 \item[finished]\hfill\\
 Success!
@@ -174,7 +191,26 @@ See \texttt{execute_strategy} in \texttt{strategy.cc}, and \texttt{drive} and
 \newpage
 \section{Discussion}
 
-testing, conclusion
+We have tested our code in multiple ways:
+
+\begin{itemize}
+\item Using just the webcam.  This is useful for figuring out whether our
+particle filter worked.
+\item Using the webcam and the robot with our full program and with a full
+course.  This is obviously useful to see if the code works.
+\item Using the webcam and the robot with a small test program.  This is useful
+for figuring out whether the different components -- robot controls, camera, IR
+sensors -- can work together.
+\end{itemize}
+
+We have made a single test program.  It requires the robot to be positioned in
+the center of the four landmarks, and then turns the robot until it has seen
+them all.  This test aims to test if the particle filter can correctly determine
+in a real situation that the robot is in the center.  It works okay.
+
+We have also run the full program quite a lot, fixing various small bugs.
+However, we have had many problems with the Scorpion robots, so we did not
+manage to run our code on the robot as much as we wanted.
 
 
 \end{document}

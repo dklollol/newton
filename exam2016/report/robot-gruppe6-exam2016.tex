@@ -120,9 +120,9 @@ few random particles after assigning weights.
 \newpage
 \section{Driving Strategy}
 
-When driving the distance is split into 10 moves.  After each move the IR
-sensors are checked for obstacles.  If an obstacle is found, the robot turns
-around it.
+When driving, the distance is split into 10 moves.  After each move the code
+might choose to check the IR sensors for obstacles.  If an obstacle is found,
+the robot turns and drives around it.
 
 We use a state-based approach for our driving strategy: We split the strategy
 into multiple states, and let each state handle a small part.
@@ -148,6 +148,8 @@ is detected after driving a full square, it goes into state
 \textbf{searching_random}, after which it will hopefully go into state
 \textbf{approach} at some point.
 
+This state enables IR sensor obstacle avoidance.
+
 
 \item[approach]\hfill\\
 In this state the robot approaches a detected landmark, either using just the
@@ -166,6 +168,8 @@ for driving to the next landmark, after which it executes these actions.  When
 it has arrived at the landmark, it goes to state \textbf{searching_square} if
 there are more landmarks left, or state \textbf{finished} if the visited
 landmark was L4.
+
+This state enables IR sensor obstacle avoidance.
 
 
 \item[finished]\hfill\\
@@ -197,7 +201,7 @@ the center of the four landmarks, and then turns the robot until it has seen
 them all.  This test aims to test if the particle filter can correctly determine
 in a real situation that the robot is in the center.  It works okay.
 
-We have also run the full program quite a lot, finding various small bugs.
+We have also run the full program quite a lot, fixing various small bugs.
 However, we have had many problems with the Scorpion robots, so we did not
 manage to run our code on the robot as much as we wanted.
 

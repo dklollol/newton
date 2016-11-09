@@ -111,6 +111,12 @@ entries, where $\texttt{N} \in [1..4]$, which are then used when assigning
 weights to the particles.
 
 
+\subsection{Random Particles}
+
+To make the particle filter more secure against e.g. teleportations, we add a
+few random particles after assigning weights.
+
+
 \newpage
 \section{Driving Strategy}
 
@@ -174,7 +180,26 @@ See \texttt{execute_strategy} in \texttt{strategy.cc}, and \texttt{drive} and
 \newpage
 \section{Discussion}
 
-testing, conclusion
+We have tested our code in multiple ways:
+
+\begin{itemize}
+\item Using just the webcam.  This is useful for figuring out whether our
+particle filter worked.
+\item Using the webcam and the robot with our full program and with a full
+course.  This is obviously useful to see if the code works.
+\item Using the webcam and the robot with a small test program.  This is useful
+for figuring out whether the different components -- robot controls, camera, IR
+sensors -- can work together.
+\end{itemize}
+
+We have made a single test program.  It requires the robot to be positioned in
+the center of the four landmarks, and then turns the robot until it has seen
+them all.  This test aims to test if the particle filter can correctly determine
+in a real situation that the robot is in the center.  It works okay.
+
+We have also run the full program quite a lot, finding various small bugs.
+However, we have had many problems with the Scorpion robots, so we did not
+manage to run our code on the robot as much as we wanted.
 
 
 \end{document}

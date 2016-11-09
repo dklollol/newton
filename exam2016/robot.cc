@@ -3,11 +3,6 @@
 #include "particles.h"
 #include "misc.h"
 
-// //tba return type
-// double check_right(IrProxy &ir) {
-//   return ir.GetRange()()()
-// }
-
 float ir_correction(int index, IrProxy &ir) {
   return ir.GetRange(index) * 0.93569 - 0.103488;
 }
@@ -68,7 +63,7 @@ void turn(Position2dProxy &pp, pos_t &pos, double turn_rad) {
 
 void drive(PlayerClient &robot, Position2dProxy &pp, IrProxy &ir,
            pos_t &pos, double dist_cm, bool avoid_obstacles) {
-  const double speed_cm = 20.0;
+  const double speed_cm = 10.0;
   const size_t n_time_slots = 10;
   const double ir_threshold = 0.5;
 
@@ -107,7 +102,7 @@ bool handle_turning(Position2dProxy &pp, pos_t &pos, double &angle_var, double t
     turn(pp, pos, turn_rad);
     angle_var -= radians_to_degrees(turn_rad);
   }
-  return abs(angle_var < radians_to_degrees(turn_rad));
+  return abs(angle_var) < radians_to_degrees(turn_rad);
   // if (abs(angle_var) < radians_to_degrees(turn_rad)) {
   //   angle_var = 0;
   //   return true;

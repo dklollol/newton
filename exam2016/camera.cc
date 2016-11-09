@@ -56,7 +56,7 @@ camera::camera(const int idx, const Size &imsize, bool useLensUnDistort)
   //           << "  Camera.buffersize = " << cam.get(CV_CAP_PROP_BUFFERSIZE) << std::endl;
 
   // Read results in YAML format
-  FileStorage fs("data/calibration_params.yml", FileStorage::READ);
+  FileStorage fs("data/test.yml", FileStorage::READ);
 
   if (!fs.isOpened()) {
     std::cout << "camera::camera: Error - Could not open camera YAML calibration file" << std::endl;

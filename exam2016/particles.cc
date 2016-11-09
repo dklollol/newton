@@ -8,6 +8,7 @@
 #include "misc.h"
 #include "random_numbers.h"
 
+const double offset = 100.0;
 
 particle estimate_pose (vector<particle> &particles) {
   double x_sum = 0, y_sum = 0, cos_sum = 0, sin_sum = 0;
@@ -58,13 +59,6 @@ void move_particle(particle &p, double delta_x, double delta_y,
   p.x += delta_x;
   p.y += delta_y;
   p.theta += delta_turn;
-  if (p.theta > 2*M_PI) {
-    p.theta -= 2*M_PI;
-    return;
-  }
-  if (p.theta < 2*M_PI) {
-    p.theta += 2*M_PI;
-  }
 }
 
 double landmark(particle &p, double dist, double angle,
@@ -109,14 +103,14 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
   }
 }
 
-void resample(vector<particle> *particles) {
+void resample(vector<particle> *particles, object::type landmark_id) {
   size_t num_particles = particles->size();
-
+  size_t extra_particle = landmark_id != object::none ? num_particles*0.01 : 0;
   vector<particle> particles_resampled(num_particles);
   double r = randf() / num_particles;
   double c = particles->at(0).weight;
   size_t i = 0;
-  for (size_t m = 0; m < num_particles; m++) {
+  for (size_t m = 0; m < num_particles-extra_particle; m++) {
     double U = r + m * (1.0 / (double) num_particles);
     while (U > c) {
       i++;
@@ -124,5 +118,16 @@ void resample(vector<particle> *particles) {
     }
     particles_resampled[m] = particles->at(i);
   }
+  
+  for (size_t i = num_particles-extra_particle; i < num_particles; i++) {
+    particle temp; 
+    // Random starting points. (x,y) \in [-400, 400]^2, theta \in [-pi, pi].
+    temp.x = 500 * randf() - offset;
+    temp.y = 500 * randf() - offset;
+    temp.theta = 2.0 * M_PI * randf() - M_PI;
+    temp.weight = 1.0 / (double) num_particles+extra_particle;
+    particles_resampled[i] = temp;
+  }
   *particles = particles_resampled;
+  
 }

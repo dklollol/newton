@@ -8,11 +8,11 @@ driving_state = driving_state_new;
 
 
 bool driven = false;
-double stop_dist = 90;
+double stop_dist = 70;
 double angles_to_turn = 0;
 int drive_around_landmark_remaining_dist = 0;
 int square_turns = 0;
-
+int wait_for_landmark = 0;
 void print_landmark_status() {
   printf("Seen landmark 1? %d and visited?: %d\n", seen_landmarks[object::landmark1],
   visited_landmarks[object::landmark1]);
@@ -61,19 +61,20 @@ double measured_distance, double measured_angle) {
       decide_landmark(n_landmark, &x, &y);
       printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
       x , y);
-      double angle = atan2(x-p.x, y-p.y) - p.theta;
+      double angle = atan2(y-p.y, x-p.y) - p.theta;
       double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0)) - stop_dist;
       printf("We should turn : %f degress\n", radians_to_degrees(angle));
       printf("we should drive : %f cm\n", dist);
       turn(pp, pos, angle);
       drive(robot, pp, ir, pos, dist, true);
       
-      visited_landmarks[landmark] = true;
+      visited_landmarks[n_landmark] = true;
       if (n_landmark == object::landmark4) {
         GOTO(finished);
       }
       else {
         GOTO(searching_sqaure);
+        angles_to_turn = -90;
       }
       break;
     }
@@ -81,26 +82,27 @@ double measured_distance, double measured_angle) {
     
     /* APPROACH AND ALIGN */
     case approach: {
-      if (particle_filter_usable()) {
-        GOTO(goto_landmark);
-        break;
-      }
+
       // arrived at landmark!
       if (measured_distance <= stop_dist && landmark == next_landmark()) {
         printf("Measured distance: %f\n", measured_distance);
-        turn(pp, pos, degrees_to_radians(95.0));
+        turn(pp, pos, degrees_to_radians(92.0));
         drive_around_landmark_remaining_dist = 50;
         GOTO(searching_sqaure);
         square_turns = 0;
         angles_to_turn = -90;
         visited_landmarks[landmark] = true;
         print_landmark_status();
-        } else {
+        break;
+        }
+      if (particle_filter_usable()) {
+        GOTO(goto_landmark);
+        break;
+      }
         drive(robot, pp, ir, pos,
         clamp(measured_distance - stop_dist, 0.0, 15.0), false);
         GOTO(driving_state_t::align); // Make sure it's still aligned.
-      }
-      break;
+        break;
     }
     
     case driving_state_t::align: {
@@ -127,7 +129,7 @@ double measured_distance, double measured_angle) {
         if (landmark == next_landmark()) {
           GOTO(approach);
           driven = false;
-          angles_to_turn = 0;
+          //angles_to_turn = 0;
           break;
         }
       }
@@ -159,22 +161,11 @@ double measured_distance, double measured_angle) {
       if (!driven) {
         driven = true;
         drive(robot, pp, ir, pos, drive_around_landmark_remaining_dist, false);
-        drive_around_landmark_remaining_dist = 110;
+        drive_around_landmark_remaining_dist = 100;
         break;
       }
-      
-      // if (angles_to_turn == 0) {
-      //   angles_to_turn = -90;
-      //   // done turned and should drive next time
-      //   driven = false;
-      //   square_turns++;
-      // }
-      
-      // angles_to_turn -= 5;
-      // turn(pp, pos, degrees_to_radians(-5));
-      
-      
       if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {
+        printf("I've turned %f degrees\n", 90 + angles_to_turn);
         angles_to_turn = -90;
         // done turned and should drive next time
         driven = false;
@@ -198,12 +189,21 @@ double measured_distance, double measured_angle) {
 
     /* Testing for our particle filter */
     case test_search: {
+      if (landmark != object::none && wait_for_landmark != 0) {
+        seen_landmarks[landmark] = true;
+        wait_for_landmark --;
+        break;
+      }
       if (angles_to_turn == 0) {
         angles_to_turn = 360;
+      }
+      if (particle_filter_usable()) {
+        GOTO(test_goto);
       }
       if (handle_turning(pp, pos, angles_to_turn, degrees_to_radians(5))) {
         GOTO(test_goto);
       }
+      wait_for_landmark = 20;
       break;
     }
 
@@ -213,14 +213,14 @@ double measured_distance, double measured_angle) {
       decide_landmark(n_landmark, &x, &y);
       printf("Next landmark is : %s, located at: (%f,%f)\n", object::name(n_landmark).c_str(),
       x , y);
-      double angle = atan2(x-p.x, y-p.y) - p.theta;
+      double angle = atan2(y-p.y, x-p.y) - p.theta;
       double dist = sqrt(pow(x-p.x, 2.0) + pow(y-p.y, 2.0)) - stop_dist;
       printf("We should turn : %f degress\n", radians_to_degrees(angle));
       printf("we should drive : %f cm\n", dist);
       turn(pp, pos, angle);
-      drive(robot, pp, ir, pos, dist, true);
+      drive(robot, pp, ir, pos, dist, false);
       
-      visited_landmarks[landmark] = true;
+      visited_landmarks[n_landmark] = true;
       if (n_landmark == object::landmark4) {
         GOTO(finished);
       }

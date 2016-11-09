@@ -89,7 +89,7 @@ void run(char* host, int port, int device_index) {
   Mat im;
 
   // Initialize particles.
-  const int num_particles = 2000;
+  const int num_particles = 4000;
   vector<particle> particles(num_particles);
 
 
@@ -138,9 +138,9 @@ void run(char* host, int port, int device_index) {
     //   goto after_loop;
     //   break;
     // }
-    if (driving_state == finished) {
-      goto after_loop;
-    }
+    // if (driving_state == finished) {
+    //   goto after_loop;
+    // }
     // Grab image.
     TIMER_START();
     get_newest_camera_frame().copyTo(im);
@@ -156,7 +156,7 @@ void run(char* host, int port, int device_index) {
     landmark_id = cam.get_object(im, cp, measured_distance, measured_angle);
     printf("[LANDMARK DETECTION] %s\n", object::name(landmark_id).c_str());
     TIMER_END("Locate landmark");
-
+    measured_distance /= 10;
     // if (landmark_id != object::none) {
       printf("[MEASUREMENTS] Distance: %.3lf, angle: %.3lf, rgb: (%.3lf, %.3lf, %.3lf)\n",
              measured_distance, measured_angle, cp.red, cp.green, cp.blue);
@@ -171,7 +171,7 @@ void run(char* host, int port, int device_index) {
 
     // Resampling step.
     TIMER_START();
-    resample(&particles);
+    resample(&particles, landmark_id);
     TIMER_END("Resample particles");
 
     // Driving step.

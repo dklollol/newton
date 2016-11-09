@@ -90,6 +90,6 @@ void calculate_weights(vector<particle> *particles, double dist, double angle,
 /**
  * Resample particles
  */
-void resample(vector<particle> *particles);
+void resample(vector<particle> *particles, object::type landmark_id);
 
 #endif

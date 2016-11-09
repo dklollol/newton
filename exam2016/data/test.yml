@@ -1,5 +1,5 @@
 %YAML:1.0
-ImageSize: [ 1280, 720 ]
+ImageSize: [ 640, 480 ]
 reprojection_error: 5.7419495977167556e-01
 camera_matrix: !!opencv-matrix
    rows: 3

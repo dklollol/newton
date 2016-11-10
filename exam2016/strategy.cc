@@ -50,7 +50,7 @@ driving_state_t &driving_state, object::type landmark,
 double measured_distance, double measured_angle) {
   string state_name = stateMap[driving_state];
   printf("[STATE] %s\n", state_name.c_str());
-  say_async(state_name);
+  say_sync(state_name);
   
   // Move the robot according to its current state.
   switch (driving_state) {
@@ -83,16 +83,20 @@ double measured_distance, double measured_angle) {
     case approach: {
       // arrived at landmark!
       if (measured_distance <= stop_dist && landmark == next_landmark()) {
+        visited_landmarks[landmark] = true;
+        print_landmark_status();
+        if (landmark != object::landmark1) {
+          GOTO(goto_landmark);
+          break;
+        }
         turn(pp, pos, degrees_to_radians(92.0));
         drive_around_landmark_remaining_dist = 50;
         GOTO(searching_sqaure);
         square_turns = 0;
         angles_to_turn = -85;
-        visited_landmarks[landmark] = true;
-        print_landmark_status();
         break;
         }
-      if (landmark != next_landmark() && particle_filter_usable()) {
+      if (landmark != next_landmark() && particle_filter_usable() && landmark != object::none) {
         GOTO(goto_landmark);
         break;
       }
@@ -110,8 +114,9 @@ double measured_distance, double measured_angle) {
         break;
       }
       if (fabs(measured_angle) < degrees_to_radians(5.0)) {
-        driving_state = approach;
+        GOTO(approach);
       } else {
+        printf("I should turn in align!");
         turn(pp, pos, clamp(measured_angle,
         degrees_to_radians(-5.0),
         degrees_to_radians(5.0)));
